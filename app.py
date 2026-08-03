@@ -199,16 +199,14 @@ def check_forex_market_status(now_dt):
 st.sidebar.markdown("### ⚡ QUANT AI SYSTEM SELECTOR")
 st.sidebar.caption("คลิกเลือกเปิดดูระบบการเทรดที่ต้องการ:")
 
-b1 = st.sidebar.button("🌐 ศูนย์กลางรวม 3 ระบบ\n(Master Command Center)", use_container_width=True)
-b2 = st.sidebar.button("📈 ระบบเทรดหุ้น\n(Thai SET & US Stocks)", use_container_width=True)
-b3 = st.sidebar.button("🪙 ระบบเทรดคริปโทฯ\n(24/7 Crypto Quant Bot)", use_container_width=True)
-b4 = st.sidebar.button("💱 ระบบเทรด Forex & ทองคำ\n(24/5 Forex & Gold Bot)", use_container_width=True)
+b1 = st.sidebar.button("🌐 ศูนย์กลางรวม 2 ระบบ\n(Master Command Center)", use_container_width=True)
+b2 = st.sidebar.button("📈 ระบบเทรดหุ้น\n(Thai SET & US Stocks - ทุน ฿100k)", use_container_width=True)
+b3 = st.sidebar.button("🪙 ระบบเทรดคริปโทฯ\n(24/7 Crypto Bot - ทุน ฿200k)", use_container_width=True)
 b5 = st.sidebar.button("🔑 ตั้งค่า Broker API Keys\n(Live Credentials Center)", use_container_width=True)
 
 if b1: st.session_state.active_system = "UNIFIED"
 elif b2: st.session_state.active_system = "STOCK"
 elif b3: st.session_state.active_system = "CRYPTO"
-elif b4: st.session_state.active_system = "FOREX"
 elif b5: st.session_state.active_system = "BROKER_CONFIG"
 
 st.sidebar.markdown("---")
@@ -611,11 +609,10 @@ if st.session_state.active_system == "UNIFIED":
         <span style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: {app_text}; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem;">{check_thai_market_status(now_dt)}</span>
         <span style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: {app_text}; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem;">{check_us_market_status(now_dt)}</span>
         <span style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: {app_text}; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem;">{check_crypto_market_status()}</span>
-        <span style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: {app_text}; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem;">{check_forex_market_status(now_dt)}</span>
         <span style="color: {metric_label_color}; font-weight: 700; font-size: 0.85rem;">⏰ {now_str} (Realtime Live)</span>
         </div>
         <div>
-        <span style="color: {pnl_color}; font-size: 1.35rem; font-weight: 800;">กำไร/ขาดทุนรวม 3 ระบบ: {pnl_sign}฿{unified_pnl['total_pnl_thb']:,.2f} ({pnl_sign}{unified_pnl['total_pnl_pct']:.2f}%)</span>
+        <span style="color: {pnl_color}; font-size: 1.35rem; font-weight: 800;">กำไร/ขาดทุนรวม 2 ระบบ: {pnl_sign}฿{unified_pnl['total_pnl_thb']:,.2f} ({pnl_sign}{unified_pnl['total_pnl_pct']:.2f}%)</span>
         </div>
         </div>
         </div>"""
@@ -766,11 +763,11 @@ if st.session_state.active_system == "UNIFIED":
         with tf_col2:
             st.plotly_chart(fig_harv, use_container_width=True)
     
-    # 3 Asset Class Cards Side-by-Side (Dynamic Modern Green / Red Glassmorphism)
-    st.subheader("📊 เปรียบเทียบผลตอบแทนแยกตามระบบสินทรัพย์")
-    col_sys1, col_sys2, col_sys3 = st.columns(3)
+    # 2 Asset Class Cards Side-by-Side (Dynamic Modern Green / Red Glassmorphism)
+    st.subheader("📊 เปรียบเทียบผลตอบแทน 2 ระบบหลัก")
+    col_sys1, col_sys2 = st.columns(2)
     unified_pnl = get_unified_portfolio_pnl()
-    stock_p, crypto_p, forex_p = unified_pnl['stock_pnl'], unified_pnl['crypto_pnl'], unified_pnl['forex_pnl']
+    stock_p, crypto_p = unified_pnl['stock_pnl'], unified_pnl['crypto_pnl']
     is_dark = (st.session_state.theme_mode == "DARK")
 
     def get_asset_card_style(pnl_val, is_dark_mode):
@@ -818,14 +815,13 @@ if st.session_state.active_system == "UNIFIED":
 
     s_style = get_asset_card_style(stock_p['total_pnl_thb'], is_dark)
     c_style = get_asset_card_style(crypto_p['total_pnl_thb'], is_dark)
-    f_style = get_asset_card_style(forex_p['total_pnl_thb'], is_dark)
     hr_border = 'rgba(255,255,255,0.15)' if is_dark else 'rgba(0,0,0,0.1)'
 
     with col_sys1:
         st.markdown(f"""
         <div style="background: {s_style['bg']}; border: {s_style['border']}; box-shadow: {s_style['shadow']}; border-radius: 20px; padding: 20px; margin-bottom: 20px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="margin:0; color:{s_style['title_color']}; font-weight:800;">📈 ระบบเทรดหุ้น</h3>
+                <h3 style="margin:0; color:{s_style['title_color']}; font-weight:800;">📈 ระบบเทรดหุ้น (ทุน ฿100k)</h3>
                 <span style="font-weight:800; font-size:1.15rem; background:{s_style['badge_bg']}; color:{s_style['badge_text']}; padding:4px 12px; border-radius:12px;">{s_style['pnl_sign']}฿{stock_p['total_pnl_thb']:,.2f}</span>
             </div>
             <p style="color:{s_style['label_color']}; font-size:0.85rem; margin-top:4px; font-weight:600;">หุ้นไทย SET100 & หุ้นสหรัฐฯ</p>
@@ -842,33 +838,16 @@ if st.session_state.active_system == "UNIFIED":
         st.markdown(f"""
         <div style="background: {c_style['bg']}; border: {c_style['border']}; box-shadow: {c_style['shadow']}; border-radius: 20px; padding: 20px; margin-bottom: 20px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="margin:0; color:{c_style['title_color']}; font-weight:800;">🪙 ระบบเทรดคริปโทฯ</h3>
+                <h3 style="margin:0; color:{c_style['title_color']}; font-weight:800;">🪙 ระบบเทรดคริปโทฯ (ทุน ฿200k)</h3>
                 <span style="font-weight:800; font-size:1.15rem; background:{c_style['badge_bg']}; color:{c_style['badge_text']}; padding:4px 12px; border-radius:12px;">{c_style['pnl_sign']}฿{crypto_p['total_pnl_thb']:,.2f}</span>
             </div>
-            <p style="color:{c_style['label_color']}; font-size:0.85rem; margin-top:4px; font-weight:600;">BTC, ETH, SOL, BNB 24/7</p>
+            <p style="color:{c_style['label_color']}; font-size:0.85rem; margin-top:4px; font-weight:600;">BTC, ETH, SOL, BNB 24/7 (รวมเงินทุนจาก Forex)</p>
             <hr style="border-color:{hr_border}; margin:12px 0;">
             <div style="font-size:0.9rem; display:flex; justify-content:space-between; margin-bottom:6px; color:{c_style['title_color']};"><span>มูลค่าพอร์ต:</span> <strong>฿{crypto_p['current_equity']:,.2f}</strong></div>
             <div style="font-size:0.9rem; display:flex; justify-content:space-between; margin-bottom:6px; color:{c_style['title_color']};"><span>เงินสดคงเหลือ:</span> <strong>฿{crypto_p['cash_balance_thb']:,.2f}</strong></div>
             <div style="font-size:0.9rem; display:flex; justify-content:space-between; margin-bottom:6px; color:{c_style['title_color']};"><span>จำนวนเหรียญที่ถือ:</span> <strong>{len(crypto_p['active_positions_detail'])} รายการ</strong></div>
             <div style="font-size:0.88rem; display:flex; justify-content:space-between; margin-top:8px; color:#10b981;"><span>🎯 Take Profit สะสม:</span> <strong>+฿{crypto_p.get('cumulative_take_profit_thb', 0.0):,.2f}</strong></div>
             <div style="font-size:0.88rem; display:flex; justify-content:space-between; color:#ef4444;"><span>🛑 Cut-Loss สะสม:</span> <strong>-฿{crypto_p.get('cumulative_cut_loss_thb', 0.0):,.2f}</strong></div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col_sys3:
-        st.markdown(f"""
-        <div style="background: {f_style['bg']}; border: {f_style['border']}; box-shadow: {f_style['shadow']}; border-radius: 20px; padding: 20px; margin-bottom: 20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="margin:0; color:{f_style['title_color']}; font-weight:800;">💱 ระบบ Forex & ทองคำ</h3>
-                <span style="font-weight:800; font-size:1.15rem; background:{f_style['badge_bg']}; color:{f_style['badge_text']}; padding:4px 12px; border-radius:12px;">{f_style['pnl_sign']}฿{forex_p['total_pnl_thb']:,.2f}</span>
-            </div>
-            <p style="color:{f_style['label_color']}; font-size:0.85rem; margin-top:4px; font-weight:600;">ทองคำ (Gold) & คู่เงินหลัก 24/5</p>
-            <hr style="border-color:{hr_border}; margin:12px 0;">
-            <div style="font-size:0.9rem; display:flex; justify-content:space-between; margin-bottom:6px; color:{f_style['title_color']};"><span>มูลค่าพอร์ต:</span> <strong>฿{forex_p['current_equity']:,.2f}</strong></div>
-            <div style="font-size:0.9rem; display:flex; justify-content:space-between; margin-bottom:6px; color:{f_style['title_color']};"><span>เงินสดคงเหลือ:</span> <strong>฿{forex_p['cash_balance_thb']:,.2f}</strong></div>
-            <div style="font-size:0.9rem; display:flex; justify-content:space-between; margin-bottom:6px; color:{f_style['title_color']};"><span>จำนวนคู่เงินที่ถือ:</span> <strong>{len(forex_p['active_positions_detail'])} รายการ</strong></div>
-            <div style="font-size:0.88rem; display:flex; justify-content:space-between; margin-top:8px; color:#10b981;"><span>🎯 Take Profit สะสม:</span> <strong>+฿{forex_p.get('cumulative_take_profit_thb', 0.0):,.2f}</strong></div>
-            <div style="font-size:0.88rem; display:flex; justify-content:space-between; color:#ef4444;"><span>🛑 Cut-Loss สะสม:</span> <strong>-฿{forex_p.get('cumulative_cut_loss_thb', 0.0):,.2f}</strong></div>
         </div>
         """, unsafe_allow_html=True)
         

@@ -209,7 +209,7 @@ def get_system_pnl(target_category: str = "STOCK", initial_capital: float = 1000
         })
         
     total_pnl_thb = realized_pnl + unrealized_pnl
-    total_pnl_pct = (total_pnl_thb / initial_capital) * 100
+    total_pnl_pct = (total_pnl_thb / initial_capital * 100) if initial_capital > 0 else 0.0
     current_equity = initial_capital + total_pnl_thb
 
     raw_cash = initial_capital + realized_pnl - invested_cash_thb
@@ -248,24 +248,24 @@ def get_realtime_portfolio_pnl(initial_capital: float = 100000.0) -> dict:
 
 def get_unified_portfolio_pnl() -> dict:
     """
-    Computes Master Unified PnL across all 3 systems (Stock, Crypto, Forex).
+    Computes Master Unified PnL across active systems (Stock: ฿100k, Crypto: ฿200k [รวมทุนจาก Forex]).
     Total Initial Capital: 300,000 THB.
     """
     stock_pnl = get_system_pnl("STOCK", 100000.0)
-    crypto_pnl = get_system_pnl("CRYPTO", 100000.0)
-    forex_pnl = get_system_pnl("FOREX", 100000.0)
+    crypto_pnl = get_system_pnl("CRYPTO", 200000.0)
+    forex_pnl = get_system_pnl("FOREX", 0.0)
     
     total_initial = 300000.0
-    total_equity = stock_pnl['current_equity'] + crypto_pnl['current_equity'] + forex_pnl['current_equity']
-    total_cash = stock_pnl['cash_balance_thb'] + crypto_pnl['cash_balance_thb'] + forex_pnl['cash_balance_thb']
-    total_invested = stock_pnl['invested_cash_thb'] + crypto_pnl['invested_cash_thb'] + forex_pnl['invested_cash_thb']
-    total_pnl_thb = stock_pnl['total_pnl_thb'] + crypto_pnl['total_pnl_thb'] + forex_pnl['total_pnl_thb']
+    total_equity = stock_pnl['current_equity'] + crypto_pnl['current_equity']
+    total_cash = stock_pnl['cash_balance_thb'] + crypto_pnl['cash_balance_thb']
+    total_invested = stock_pnl['invested_cash_thb'] + crypto_pnl['invested_cash_thb']
+    total_pnl_thb = stock_pnl['total_pnl_thb'] + crypto_pnl['total_pnl_thb']
     total_pnl_pct = (total_pnl_thb / total_initial) * 100
     
-    total_tp_thb = stock_pnl['cumulative_take_profit_thb'] + crypto_pnl['cumulative_take_profit_thb'] + forex_pnl['cumulative_take_profit_thb']
-    total_cl_thb = stock_pnl['cumulative_cut_loss_thb'] + crypto_pnl['cumulative_cut_loss_thb'] + forex_pnl['cumulative_cut_loss_thb']
+    total_tp_thb = stock_pnl['cumulative_take_profit_thb'] + crypto_pnl['cumulative_take_profit_thb']
+    total_cl_thb = stock_pnl['cumulative_cut_loss_thb'] + crypto_pnl['cumulative_cut_loss_thb']
     
-    all_active_positions = stock_pnl['active_positions_detail'] + crypto_pnl['active_positions_detail'] + forex_pnl['active_positions_detail']
+    all_active_positions = stock_pnl['active_positions_detail'] + crypto_pnl['active_positions_detail']
     
     return {
         'total_initial': total_initial,
