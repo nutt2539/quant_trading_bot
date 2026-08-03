@@ -271,34 +271,33 @@ def get_daily_harvest_comparison_summary() -> dict:
 
 def get_harvest_chart_df(timeframe: str = '1M') -> pd.DataFrame:
     """
-    Generates daily historical harvest chart dataframe for timeframes: 1W, 1M, 3M, 6M, 1Y.
+    Generates daily historical harvest chart dataframe for timeframes: 1W, 1M, 3M, 6M, 1Y using Thailand ICT Time.
+    Merges data from both daily_harvest_tracker.json and autotrade_logs.json.
     """
-    data = load_harvest_data()
-    history = data.get("harvest_history", [])
+    comp = get_daily_harvest_comparison_summary()
+    comp_df = comp['comparison_df']
     
-    days_map = {
-        '1W': 7,
-        '1M': 30,
-        '3M': 90,
-        '6M': 180,
-        '1Y': 365
-    }
+    days_map = {'1W': 7, '1M': 30, '3M': 90, '6M': 180, '1Y': 365}
     num_days = days_map.get(timeframe, 30)
     
-    end_date = datetime.now()
+    end_date = get_thai_now()
     start_date = end_date - timedelta(days=num_days - 1)
-    
     date_range = [ (start_date + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(num_days) ]
     
     daily_sums = { d: 0.0 for d in date_range }
     
-    for item in history:
-        d_str = item.get("date")
-        if d_str in daily_sums:
-            daily_sums[d_str] += float(item.get("harvested_pnl_thb", 0.0))
-            
+    if not comp_df.empty:
+        for _, row in comp_df.iterrows():
+            d_str = str(row['วันที่'])
+            pnl_val = float(row['กำไรสดที่ดึงเก็บ (บาท)'])
+            if d_str in daily_sums:
+                daily_sums[d_str] = pnl_val
+            elif d_str:
+                daily_sums[d_str] = pnl_val
+
+    sorted_dates = sorted(daily_sums.keys())
     df = pd.DataFrame([
-        {"วันที่": d, "กำไรสดที่ดึงเก็บ (บาท)": round(val, 2)} for d, val in daily_sums.items()
+        {"วันที่": d, "กำไรสดที่ดึงเก็บ (บาท)": round(daily_sums[d], 2)} for d in sorted_dates
     ])
     return df
 
