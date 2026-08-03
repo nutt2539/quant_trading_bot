@@ -1,5 +1,16 @@
 [
   {
+    "timestamp": "2026-08-03 21:00:00",
+    "symbol": "ETH-USD",
+    "action": "SELL",
+    "shares": 0.055,
+    "price": 1850.5,
+    "total_thb": 3562.21,
+    "harvested_pnl_thb": 300.0,
+    "reason": "🎯 AI Manual Daily Profit Harvest (เก็บกำไรเข้ากระเป๋าทีละ +฿300.00 บาท)",
+    "ai_summary": "AI คัดเลือก ETH ซึ่งมีผลตอบแทนสูงสุดเพื่อทำกำไรทีละ ฿300.00 บาท"
+  },
+  {
     "timestamp": "2026-08-03 21:48:25",
     "symbol": "GBPUSD=X",
     "action": "SELL",

@@ -1,7 +1,17 @@
 {
   "date": "2026-08-03",
-  "harvested_today_thb": 1094.67,
+  "harvested_today_thb": 1394.67,
   "harvest_history": [
+    {
+      "timestamp": "2026-08-03 21:00:00",
+      "date": "2026-08-03",
+      "symbol": "ETH",
+      "raw_symbol": "ETH-USD",
+      "shares": 0.055,
+      "price": 1850.5,
+      "harvested_pnl_thb": 300.0,
+      "total_trade_thb": 3562.21
+    },
     {
       "timestamp": "2026-08-03 16:57:31",
       "date": "2026-08-03",
