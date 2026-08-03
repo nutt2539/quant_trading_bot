@@ -10,6 +10,13 @@ HARVEST_TRACKER_FILE = "daily_harvest_tracker.json"
 DAILY_MIN_ELIGIBLE_PROFIT = 300.0  # Must have >= ฿300 THB profit to activate
 HARVEST_TARGET_PER_CLICK = 300.0   # Target harvest exactly ฿300 THB per click
 
+def get_thai_now() -> datetime:
+    """
+    Returns current time explicitly in Thailand ICT timezone (UTC+7).
+    Guarantees accurate timestamps whether running on local machine or Cloud VPS (UTC).
+    """
+    return datetime.utcnow() + timedelta(hours=7)
+
 def is_market_open(symbol: str) -> bool:
     """
     Checks if the market for a given symbol is currently OPEN for real-time trading.
@@ -18,7 +25,7 @@ def is_market_open(symbol: str) -> bool:
     - Forex & Gold (=X, GC=F): Mon 05:00 to Sat 04:00 (Thai Time)
     - Crypto (-USD, BTC, ETH, etc.): 24/7 ALWAYS OPEN
     """
-    now = datetime.now()
+    now = get_thai_now()
     weekday = now.weekday()  # 0=Mon, ..., 4=Fri, 5=Sat, 6=Sun
     t = now.time()
     
@@ -71,7 +78,7 @@ def load_harvest_data() -> dict:
         except Exception as e:
             print(f"Error loading harvest data: {e}")
             
-    return {"date": datetime.now().strftime('%Y-%m-%d'), "harvested_today_thb": 0.0, "harvest_history": []}
+    return {"date": get_thai_now().strftime('%Y-%m-%d'), "harvested_today_thb": 0.0, "harvest_history": []}
 
 def save_harvest_data(data: dict):
     try:
@@ -84,7 +91,7 @@ def get_daily_harvest_status() -> dict:
     """
     Computes current eligibility for Daily Profit Harvesting (฿300 THB per click).
     """
-    today_str = datetime.now().strftime('%Y-%m-%d')
+    today_str = get_thai_now().strftime('%Y-%m-%d')
     data = load_harvest_data()
     
     harvested_today = 0.0
@@ -249,8 +256,8 @@ def execute_daily_profit_harvest() -> dict:
     if not is_safe:
         return {'success': False, 'message': f"🛑 ระบบความปลอดภัยปฏิเสธออเดอร์: {safety_msg}"}
 
-    timestamp_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    today_str = datetime.now().strftime('%Y-%m-%d')
+    timestamp_str = get_thai_now().strftime('%Y-%m-%d %H:%M:%S')
+    today_str = get_thai_now().strftime('%Y-%m-%d')
     
     trade_detail = {
         "timestamp": timestamp_str,
