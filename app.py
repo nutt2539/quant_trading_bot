@@ -79,7 +79,7 @@ if "pending_strategy_modal" not in st.session_state:
     st.session_state.pending_strategy_modal = None
 
 if "theme_mode" not in st.session_state:
-    st.session_state.theme_mode = "LIGHT"
+    st.session_state.theme_mode = "DARK"
 
 # Interactive Strategy Confirmation Modal Pop-up
 if hasattr(st, 'dialog'):
