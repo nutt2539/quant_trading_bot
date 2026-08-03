@@ -23,6 +23,9 @@ import robot_control
 from broker_bridge.broker_manager import get_broker_mode, set_broker_mode
 import broker_credentials_manager as bcm
 from utils_tz import get_thai_now_naive, get_thai_str
+import keep_alive
+
+keep_alive.init_keep_alive()
 
 importlib.reload(config)
 importlib.reload(data_loader)
