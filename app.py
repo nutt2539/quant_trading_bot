@@ -24,8 +24,10 @@ from broker_bridge.broker_manager import get_broker_mode, set_broker_mode
 import broker_credentials_manager as bcm
 from utils_tz import get_thai_now_naive, get_thai_str
 import keep_alive
+import server_heartbeat_guard
 
 keep_alive.init_keep_alive()
+server_heartbeat_guard.init_server_guard()
 
 importlib.reload(config)
 importlib.reload(data_loader)
