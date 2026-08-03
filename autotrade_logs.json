@@ -1,5 +1,148 @@
 [
   {
+    "timestamp": "2026-08-04 01:39:44",
+    "symbol": "ADA-USD",
+    "action": "BUY",
+    "shares": 0.0044,
+    "price": 0.19,
+    "total_thb": 0.03,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.7 | Kelly Sizing = ฿0.03 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น ADA-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-04 01:39:42",
+    "symbol": "DOGE-USD",
+    "action": "BUY",
+    "shares": 2.7832,
+    "price": 0.07,
+    "total_thb": 6.85,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.7 | Kelly Sizing = ฿6.85 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น DOGE-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-04 01:39:38",
+    "symbol": "XRP-USD",
+    "action": "BUY",
+    "shares": 130.4075,
+    "price": 1.08,
+    "total_thb": 4936.25,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿4,936.25 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น XRP-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-04 01:39:34",
+    "symbol": "ETH-USD",
+    "action": "BUY",
+    "shares": 0.1529,
+    "price": 1868.76,
+    "total_thb": 10000.67,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.7 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น ETH-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-04 01:39:31",
+    "symbol": "BTC-USD",
+    "action": "BUY",
+    "shares": 0.0045,
+    "price": 63829.93,
+    "total_thb": 10053.21,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น BTC-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-04 01:39:19",
+    "symbol": "NFLX",
+    "action": "BUY",
+    "shares": 1.0,
+    "price": 72.74,
+    "total_thb": 2545.9,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.7 | Kelly Sizing = ฿3,488.06 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น NFLX มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-04 01:39:13",
+    "symbol": "AMD",
+    "action": "BUY",
+    "shares": 1.0,
+    "price": 484.91,
+    "total_thb": 16971.85,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.7 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น AMD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-04 01:39:11",
+    "symbol": "META",
+    "action": "BUY",
+    "shares": 1.0,
+    "price": 590.92,
+    "total_thb": 20682.2,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น META มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-04 01:39:07",
+    "symbol": "TSLA",
+    "action": "BUY",
+    "shares": 1.0,
+    "price": 322.3,
+    "total_thb": 11280.33,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น TSLA มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-04 01:39:04",
+    "symbol": "AMZN",
+    "action": "BUY",
+    "shares": 1.0,
+    "price": 282.61,
+    "total_thb": 9891.18,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น AMZN มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-04 01:39:02",
+    "symbol": "GOOGL",
+    "action": "BUY",
+    "shares": 1.0,
+    "price": 374.61,
+    "total_thb": 13111.35,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น GOOGL มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-04 01:39:00",
+    "symbol": "MSFT",
+    "action": "BUY",
+    "shares": 1.0,
+    "price": 491.17,
+    "total_thb": 17190.78,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น MSFT มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-04 01:38:58",
+    "symbol": "NVDA",
+    "action": "BUY",
+    "shares": 1.0,
+    "price": 207.78,
+    "total_thb": 7272.3,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น NVDA มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
     "timestamp": "2026-08-03 21:00:00",
     "symbol": "ETH-USD",
     "action": "SELL",

@@ -153,45 +153,29 @@ def run_autotrader_cycle():
         alloc_pct, tp_pct, sl_pct, min_ai_sentiment = 20.0, 8.0, -3.5, 0.10
         
     logs = load_auto_logs()
-    all_watchlist = config.US_WATCHLIST + config.THAI_WATCHLIST + config.CRYPTO_WATCHLIST + config.FOREX_WATCHLIST
+    all_watchlist = config.THAI_WATCHLIST + config.US_WATCHLIST + config.CRYPTO_WATCHLIST
     
-    stock_sys = get_system_pnl("STOCK")
-    crypto_sys = get_system_pnl("CRYPTO")
-    forex_sys = get_system_pnl("FOREX")
-    
-    active_stock_syms = {p['ชื่อสินทรัพย์'] for p in stock_sys['active_positions_detail']}
-    active_crypto_syms = {p['ชื่อสินทรัพย์'] for p in crypto_sys['active_positions_detail']}
-    active_forex_syms = {p['ชื่อสินทรัพย์'] for p in forex_sys['active_positions_detail']}
+    thai_sys = get_system_pnl("THAI_STOCK", 100000.0)
+    us_sys = get_system_pnl("US_STOCK", 100000.0)
+    crypto_sys = get_system_pnl("CRYPTO", 100000.0)
     
     for symbol in all_watchlist:
         if not is_market_open(symbol):
             continue
             
         category = get_asset_category(symbol)
-        display_sym = "GOLD (ทองคำ)" if symbol in ["GC=F", "XAUUSD=X"] else symbol.replace("-USD", "").replace("=X", "")
+        display_sym = symbol.replace("-USD", "").replace("=X", "")
         
         # Determine if asset is CURRENTLY HELD in portfolio
         is_currently_held = False
         held_pos_detail = None
         
-        if category == "STOCK":
-            for p in stock_sys['active_positions_detail']:
-                if p.get('ชื่อสินทรัพย์') in [symbol, display_sym]:
-                    is_currently_held = True
-                    held_pos_detail = p
-                    break
-        elif category == "CRYPTO":
-            for p in crypto_sys['active_positions_detail']:
-                if p.get('ชื่อสินทรัพย์') in [symbol, display_sym]:
-                    is_currently_held = True
-                    held_pos_detail = p
-                    break
-        elif category == "FOREX":
-            for p in forex_sys['active_positions_detail']:
-                if p.get('ชื่อสินทรัพย์') in [symbol, display_sym]:
-                    is_currently_held = True
-                    held_pos_detail = p
-                    break
+        target_sys = thai_sys if category == "THAI_STOCK" else (us_sys if category == "US_STOCK" else crypto_sys)
+        for p in target_sys['active_positions_detail']:
+            if p.get('ชื่อสินทรัพย์') in [symbol, display_sym]:
+                is_currently_held = True
+                held_pos_detail = p
+                break
             
         df = fetch_stock_data(symbol, period="6mo")
         if df.empty:
@@ -204,26 +188,32 @@ def run_autotrader_cycle():
         ai_res = analyze_stock_sentiment(symbol)
         sentiment_score = ai_res.get('sentiment_score', 0.0)
         
-        fresh_sys_pnl = get_system_pnl(category)
+        fresh_sys_pnl = get_system_pnl(category, 100000.0)
         sys_cash = fresh_sys_pnl['cash_balance_thb']
         sys_invested = fresh_sys_pnl['invested_cash_thb']
         active_pos_count = len(fresh_sys_pnl['active_positions_detail'])
         
-        # Dynamic Kelly Criterion Position Sizing
-        kelly_res = calculate_kelly_allocation(sys_cash, ai_sentiment_score=sentiment_score, base_allocation_thb=100000.0 * (alloc_pct / 100.0))
+        # Dynamic Kelly Position Sizing (Base ฿10,000 THB to support up to 10 assets & minimize cash)
+        kelly_res = calculate_kelly_allocation(sys_cash, ai_sentiment_score=sentiment_score, base_allocation_thb=10000.0)
         target_alloc_baht = kelly_res["allocated_thb"]
         allocation_amount = min(target_alloc_baht, sys_cash)
+        
+        if allocation_amount < 1000.0 and sys_cash >= 2000.0 and active_pos_count < 10:
+            allocation_amount = sys_cash # Utilize remaining cash to minimize idle cash
+            
         trade_qty = calculate_trade_quantity(symbol, last_price, allocation_thb=allocation_amount)
-        fx_rate = 35.0 if (category != "STOCK" or not symbol.endswith(".BK")) else 1.0
+        fx_rate = 35.0 if not symbol.endswith(".BK") else 1.0
         trade_total_thb = round(trade_qty * last_price * fx_rate, 2)
         
-        # CASE 1: UNHELD ASSET -> ONLY EVALUATE BUY (STRICT BUDGET & POSITION CAP & MTF ALIGNMENT)
+        # CASE 1: UNHELD ASSET -> BUY EVALUATION (UP TO 10 POSITIONS PER SYSTEM, MINIMIZE IDLE CASH)
         if not is_currently_held:
-            if (last_signal == 1) and (sentiment_score >= min_ai_sentiment) and (sys_cash >= trade_total_thb) and (sys_invested + trade_total_thb <= 100000.0) and (active_pos_count < 5):
+            if (last_signal == 1 or sentiment_score >= 0.20) and (sentiment_score >= min_ai_sentiment) and (sys_cash >= trade_total_thb) and (trade_total_thb > 0) and (active_pos_count < 10):
                 # Multi-Timeframe Confluence Check
                 mtf_res = analyze_multi_timeframe(symbol)
-                if not mtf_res.get("is_aligned", True):
-                    print(f"🛑 MTF FILTER: {symbol} 3-Timeframe Confluence Not Aligned (Score: {mtf_res.get('confluence_score')})", flush=True)
+                conf_score = mtf_res.get("confluence_score", 0.50)
+                
+                if conf_score < 0.40:
+                    print(f"🛑 MTF FILTER: {symbol} Confluence Low ({conf_score:.2f})", flush=True)
                     continue
 
                 is_safe, safety_reason = validate_trade_safety(symbol, "BUY", trade_total_thb)
