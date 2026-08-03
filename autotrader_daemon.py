@@ -189,7 +189,7 @@ def run_autotrader_cycle():
         sentiment_score = ai_res.get('sentiment_score', 0.0)
         
         fresh_sys_pnl = get_system_pnl(category, 100000.0)
-        sys_cash = fresh_sys_pnl['cash_balance_thb']
+        sys_cash = fresh_sys_pnl.get('spendable_cash_thb', fresh_sys_pnl['cash_balance_thb'])
         sys_invested = fresh_sys_pnl['invested_cash_thb']
         active_pos_count = len(fresh_sys_pnl['active_positions_detail'])
         

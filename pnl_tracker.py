@@ -190,12 +190,26 @@ def get_system_pnl(target_category: str = "THAI_STOCK", initial_capital: float =
                 'is_profit': pos_pnl_thb >= 0
             })
         
+    # 3. Calculate Total Harvested Profit Vault (LOCKED FROM REINVESTMENT)
+    total_harvested_vault_thb = 0.0
+    try:
+        harvest_file = "daily_harvest_tracker.json"
+        if os.path.exists(harvest_file):
+            with open(harvest_file, "r", encoding="utf-8") as f_h:
+                h_data = json.load(f_h)
+                for item in h_data.get("harvest_history", []):
+                    total_harvested_vault_thb += float(item.get("harvested_pnl_thb", 0.0))
+    except Exception as e:
+        print(f"Error reading harvest tracker: {e}")
+
     total_pnl_thb = realized_pnl + unrealized_pnl
     total_pnl_pct = (total_pnl_thb / initial_capital * 100) if initial_capital > 0 else 0.0
     current_equity = initial_capital + total_pnl_thb
 
     raw_cash = initial_capital + realized_pnl - invested_cash_thb
     cash_balance_thb = max(0.0, raw_cash)
+    spendable_cash_thb = max(0.0, cash_balance_thb - total_harvested_vault_thb)
+
     if raw_cash < 0:
         invested_cash_thb = initial_capital + realized_pnl
         
@@ -211,6 +225,9 @@ def get_system_pnl(target_category: str = "THAI_STOCK", initial_capital: float =
         'initial_capital': initial_capital,
         'current_equity': current_equity,
         'cash_balance_thb': round(cash_balance_thb, 2),
+        'spendable_cash_thb': round(spendable_cash_thb, 2),
+        'harvested_vault_thb': round(total_harvested_vault_thb, 2),
+        'invested_cash_thb': round(invested_cash_thb, 2),
         'invested_cash_thb': round(invested_cash_thb, 2),
         'total_pnl_thb': total_pnl_thb,
         'total_pnl_pct': total_pnl_pct,
