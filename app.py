@@ -720,6 +720,27 @@ if st.session_state.active_system == "UNIFIED":
             
     # Detailed Expander for Daily Harvest Analytics & Transaction Log
     with st.expander("🔍 คลิกดูรายละเอียดประวัติการกดเก็บกำไร & กราฟเปรียบเทียบย้อนหลัง (Daily Profit Harvest)", expanded=False):
+        comp_summary = daily_profit_harvester.get_daily_harvest_comparison_summary()
+        
+        st.markdown("### 🏆 ตารางสรุปการเปรียบเทียบยอดเก็บกำไรย้อนหลัง (Daily Profit Comparison)")
+        m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+        with m_col1:
+            st.metric("💰 เก็บกำไรวันนี้ (Today)", f"฿{comp_summary['today_thb']:,.2f}", f"{comp_summary['pct_vs_yesterday']:+.1f}% vs เมื่อวาน")
+        with m_col2:
+            st.metric("📅 เก็บกำไรเมื่อวาน (Yesterday)", f"฿{comp_summary['yesterday_thb']:,.2f}")
+        with m_col3:
+            st.metric("💎 ยอดเก็บกำไรสะสมรวมทั้งหมด", f"฿{comp_summary['all_time_thb']:,.2f}")
+        with m_col4:
+            st.metric("📊 จำนวนวันที่กดเก็บกำไร", f"{len(comp_summary['comparison_df'])} วัน")
+            
+        st.markdown("#### 📑 ตารางเปรียบเทียบรายวัน (Daily Profit Breakdown)")
+        comp_df = comp_summary['comparison_df']
+        if not comp_df.empty:
+            st.dataframe(comp_df, use_container_width=True)
+        else:
+            st.info("ยังไม่มีข้อมูลประวัติเปรียบเทียบรายวัน")
+
+        st.markdown("---")
         st.markdown("### 📋 รายละเอียดออเดอร์ที่ AI ขายเก็บกำไรวันนี้")
         today_trades = harvest_status.get('today_trades', [])
         if today_trades:

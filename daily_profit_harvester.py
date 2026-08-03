@@ -167,6 +167,108 @@ def record_daily_harvest_detail(trade_item: dict):
     data["harvested_today_thb"] = round(today_total, 2)
     save_harvest_data(data)
 
+def get_daily_harvest_comparison_summary() -> dict:
+    """
+    Generates historical daily harvest comparison metrics, comparison dataframe, and percentage changes.
+    """
+    data = load_harvest_data()
+    history = data.get("harvest_history", [])
+    
+    # Also load harvest actions from autotrade_logs.json to ensure full historical coverage
+    if os.path.exists(TRADE_LOG_FILE):
+        try:
+            with open(TRADE_LOG_FILE, "r", encoding="utf-8") as f:
+                logs = json.load(f)
+                for item in logs:
+                    if "Daily Profit Harvest" in item.get("reason", "") or "เก็บกำไรเข้ากระเป๋า" in item.get("reason", ""):
+                        dt_str = item.get("timestamp", "")[:10]
+                        pnl = float(item.get("harvested_pnl_thb", 300.0))
+                        sym = item.get("symbol", "").replace("-USD", "").replace(".BK", "")
+                        if not any(r.get("date") == dt_str and r.get("symbol") == sym for r in history):
+                            history.append({
+                                "date": dt_str,
+                                "timestamp": item.get("timestamp"),
+                                "symbol": sym,
+                                "harvested_pnl_thb": pnl,
+                                "total_trade_thb": float(item.get("total_thb", 0.0))
+                            })
+        except Exception as e:
+            print(f"Error loading trade logs for harvest comparison: {e}")
+
+    if not history:
+        empty_df = pd.DataFrame(columns=['วันที่', 'กำไรสดที่ดึงเก็บ (บาท)', 'จำนวนครั้งที่กด', 'สินทรัพย์หลัก', 'ยอดสะสมรวม (บาท)', 'การเปลี่ยนแปลง vs วันก่อน (%)'])
+        return {
+            'today_thb': 0.0,
+            'yesterday_thb': 0.0,
+            'all_time_thb': 0.0,
+            'pct_vs_yesterday': 0.0,
+            'comparison_df': empty_df
+        }
+
+    records = []
+    for item in history:
+        d_str = item.get("date") or str(item.get("timestamp", ""))[:10]
+        if d_str:
+            records.append({
+                "date": d_str,
+                "pnl_thb": float(item.get("harvested_pnl_thb", 0.0)),
+                "symbol": str(item.get("symbol", "ETH")).replace("-USD", "").replace(".BK", "")
+            })
+            
+    df_raw = pd.DataFrame(records)
+    if df_raw.empty:
+        empty_df = pd.DataFrame(columns=['วันที่', 'กำไรสดที่ดึงเก็บ (บาท)', 'จำนวนครั้งที่กด', 'สินทรัพย์หลัก', 'ยอดสะสมรวม (บาท)', 'การเปลี่ยนแปลง vs วันก่อน (%)'])
+        return {
+            'today_thb': 0.0,
+            'yesterday_thb': 0.0,
+            'all_time_thb': 0.0,
+            'pct_vs_yesterday': 0.0,
+            'comparison_df': empty_df
+        }
+        
+    daily_grp = df_raw.groupby("date").agg(
+        total_pnl=("pnl_thb", "sum"),
+        clicks=("pnl_thb", "count"),
+        top_asset=("symbol", lambda x: x.value_counts().index[0] if not x.empty else "-")
+    ).reset_index().sort_values("date", ascending=True)
+    
+    daily_grp["cum_pnl"] = daily_grp["total_pnl"].cumsum()
+    daily_grp["pct_change"] = daily_grp["total_pnl"].pct_change() * 100.0
+    daily_grp["pct_change"] = daily_grp["pct_change"].fillna(0.0)
+
+    # Calculate Key Metrics
+    today_str = get_thai_now().strftime('%Y-%m-%d')
+    yesterday_str = (get_thai_now() - timedelta(days=1)).strftime('%Y-%m-%d')
+    
+    today_val = float(daily_grp[daily_grp['date'] == today_str]['total_pnl'].sum()) if today_str in daily_grp['date'].values else 0.0
+    yesterday_val = float(daily_grp[daily_grp['date'] == yesterday_str]['total_pnl'].sum()) if yesterday_str in daily_grp['date'].values else 0.0
+    all_time_val = float(daily_grp['total_pnl'].sum())
+    
+    if yesterday_val > 0:
+        pct_vs_yesterday = ((today_val - yesterday_val) / yesterday_val) * 100.0
+    else:
+        pct_vs_yesterday = 100.0 if today_val > 0 else 0.0
+
+    # Format Display DataFrame
+    display_df = daily_grp.rename(columns={
+        'date': 'วันที่',
+        'total_pnl': 'กำไรสดที่ดึงเก็บ (บาท)',
+        'clicks': 'จำนวนครั้งที่กด',
+        'top_asset': 'สินทรัพย์หลัก',
+        'cum_pnl': 'ยอดสะสมรวม (บาท)',
+        'pct_change': 'การเปลี่ยนแปลง vs วันก่อน (%)'
+    })
+    
+    display_df = display_df.sort_values('วันที่', ascending=False)
+
+    return {
+        'today_thb': round(today_val, 2),
+        'yesterday_thb': round(yesterday_val, 2),
+        'all_time_thb': round(all_time_val, 2),
+        'pct_vs_yesterday': round(pct_vs_yesterday, 2),
+        'comparison_df': display_df
+    }
+
 def get_harvest_chart_df(timeframe: str = '1M') -> pd.DataFrame:
     """
     Generates daily historical harvest chart dataframe for timeframes: 1W, 1M, 3M, 6M, 1Y.
