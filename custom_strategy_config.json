@@ -1,0 +1,10 @@
+{
+  "alloc_pct": 15.0,
+  "tp_pct": 8.0,
+  "sl_pct": -5.0,
+  "rsi_buy": 40,
+  "rsi_sell": 65,
+  "ema_fast": 10,
+  "ema_slow": 20,
+  "ai_min_sentiment": -0.25
+}

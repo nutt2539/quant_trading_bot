@@ -1,0 +1,271 @@
+[
+  {
+    "timestamp": "2026-08-03 16:59:26",
+    "symbol": "ETH-USD",
+    "action": "BUY",
+    "shares": 0.2316,
+    "price": 1850.49,
+    "total_thb": 15000.07,
+    "reason": "[CUSTOM] Signal=BUY & AI Sentiment=+0.35 (Min >= -0.25)",
+    "ai_summary": "หุ้น ETH-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 16:57:31",
+    "symbol": "ETH-USD",
+    "action": "SELL",
+    "shares": 0.2332,
+    "price": 1850.69,
+    "total_thb": 15105.33,
+    "reason": "🎯 AI Manual Daily Profit Harvest (เก็บกำไรเข้ากระเป๋าทีละ +฿103.41 บาท)",
+    "ai_summary": "AI คัดเลือก ETH ซึ่งมีผลตอบแทนสูงสุด (+0.69%) เพื่อทำกำไรทีละ ฿103.41 บาท"
+  },
+  {
+    "timestamp": "2026-08-03 16:36:34",
+    "symbol": "ADA-USD",
+    "action": "SELL",
+    "shares": 1543.4165,
+    "price": 0.19,
+    "total_thb": 10263.72,
+    "reason": "🎯 AI Manual Daily Profit Harvest (เก็บกำไรเข้ากระเป๋าทีละ +฿297.11 บาท)",
+    "ai_summary": "AI คัดเลือก ADA ซึ่งมีผลตอบแทนสูงสุด (+3.06%) เพื่อทำกำไรทีละ ฿297.11 บาท"
+  },
+  {
+    "timestamp": "2026-08-03 16:33:43",
+    "symbol": "ADA-USD",
+    "action": "BUY",
+    "shares": 1543.4165,
+    "price": 0.18,
+    "total_thb": 9988.22,
+    "reason": "[CUSTOM] Signal=BUY & AI Sentiment=+0.35 (Min >= -0.25)",
+    "ai_summary": "หุ้น ADA-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 16:30:37",
+    "symbol": "ADA-USD",
+    "action": "SELL",
+    "shares": 1547.6014,
+    "price": 0.18,
+    "total_thb": 9749.89,
+    "reason": "🎯 AI Manual Daily Profit Harvest (เก็บกำไรเข้ากระเป๋าทีละ +฿238.33 บาท)",
+    "ai_summary": "AI คัดเลือก ADA ซึ่งมีผลตอบแทนสูงสุด (+2.44%) เพื่อทำกำไรทีละ ฿238.33 บาท"
+  },
+  {
+    "timestamp": "2026-08-03 16:30:15",
+    "symbol": "ADA-USD",
+    "action": "BUY",
+    "shares": 1547.6014,
+    "price": 0.18,
+    "total_thb": 9988.22,
+    "reason": "[CUSTOM] Signal=BUY & AI Sentiment=+0.35 (Min >= -0.25)",
+    "ai_summary": "หุ้น ADA-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 16:25:07",
+    "symbol": "ADA-USD",
+    "action": "SELL",
+    "shares": 1547.6014,
+    "price": 0.18,
+    "total_thb": 9749.89,
+    "reason": "🎯 AI Manual Daily Profit Harvest (เก็บกำไรเข้ากระเป๋าทีละ +฿238.33 บาท)",
+    "ai_summary": "AI คัดเลือก ADA ซึ่งมีผลตอบแทนสูงสุด (+2.44%) เพื่อทำกำไรทีละ ฿238.33 บาท"
+  },
+  {
+    "timestamp": "2026-08-03 16:24:57",
+    "symbol": "ADA-USD",
+    "action": "BUY",
+    "shares": 1547.6014,
+    "price": 0.18,
+    "total_thb": 9988.22,
+    "reason": "[CUSTOM] Signal=BUY & AI Sentiment=+0.35 (Min >= -0.25)",
+    "ai_summary": "หุ้น ADA-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 16:20:09",
+    "symbol": "ADA-USD",
+    "action": "SELL",
+    "shares": 1553.4988,
+    "price": 0.18,
+    "total_thb": 9787.04,
+    "reason": "🎯 AI Manual Daily Profit Harvest (เก็บกำไรเข้ากระเป๋าทีละ +฿217.49 บาท)",
+    "ai_summary": "AI คัดเลือก ADA ซึ่งมีผลตอบแทนสูงสุด (+2.22%) เพื่อทำกำไรทีละ ฿217.49 บาท"
+  },
+  {
+    "timestamp": "2026-08-03 15:59:06",
+    "symbol": "ADA-USD",
+    "action": "BUY",
+    "shares": 1553.4988,
+    "price": 0.18,
+    "total_thb": 9988.22,
+    "reason": "[CUSTOM] Signal=BUY & AI Sentiment=+0.35 (Min >= -0.25)",
+    "ai_summary": "หุ้น ADA-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 15:58:59",
+    "symbol": "ETH-USD",
+    "action": "BUY",
+    "shares": 0.2332,
+    "price": 1838.02,
+    "total_thb": 15001.92,
+    "reason": "[CUSTOM] Signal=BUY & AI Sentiment=+0.35 (Min >= -0.25)",
+    "ai_summary": "หุ้น ETH-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 15:58:18",
+    "symbol": "SCB.BK",
+    "action": "BUY",
+    "shares": 100.0,
+    "price": 153.0,
+    "total_thb": 15300.0,
+    "reason": "[CUSTOM] Signal=BUY & AI Sentiment=+0.35 (Min >= -0.25)",
+    "ai_summary": "หุ้น SCB.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 15:57:13",
+    "symbol": "ADA-USD",
+    "action": "SELL",
+    "shares": 3007,
+    "price": 0.18,
+    "total_thb": 18944.1,
+    "reason": "🎯 AI Manual Daily Profit Harvest (เก็บกำไรเข้ากระเป๋ารายวัน +฿0.00 บาท)",
+    "ai_summary": "AI คัดเลือก ADA ซึ่งมีผลตอบแทนสูงสุด (+2.11%) เพื่อทำกำไรรายวัน ฿0.00 บาท"
+  },
+  {
+    "timestamp": "2026-08-03 15:54:28",
+    "symbol": "AUDUSD=X",
+    "action": "BUY",
+    "shares": 611.27,
+    "price": 0.7,
+    "total_thb": 14999.96,
+    "reason": "[CUSTOM] Signal=BUY & AI Sentiment=+0.35 (Min >= -0.25)",
+    "ai_summary": "หุ้น AUDUSD=X มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 15:18:39",
+    "symbol": "USDCHF=X",
+    "action": "BUY",
+    "shares": 530.14,
+    "price": 0.81,
+    "total_thb": 14999.97,
+    "reason": "[CUSTOM] Signal=BUY & AI Sentiment=+0.35 (Min >= -0.25)",
+    "ai_summary": "หุ้น USDCHF=X มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 15:18:35",
+    "symbol": "GBPUSD=X",
+    "action": "BUY",
+    "shares": 318.4,
+    "price": 1.35,
+    "total_thb": 15000.07,
+    "reason": "[CUSTOM] Signal=BUY & AI Sentiment=+0.35 (Min >= -0.25)",
+    "ai_summary": "หุ้น GBPUSD=X มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 15:17:24",
+    "symbol": "PTT.BK",
+    "action": "BUY",
+    "shares": 200.0,
+    "price": 38.5,
+    "total_thb": 7700.0,
+    "reason": "[CUSTOM] Signal=BUY & AI Sentiment=+0.35 (Min >= -0.25)",
+    "ai_summary": "หุ้น PTT.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 15:04:16",
+    "symbol": "HANA.BK",
+    "action": "BUY",
+    "shares": 600.0,
+    "price": 36.5,
+    "total_thb": 21900.0,
+    "reason": "[CRYPTO_SCALPING] Signal=BUY & AI Sentiment=+0.35 (Min >= +0.20)",
+    "ai_summary": "หุ้น HANA.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 15:00:28",
+    "symbol": "LINK-USD",
+    "action": "BUY",
+    "shares": 87.0337,
+    "price": 8.21,
+    "total_thb": 24999.99,
+    "reason": "[CRYPTO_SCALPING] Signal=BUY & AI Sentiment=+0.35 (Min >= +0.20)",
+    "ai_summary": "หุ้น LINK-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 15:00:25",
+    "symbol": "AVAX-USD",
+    "action": "BUY",
+    "shares": 111.6071,
+    "price": 6.4,
+    "total_thb": 24999.99,
+    "reason": "[CRYPTO_SCALPING] Signal=BUY & AI Sentiment=+0.35 (Min >= +0.20)",
+    "ai_summary": "หุ้น AVAX-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 15:00:23",
+    "symbol": "ADA-USD",
+    "action": "BUY",
+    "shares": 3913.8942,
+    "price": 0.18,
+    "total_thb": 25000.0,
+    "reason": "[CRYPTO_SCALPING] Signal=BUY & AI Sentiment=+0.35 (Min >= +0.20)",
+    "ai_summary": "หุ้น ADA-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 15:00:20",
+    "symbol": "BNB-USD",
+    "action": "BUY",
+    "shares": 1.2251,
+    "price": 583.06,
+    "total_thb": 25000.74,
+    "reason": "[CRYPTO_SCALPING] Signal=BUY & AI Sentiment=+0.35 (Min >= +0.20)",
+    "ai_summary": "หุ้น BNB-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 14:59:58",
+    "symbol": "MINT.BK",
+    "action": "BUY",
+    "shares": 1000.0,
+    "price": 23.9,
+    "total_thb": 23900.0,
+    "reason": "[CRYPTO_SCALPING] Signal=BUY & AI Sentiment=+0.35 (Min >= +0.20)",
+    "ai_summary": "หุ้น MINT.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 14:59:03",
+    "symbol": "KCE.BK",
+    "action": "BUY",
+    "shares": 500.0,
+    "price": 43.5,
+    "total_thb": 21750.0,
+    "reason": "[CRYPTO_SCALPING] Signal=BUY & AI Sentiment=+0.35 (Min >= +0.20)",
+    "ai_summary": "หุ้น KCE.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-03 14:58:37",
+    "symbol": "BDMS.BK",
+    "action": "BUY",
+    "shares": 1200.0,
+    "price": 19.5,
+    "total_thb": 23400.0,
+    "reason": "[CRYPTO_SCALPING] Signal=BUY & AI Sentiment=+0.35 (Min >= +0.20)",
+    "ai_summary": "หุ้น BDMS.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  }
+]

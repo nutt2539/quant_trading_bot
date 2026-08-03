@@ -1,0 +1,6 @@
+{
+  "broker_mode": "PAPER",
+  "active_stock_broker": "SETTRADE",
+  "active_crypto_broker": "BITKUB",
+  "active_forex_broker": "MT5"
+}

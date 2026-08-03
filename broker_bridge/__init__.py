@@ -1,0 +1,4 @@
+"""
+BROKER BRIDGE PACKAGE - LIVE BROKER INTEGRATION SUITE
+Author: Quant AI Engineering Team
+"""

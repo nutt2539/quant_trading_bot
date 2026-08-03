@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  quant_dashboard:
+    build: .
+    container_name: quant_ai_dashboard
+    restart: always
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    command: streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+
+  quant_daemon:
+    build: .
+    container_name: quant_ai_daemon
+    restart: always
+    volumes:
+      - .:/app
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    command: python3 -c "from autotrader_daemon import start_daemon_loop; start_daemon_loop(180)"

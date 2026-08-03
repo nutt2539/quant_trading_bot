@@ -1,0 +1,56 @@
+{
+  "date": "2026-08-03",
+  "harvested_today_thb": 1094.67,
+  "harvest_history": [
+    {
+      "timestamp": "2026-08-03 16:57:31",
+      "date": "2026-08-03",
+      "symbol": "ETH",
+      "raw_symbol": "ETH-USD",
+      "shares": 0.2332,
+      "price": 1850.69,
+      "harvested_pnl_thb": 103.41,
+      "total_trade_thb": 15105.33
+    },
+    {
+      "timestamp": "2026-08-03 16:36:34",
+      "date": "2026-08-03",
+      "symbol": "ADA",
+      "raw_symbol": "ADA-USD",
+      "shares": 1543.4165,
+      "price": 0.19,
+      "harvested_pnl_thb": 297.11,
+      "total_trade_thb": 10263.72
+    },
+    {
+      "timestamp": "2026-08-03 16:30:37",
+      "date": "2026-08-03",
+      "symbol": "ADA",
+      "raw_symbol": "ADA-USD",
+      "shares": 1547.6014,
+      "price": 0.18,
+      "harvested_pnl_thb": 238.33,
+      "total_trade_thb": 9749.89
+    },
+    {
+      "timestamp": "2026-08-03 16:25:07",
+      "date": "2026-08-03",
+      "symbol": "ADA",
+      "raw_symbol": "ADA-USD",
+      "shares": 1547.6014,
+      "price": 0.18,
+      "harvested_pnl_thb": 238.33,
+      "total_trade_thb": 9749.89
+    },
+    {
+      "timestamp": "2026-08-03 16:20:09",
+      "date": "2026-08-03",
+      "symbol": "ADA",
+      "raw_symbol": "ADA-USD",
+      "shares": 1553.4988,
+      "price": 0.18,
+      "harvested_pnl_thb": 217.49,
+      "total_trade_thb": 9787.04
+    }
+  ]
+}
