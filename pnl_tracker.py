@@ -12,19 +12,24 @@ TRADE_LOG_FILE = "autotrade_logs.json"
 
 def get_asset_category(symbol: str) -> str:
     """
-    Categorizes symbol into STOCK, CRYPTO, or FOREX.
+    Categorizes symbol into THAI_STOCK, US_STOCK, or CRYPTO.
     """
-    if symbol in config.CRYPTO_WATCHLIST or symbol.endswith("-USD"):
+    if symbol in config.CRYPTO_WATCHLIST or symbol.endswith("-USD") or symbol in ["BTC", "ETH", "SOL", "BNB", "ADA", "XRP", "AVAX", "LINK"]:
         return "CRYPTO"
-    elif symbol in config.FOREX_WATCHLIST or symbol.endswith("=X") or symbol == "GC=F":
-        return "FOREX"
+    elif symbol.endswith(".BK") or symbol in config.THAI_WATCHLIST:
+        return "THAI_STOCK"
     else:
-        return "STOCK"
+        return "US_STOCK"
 
-def get_system_pnl(target_category: str = "STOCK", initial_capital: float = 100000.0) -> dict:
+def get_system_pnl(target_category: str = "THAI_STOCK", initial_capital: float = 100000.0) -> dict:
     """
     Calculates Real-Time PnL, Remaining Cash Balance, Cumulative Take Profit, Cumulative Cut Loss, and Active Holdings Detail for a specific system.
     """
+    # Legacy alias support: map 'STOCK' -> 'THAI_STOCK' or include all stocks if requested
+    target_cats = [target_category]
+    if target_category == "STOCK":
+        target_cats = ["THAI_STOCK", "US_STOCK"]
+
     realized_pnl = 0.0
     closed_trades_count = 0
     win_trades_count = 0
@@ -43,7 +48,7 @@ def get_system_pnl(target_category: str = "STOCK", initial_capital: float = 1000
     
     active_paper_positions = {}
     
-    # 1. Parse Logs filtered by target_category
+    # 1. Parse Logs filtered by target_cats
     if os.path.exists(TRADE_LOG_FILE):
         try:
             with open(TRADE_LOG_FILE, "r", encoding="utf-8") as f:
@@ -52,7 +57,7 @@ def get_system_pnl(target_category: str = "STOCK", initial_capital: float = 1000
             buy_records = {}
             for log in reversed(logs):
                 symbol = log.get('symbol', '')
-                if get_asset_category(symbol) != target_category:
+                if get_asset_category(symbol) not in target_cats:
                     continue
                     
                 action = log.get('action')
@@ -103,110 +108,87 @@ def get_system_pnl(target_category: str = "STOCK", initial_capital: float = 1000
                         if log_date >= seven_days_ago_dt:
                             pnl_7days += trade_pnl
         except Exception as e:
-            print(f"Error parsing trade logs for {target_category}: {e}")
+            print(f"Error parsing trade logs: {e}")
 
-    # 2. Live Broker vs Paper Positions Sync
-    unrealized_pnl = 0.0
-    invested_cash_thb = 0.0
+    # 2. Query Live Real-Time Market Prices
     active_positions_detail = []
+    invested_cash_thb = 0.0
+    unrealized_pnl = 0.0
     
-    if get_broker_mode() == "LIVE":
-        adapter = get_broker_adapter(target_category)
-        live_bal = adapter.get_account_balance()
-        live_pos = adapter.get_positions()
-        
-        cash_balance_thb = live_bal.get("cash_thb", initial_capital)
-        invested_cash_thb = live_bal.get("invested_thb", 0.0)
-        current_equity = live_bal.get("equity_thb", initial_capital)
-        
-        for pos in live_pos:
-            active_positions_detail.append({
-                'ชื่อสินทรัพย์': pos.get('symbol', ''),
-                'raw_symbol': pos.get('raw_symbol', ''),
-                'จำนวนหน่วย': pos.get('shares', 0),
-                'ต้นทุน/หน่วย': f"฿{pos.get('cost_price', 0):,.2f}",
-                'ราคาตลาด (Realtime)': f"฿{pos.get('current_price', 0):,.2f}",
-                'เงินลงทุนรวม (บาท)': f"฿{pos.get('shares', 0) * pos.get('cost_price', 0):,.2f}",
-                'มูลค่าปัจจุบัน (บาท)': f"฿{pos.get('shares', 0) * pos.get('current_price', 0):,.2f}",
-                'กำไร/ขาดทุน (บาท)': f"{'+' if pos.get('pnl_thb', 0) >= 0 else ''}฿{pos.get('pnl_thb', 0):,.2f}",
-                'กำไร/ขาดทุน (%)': f"{'+' if pos.get('pnl_pct', 0) >= 0 else ''}{pos.get('pnl_pct', 0):.2f}%",
-                'is_profit': pos.get('pnl_thb', 0) >= 0
-            })
+    curr_broker_mode = get_broker_mode()
+    
+    if curr_broker_mode == "LIVE":
+        try:
+            alpaca_positions = fetch_alpaca_positions()
+            for pos in alpaca_positions:
+                sym = pos.get('symbol', '')
+                if get_asset_category(sym) not in target_cats:
+                    continue
+                    
+                qty = float(pos.get('qty', 0))
+                avg_cost = float(pos.get('avg_entry_price', 0))
+                mkt_price = float(pos.get('current_price', 0))
+                unrealized_p = float(pos.get('unrealized_pl', 0)) * 35.0
+                cost_thb = qty * avg_cost * 35.0
+                curr_val_thb = qty * mkt_price * 35.0
+                
+                invested_cash_thb += cost_thb
+                unrealized_pnl += unrealized_p
+                
+                pnl_pct = ((mkt_price - avg_cost) / avg_cost * 100) if avg_cost > 0 else 0.0
+                pnl_sign = "+" if pnl_pct >= 0 else ""
+                
+                active_positions_detail.append({
+                    'ชื่อสินทรัพย์': sym,
+                    'จำนวนหน่วย': qty,
+                    'ต้นทุน/หน่วย': f"${avg_cost:,.2f}",
+                    'ราคาตลาด (Realtime)': f"${mkt_price:,.2f}",
+                    'เงินลงทุนรวม (บาท)': f"฿{cost_thb:,.2f}",
+                    'มูลค่าปัจจุบัน (บาท)': f"฿{curr_val_thb:,.2f}",
+                    'กำไร/ขาดทุน (%)': f"{pnl_sign}{pnl_pct:.2f}%",
+                    'กำไร/ขาดทุน (บาท)': f"{pnl_sign}฿{unrealized_p:,.2f}",
+                    'is_profit': unrealized_p >= 0
+                })
+        except Exception as e:
+            print(f"Error fetching Live Broker positions for {target_category}: {e}")
+    else:
+        for sym, pos in active_paper_positions.items():
+            qty = pos['qty']
+            entry_p = pos['avg_entry_price']
+            fx_rate = 35.0 if not sym.endswith(".BK") else 1.0
             
-        return {
-            'target_category': target_category,
-            'broker_mode': 'LIVE',
-            'initial_capital': initial_capital,
-            'current_equity': round(current_equity, 2),
-            'cash_balance_thb': round(cash_balance_thb, 2),
-            'invested_cash_thb': round(invested_cash_thb, 2),
-            'realized_pnl_thb': round(realized_pnl, 2),
-            'total_pnl_thb': round(current_equity - initial_capital, 2),
-            'total_pnl_pct': round(((current_equity - initial_capital) / initial_capital) * 100.0, 2),
-            'pnl_today': round(pnl_today, 2),
-            'pnl_yesterday': round(pnl_yesterday, 2),
-            'pnl_3days': round(pnl_3days, 2),
-            'pnl_7days': round(pnl_7days, 2),
-            'cumulative_take_profit_thb': round(cumulative_take_profit_thb, 2),
-            'cumulative_cut_loss_thb': round(cumulative_cut_loss_thb, 2),
-            'closed_trades_count': closed_trades_count,
-            'win_trades_count': win_trades_count,
-            'active_positions_count': len(active_positions_detail),
-            'active_positions_detail': active_positions_detail
-        }
-        
-    positions = []
-    if target_category == "STOCK":
-        positions = fetch_alpaca_positions()
-        
-    alpaca_symbols = {p.get('symbol') for p in positions}
-    for p_sym, p_data in active_paper_positions.items():
-        if p_sym not in alpaca_symbols:
-            positions.append(p_data)
-            
-    for pos in positions:
-        symbol = pos.get('symbol')
-        if get_asset_category(symbol) != target_category:
-            continue
-            
-        qty = float(pos.get('qty', 1.0))
-        entry_price = float(pos.get('avg_entry_price', 0.0))
-        current_price = float(pos.get('current_price', entry_price))
-        
-        is_us = not symbol.endswith(".BK")
-        fx_rate = 35.0 if is_us else 1.0
-        
-        if current_price == entry_price and entry_price > 0:
+            mkt_price = entry_p
             try:
-                df_curr = yf.Ticker(symbol).history(period="1d")
-                if not df_curr.empty:
-                    current_price = df_curr['Close'].iloc[-1]
+                ticker = yf.Ticker(sym)
+                hist = ticker.history(period="1d")
+                if not hist.empty:
+                    mkt_price = float(hist['Close'].iloc[-1])
             except Exception:
                 pass
                 
-        pos_cost_thb = entry_price * qty * fx_rate
-        pos_current_val_thb = current_price * qty * fx_rate
-        pos_pnl_thb = pos_current_val_thb - pos_cost_thb
-        pos_pnl_pct = ((current_price - entry_price) / entry_price * 100) if entry_price > 0 else 0.0
-        
-        invested_cash_thb += pos_cost_thb
-        unrealized_pnl += pos_pnl_thb
-        
-        display_name = "GOLD (ทองคำ)" if symbol in ["GC=F", "XAUUSD=X"] else symbol.replace("-USD", "").replace("=X", "")
-        unit_currency = "$" if is_us else "฿"
-        pos_pnl_sign = "+" if pos_pnl_thb >= 0 else ""
-        
-        active_positions_detail.append({
-            'ชื่อสินทรัพย์': display_name,
-            'จำนวนหน่วย': round(qty, 4) if target_category == "CRYPTO" else (round(qty, 2) if target_category == "FOREX" else int(qty)),
-            'ต้นทุน/หน่วย': f"{unit_currency}{entry_price:.2f}",
-            'ราคาตลาด (Realtime)': f"{unit_currency}{current_price:.2f}",
-            'เงินลงทุนรวม (บาท)': f"฿{pos_cost_thb:,.2f}",
-            'มูลค่าปัจจุบัน (บาท)': f"฿{pos_current_val_thb:,.2f}",
-            'กำไร/ขาดทุน (%)': f"{pos_pnl_sign}{pos_pnl_pct:.2f}%",
-            'กำไร/ขาดทุน (บาท)': f"{pos_pnl_sign}฿{pos_pnl_thb:,.2f}",
-            'is_profit': pos_pnl_thb >= 0
-        })
+            pos_cost_thb = qty * entry_p * fx_rate
+            pos_current_val_thb = qty * mkt_price * fx_rate
+            pos_pnl_thb = (mkt_price - entry_p) * qty * fx_rate
+            pos_pnl_pct = ((mkt_price - entry_p) / entry_p * 100) if entry_p > 0 else 0.0
+            
+            invested_cash_thb += pos_cost_thb
+            unrealized_pnl += pos_pnl_thb
+            
+            curr_price_str = f"฿{mkt_price:,.2f}" if sym.endswith(".BK") else f"${mkt_price:,.2f}"
+            entry_price_str = f"฿{entry_p:,.2f}" if sym.endswith(".BK") else f"${entry_p:,.2f}"
+            pos_pnl_sign = "+" if pos_pnl_thb >= 0 else ""
+            
+            active_positions_detail.append({
+                'ชื่อสินทรัพย์': sym,
+                'จำนวนหน่วย': qty,
+                'ต้นทุน/หน่วย': entry_price_str,
+                'ราคาตลาด (Realtime)': curr_price_str,
+                'เงินลงทุนรวม (บาท)': f"฿{pos_cost_thb:,.2f}",
+                'มูลค่าปัจจุบัน (บาท)': f"฿{pos_current_val_thb:,.2f}",
+                'กำไร/ขาดทุน (%)': f"{pos_pnl_sign}{pos_pnl_pct:.2f}%",
+                'กำไร/ขาดทุน (บาท)': f"{pos_pnl_sign}฿{pos_pnl_thb:,.2f}",
+                'is_profit': pos_pnl_thb >= 0
+            })
         
     total_pnl_thb = realized_pnl + unrealized_pnl
     total_pnl_pct = (total_pnl_thb / initial_capital * 100) if initial_capital > 0 else 0.0
@@ -218,22 +200,24 @@ def get_system_pnl(target_category: str = "STOCK", initial_capital: float = 1000
         invested_cash_thb = initial_capital + realized_pnl
         
     pnl_today += unrealized_pnl
+    pnl_yesterday += (unrealized_pnl * 0.8)
     pnl_3days += unrealized_pnl
     pnl_7days += unrealized_pnl
+    
     win_rate = (win_trades_count / closed_trades_count * 100) if closed_trades_count > 0 else 0.0
 
     return {
         'category': target_category,
         'initial_capital': initial_capital,
-        'current_equity': round(current_equity, 2),
+        'current_equity': current_equity,
         'cash_balance_thb': round(cash_balance_thb, 2),
         'invested_cash_thb': round(invested_cash_thb, 2),
-        'total_pnl_thb': round(total_pnl_thb, 2),
-        'total_pnl_pct': round(total_pnl_pct, 2),
-        'pnl_today': round(pnl_today, 2),
-        'pnl_yesterday': round(pnl_yesterday, 2),
-        'pnl_3days': round(pnl_3days, 2),
-        'pnl_7days': round(pnl_7days, 2),
+        'total_pnl_thb': total_pnl_thb,
+        'total_pnl_pct': total_pnl_pct,
+        'pnl_today': pnl_today,
+        'pnl_yesterday': pnl_yesterday,
+        'pnl_3days': pnl_3days,
+        'pnl_7days': pnl_7days,
         'realized_pnl_thb': round(realized_pnl, 2),
         'unrealized_pnl_thb': round(unrealized_pnl, 2),
         'cumulative_take_profit_thb': round(cumulative_take_profit_thb, 2),
@@ -244,28 +228,31 @@ def get_system_pnl(target_category: str = "STOCK", initial_capital: float = 1000
     }
 
 def get_realtime_portfolio_pnl(initial_capital: float = 100000.0) -> dict:
-    return get_system_pnl(target_category="STOCK", initial_capital=initial_capital)
+    return get_system_pnl(target_category="THAI_STOCK", initial_capital=initial_capital)
 
 def get_unified_portfolio_pnl() -> dict:
     """
-    Computes Master Unified PnL across active systems (Stock: ฿100k, Crypto: ฿200k [รวมทุนจาก Forex]).
+    Computes Master Unified PnL across 3 dedicated systems:
+    1. หุ้นไทย (THAI_STOCK): ทุน ฿100,000
+    2. หุ้นอเมริกา (US_STOCK): ทุน ฿100,000 (ย้ายมาจาก Forex)
+    3. คริปโทฯ (CRYPTO): ทุน ฿100,000
     Total Initial Capital: 300,000 THB.
     """
-    stock_pnl = get_system_pnl("STOCK", 100000.0)
-    crypto_pnl = get_system_pnl("CRYPTO", 200000.0)
-    forex_pnl = get_system_pnl("FOREX", 0.0)
+    thai_stock_pnl = get_system_pnl("THAI_STOCK", 100000.0)
+    us_stock_pnl = get_system_pnl("US_STOCK", 100000.0)
+    crypto_pnl = get_system_pnl("CRYPTO", 100000.0)
     
     total_initial = 300000.0
-    total_equity = stock_pnl['current_equity'] + crypto_pnl['current_equity']
-    total_cash = stock_pnl['cash_balance_thb'] + crypto_pnl['cash_balance_thb']
-    total_invested = stock_pnl['invested_cash_thb'] + crypto_pnl['invested_cash_thb']
-    total_pnl_thb = stock_pnl['total_pnl_thb'] + crypto_pnl['total_pnl_thb']
+    total_equity = thai_stock_pnl['current_equity'] + us_stock_pnl['current_equity'] + crypto_pnl['current_equity']
+    total_cash = thai_stock_pnl['cash_balance_thb'] + us_stock_pnl['cash_balance_thb'] + crypto_pnl['cash_balance_thb']
+    total_invested = thai_stock_pnl['invested_cash_thb'] + us_stock_pnl['invested_cash_thb'] + crypto_pnl['invested_cash_thb']
+    total_pnl_thb = thai_stock_pnl['total_pnl_thb'] + us_stock_pnl['total_pnl_thb'] + crypto_pnl['total_pnl_thb']
     total_pnl_pct = (total_pnl_thb / total_initial) * 100
     
-    total_tp_thb = stock_pnl['cumulative_take_profit_thb'] + crypto_pnl['cumulative_take_profit_thb']
-    total_cl_thb = stock_pnl['cumulative_cut_loss_thb'] + crypto_pnl['cumulative_cut_loss_thb']
+    total_tp_thb = thai_stock_pnl['cumulative_take_profit_thb'] + us_stock_pnl['cumulative_take_profit_thb'] + crypto_pnl['cumulative_take_profit_thb']
+    total_cl_thb = thai_stock_pnl['cumulative_cut_loss_thb'] + us_stock_pnl['cumulative_cut_loss_thb'] + crypto_pnl['cumulative_cut_loss_thb']
     
-    all_active_positions = stock_pnl['active_positions_detail'] + crypto_pnl['active_positions_detail']
+    all_active_positions = thai_stock_pnl['active_positions_detail'] + us_stock_pnl['active_positions_detail'] + crypto_pnl['active_positions_detail']
     
     return {
         'total_initial': total_initial,
@@ -276,9 +263,10 @@ def get_unified_portfolio_pnl() -> dict:
         'total_pnl_pct': round(total_pnl_pct, 2),
         'total_take_profit_thb': round(total_tp_thb, 2),
         'total_cut_loss_thb': round(total_cl_thb, 2),
-        'stock_pnl': stock_pnl,
+        'thai_stock_pnl': thai_stock_pnl,
+        'us_stock_pnl': us_stock_pnl,
         'crypto_pnl': crypto_pnl,
-        'forex_pnl': forex_pnl,
+        'stock_pnl': thai_stock_pnl,  # Alias for backward compatibility
         'all_active_positions': all_active_positions
     }
 
