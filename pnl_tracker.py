@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import config
 from execution_engine import fetch_alpaca_positions
 from broker_bridge.broker_manager import get_broker_mode, get_broker_adapter
+from utils_tz import get_thai_now, get_thai_str
 
 TRADE_LOG_FILE = "autotrade_logs.json"
 
@@ -30,7 +31,7 @@ def get_system_pnl(target_category: str = "STOCK", initial_capital: float = 1000
     cumulative_take_profit_thb = 0.0
     cumulative_cut_loss_thb = 0.0
     
-    today_dt = datetime.now().date()
+    today_dt = get_thai_now().date()
     yesterday_dt = today_dt - timedelta(days=1)
     three_days_ago_dt = today_dt - timedelta(days=3)
     seven_days_ago_dt = today_dt - timedelta(days=7)

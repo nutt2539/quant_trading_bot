@@ -14,6 +14,7 @@ from volatility_engine import calculate_atr, get_dynamic_tp_sl, update_trailing_
 from macro_calendar_guard import is_macro_event_near
 from kelly_position_sizer import calculate_kelly_allocation
 from robot_control import get_robot_status
+from utils_tz import get_thai_now, get_thai_now_naive, get_thai_str
 
 LOG_FILE = "autotrade_logs.json"
 
@@ -21,7 +22,7 @@ def is_market_open(symbol: str) -> bool:
     """
     Checks whether the target market (Thai SET, US, Forex 24/5, Crypto 24/7) is OPEN.
     """
-    now_dt = datetime.now()
+    now_dt = get_thai_now_naive()
     weekday = now_dt.weekday() # 0 = Mon, 6 = Sun
     time_now = now_dt.time()
     
@@ -108,7 +109,7 @@ def run_autotrader_cycle():
     - SELL: If SELL signal triggers OR Take Profit (TP %) OR Stop Loss (SL %) reached on HELD position -> Execute SELL action + Send Notification.
     """
     active_strategy = get_active_strategy()
-    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    now_str = get_thai_str()
     
     # Check Master AI Robot Toggle Status (ON/OFF)
     if not get_robot_status():
@@ -231,7 +232,7 @@ def run_autotrader_cycle():
                     continue
 
                 log_entry = {
-                    "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    "timestamp": get_thai_str(),
                     "symbol": symbol,
                     "action": "BUY",
                     "shares": trade_qty,
@@ -288,7 +289,7 @@ def run_autotrader_cycle():
                     sell_reason = f"⚠️ AI ตรวจพบข่าวเชิงลบหนัก (Sentiment = {sentiment_score:+.2f})"
                     
                 log_entry = {
-                    "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    "timestamp": get_thai_str(),
                     "symbol": symbol,
                     "action": "SELL",
                     "shares": hold_qty,

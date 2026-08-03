@@ -8,6 +8,7 @@ import json
 from datetime import datetime
 from execution_engine import send_instant_notification, execute_alpaca_trade
 from pnl_tracker import TRADE_LOG_FILE, get_asset_category
+from utils_tz import get_thai_str
 
 STATUS_FILE = "autotrader_status.json"
 
@@ -31,7 +32,7 @@ def set_robot_status(enabled: bool) -> tuple:
     Returns (success: bool, msg: str)
     """
     try:
-        data = {"ai_autotrader_enabled": enabled, "updated_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+        data = {"ai_autotrader_enabled": enabled, "updated_at": get_thai_str()}
         with open(STATUS_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
             
@@ -54,7 +55,7 @@ def execute_force_sell(symbol: str, shares: float, current_price: float, fx_rate
     Returns (success: bool, msg: str)
     """
     try:
-        now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        now_str = get_thai_str()
         total_thb = round(shares * current_price * fx_rate, 2)
         category = get_asset_category(symbol)
         display_sym = "GOLD (ทองคำ)" if symbol in ["GC=F", "XAUUSD=X"] else symbol.replace("-USD", "").replace("=X", "")

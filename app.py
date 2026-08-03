@@ -22,6 +22,7 @@ import macro_calendar_guard
 import robot_control
 from broker_bridge.broker_manager import get_broker_mode, set_broker_mode
 import broker_credentials_manager as bcm
+from utils_tz import get_thai_now_naive, get_thai_str
 
 importlib.reload(config)
 importlib.reload(data_loader)
@@ -378,7 +379,7 @@ st.sidebar.caption("⚡ ระบบเปิดใช้งาน Auto-Refresh 
 def get_cached_ai_recommendation(symbol: str = "BTC-USD"):
     return ai_recommend_strategy(symbol)
 
-now_dt = datetime.now()
+now_dt = get_thai_now_naive()
 now_str = now_dt.strftime('%H:%M:%S น.')
 
 # Trigger Pending Dialog if needed
@@ -584,7 +585,7 @@ if st.session_state.active_system == "UNIFIED":
 
     @st.fragment(run_every=15)
     def render_live_unified_metrics():
-        now_dt = datetime.now()
+        now_dt = get_thai_now_naive()
         now_str = now_dt.strftime('%H:%M:%S น.')
         unified_pnl = get_unified_portfolio_pnl()
         harvest_status = get_daily_harvest_status()
@@ -1008,7 +1009,7 @@ else:
     
     @st.fragment(run_every=15)
     def render_live_sys_header(sys_cat):
-        now_dt = datetime.now()
+        now_dt = get_thai_now_naive()
         now_str = now_dt.strftime('%H:%M:%S น.')
         p_data = get_system_pnl(sys_cat, initial_capital=100000.0)
         p_color = "#059669" if p_data['total_pnl_thb'] >= 0 else "#dc2626"

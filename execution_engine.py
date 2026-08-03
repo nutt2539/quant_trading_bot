@@ -68,9 +68,10 @@ def send_hourly_portfolio_summary() -> bool:
     Sends a detailed Hourly Summary Report of all 3 systems (Stocks, Crypto, Forex) to Telegram.
     """
     from pnl_tracker import get_unified_portfolio_pnl
+    from utils_tz import get_thai_now
     try:
         unified_pnl = get_unified_portfolio_pnl()
-        now_str = datetime.now().strftime('%H:%M น. (%d/%m/%Y)')
+        now_str = get_thai_now().strftime('%H:%M น. (%d/%m/%Y)')
         
         total_eq = unified_pnl['total_equity']
         total_pnl = unified_pnl['total_pnl_thb']

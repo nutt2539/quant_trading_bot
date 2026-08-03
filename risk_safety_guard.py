@@ -8,6 +8,7 @@ import json
 from datetime import datetime, time, timedelta
 import config
 from execution_engine import send_instant_notification
+from utils_tz import get_thai_now
 
 TRADE_LOG_FILE = "autotrade_logs.json"
 MAX_DAILY_DRAWDOWN_PCT = 3.0  # 3% Max daily drawdown circuit breaker
@@ -19,7 +20,7 @@ def validate_market_hours(symbol: str) -> tuple:
     Strict Market Hours Validator.
     Returns (is_open: bool, reason: str)
     """
-    now = datetime.now()
+    now = get_thai_now()
     weekday = now.weekday()  # 0=Mon, ..., 4=Fri, 5=Sat, 6=Sun
     t = now.time()
     
@@ -99,7 +100,7 @@ def validate_trade_safety(symbol: str, action: str, trade_thb: float, portfolio_
                     ts_str = last_log.get('timestamp', '')
                     try:
                         last_dt = datetime.strptime(ts_str, '%Y-%m-%d %H:%M:%S')
-                        diff_sec = (datetime.now() - last_dt).total_seconds()
+                        diff_sec = (get_thai_now().replace(tzinfo=None) - last_dt).total_seconds()
                         if diff_sec < MIN_TRADE_INTERVAL_SEC:
                             return False, f"ปฏิเสธออเดอร์ซ้ำซ้อน ({action} {symbol} เพิ่งส่งไปเมื่อ {int(diff_sec)} วินาทีที่แล้ว)"
                     except Exception:
