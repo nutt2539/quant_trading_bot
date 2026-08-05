@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-08-05 22:55:35",
+  "systems": {
+    "THAI_STOCK": {
+      "spendable_cash_thb": 4200.0,
+      "harvested_vault_thb": 3600.0,
+      "held_count": 5,
+      "candidate_plans": [
+        {
+          "symbol": "AOT.BK",
+          "last_price": 63.0,
+          "win_probability_pct": 60.3,
+          "confluence_score": 0.5,
+          "ai_sentiment": 0.35,
+          "rsi": 41.9,
+          "planned_alloc_thb": 4200.0,
+          "planned_shares": 66.6667,
+          "ai_action_plan": "🎯 [AOT.BK] AI วิเคราะห์ข่าวเด็ด (Sentiment +0.35) + โอกาสชนะ 60.3% -> ตั้งแผนเข้าซื้อทันทีเมื่อเปิดตลาด",
+          "ai_summary": "หุ้น AOT.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด"
+        },
+        {
+          "symbol": "KCE.BK",
+          "last_price": 44.75,
+          "win_probability_pct": 55.5,
+          "confluence_score": 0.5,
+          "ai_sentiment": 0.35,
+          "rsi": 51.4,
+          "planned_alloc_thb": 4200.0,
+          "planned_shares": 93.8547,
+          "ai_action_plan": "🎯 [KCE.BK] AI วิเคราะห์ข่าวเด็ด (Sentiment +0.35) + โอกาสชนะ 55.5% -> ตั้งแผนเข้าซื้อทันทีเมื่อเปิดตลาด",
+          "ai_summary": "หุ้น KCE.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด"
+        }
+      ]
+    },
+    "US_STOCK": {
+      "spendable_cash_thb": 276.56,
+      "harvested_vault_thb": 3600.0,
+      "held_count": 9,
+      "candidate_plans": []
+    },
+    "CRYPTO": {
+      "spendable_cash_thb": 0.0,
+      "harvested_vault_thb": 3600.0,
+      "held_count": 9,
+      "candidate_plans": []
+    }
+  }
+}

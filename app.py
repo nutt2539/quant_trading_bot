@@ -728,6 +728,52 @@ if st.session_state.active_system == "UNIFIED":
                 st.button(f"🔒 รอครบ ฿300 (มี +฿{unrealized_prof:,.0f})", disabled=True, key="btn_harvest_compact", use_container_width=True)
 
     render_live_unified_metrics()
+
+    # 24/7 AI Active Market Intelligence & Pre-Market Plan Queue Card
+    import ai_active_planner
+    ai_plan_data = ai_active_planner.get_latest_ai_active_plan()
+    
+    with st.expander("🧠 ⚡ คลิกเปิด/พับเก็บ: ศูนย์วิเคราะห์ข่าว AI 24 ชั่วโมง & แผนเตรียมเข้าซื้อล่วงหน้า (24/7 Active AI Pre-Market Strategy Queue)", expanded=True):
+        st.markdown("<div style='font-size:0.95rem; font-weight:700; color:#38bdf8; margin-bottom:8px;'>🤖 AI Robot สแกนข่าวการเงิน สถิติราคา และคำนวณโอกาสชนะ (Win Probability %) ตลอด 24 ชั่วโมงแม้ตลาดปิด เพื่อตั้งแผนเข้าซื้อทันทีเมื่อเปิดตลาด:</div>", unsafe_allow_html=True)
+        
+        plan_cols = st.columns(3)
+        sys_labels = {"THAI_STOCK": "🇹🇭 หุ้นไทย (SET100)", "US_STOCK": "🇺🇸 หุ้นอเมริกา (US)", "CRYPTO": "🪙 คริปโทฯ (24/7)"}
+        
+        for idx, (sys_code, sys_label) in enumerate(sys_labels.items()):
+            with plan_cols[idx]:
+                sys_plan = ai_plan_data.get("systems", {}).get(sys_code, {})
+                sp_cash = sys_plan.get("spendable_cash_thb", 0.0)
+                hv_cash = sys_plan.get("harvested_vault_thb", 0.0)
+                candidates = sys_plan.get("candidate_plans", [])
+                
+                st.markdown(f"""
+                <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 14px; margin-bottom:10px;">
+                    <div style="font-weight:800; font-size:1.0rem; color:#f8fafc;">{sys_label}</div>
+                    <div style="font-size:0.8rem; color:#94a3b8;">💵 Spendable Cash หมุนเวียน: <strong style="color:#38bdf8;">฿{sp_cash:,.2f}</strong></div>
+                    <div style="font-size:0.8rem; color:#94a3b8;">🔒 Locked Harvest Vault: <strong style="color:#10b981;">฿{hv_cash:,.2f}</strong></div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                if candidates:
+                    for cand in candidates:
+                        w_prob = cand.get("win_probability_pct", 50.0)
+                        sym = cand.get("symbol", "")
+                        alloc_b = cand.get("planned_alloc_thb", 0.0)
+                        st.markdown(f"""
+                        <div style="background: rgba(15, 23, 42, 0.8); border-left: 4px solid #10b981; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <strong style="color:#f8fafc; font-size:0.95rem;">🎯 {sym}</strong>
+                                <span style="background:rgba(16, 185, 129, 0.2); color:#34d399; font-weight:800; padding:2px 8px; border-radius:12px; font-size:0.78rem;">โอกาสชนะ {w_prob:.1f}%</span>
+                            </div>
+                            <div style="font-size:0.80rem; color:#cbd5e1; margin-top:4px;">{cand.get('ai_summary', '')}</div>
+                            <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">💡 แผนลงทุน Spendable Cash: <strong>฿{alloc_b:,.0f} บาท</strong></div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                else:
+                    if sp_cash <= 500.0:
+                        st.markdown("<div style='font-size:0.85rem; color:#10b981; font-weight:700; background:rgba(16, 185, 129, 0.15); padding:10px; border-radius:10px;'>✅ นำเงิน Spendable Cash ลงทุนเต็มประสิทธิภาพแล้ว (100% Deployed)</div>", unsafe_allow_html=True)
+                    else:
+                        st.markdown("<div style='font-size:0.85rem; color:#94a3b8;'>🔍 AI กำลังสแกนหาจังหวะช้อนซื้อเมื่อเกิดสัญญาณเด็ด</div>", unsafe_allow_html=True)
     
     harvest_status = get_daily_harvest_status()
             

@@ -1,5 +1,49 @@
 [
   {
+    "timestamp": "2026-08-05 22:53:52",
+    "symbol": "AVAX-USD",
+    "action": "BUY",
+    "shares": 70.5291,
+    "price": 6.66,
+    "total_thb": 16430.46,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น AVAX-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-05 22:53:37",
+    "symbol": "ADA-USD",
+    "action": "BUY",
+    "shares": 1499.183,
+    "price": 0.19,
+    "total_thb": 10000.0,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น ADA-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-05 22:53:10",
+    "symbol": "BNB-USD",
+    "action": "BUY",
+    "shares": 0.4763,
+    "price": 599.91,
+    "total_thb": 10000.8,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น BNB-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-05 22:53:05",
+    "symbol": "SOL-USD",
+    "action": "BUY",
+    "shares": 3.8615,
+    "price": 73.99,
+    "total_thb": 9999.93,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น SOL-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
     "timestamp": "2026-08-05 22:51:19",
     "symbol": "DIS",
     "action": "BUY",
