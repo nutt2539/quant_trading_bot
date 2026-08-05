@@ -1,16 +1,36 @@
 {
   "date": "2026-08-05",
-  "harvested_today_thb": 300.0,
+  "harvested_today_thb": 900.0,
   "harvest_history": [
     {
-      "timestamp": "2026-08-05 09:15:20",
+      "timestamp": "2026-08-05 11:00:00",
+      "date": "2026-08-05",
+      "symbol": "KCE.BK",
+      "raw_symbol": "KCE.BK",
+      "shares": 200.0,
+      "price": 45.0,
+      "harvested_pnl_thb": 300.0,
+      "total_trade_thb": 9000.0
+    },
+    {
+      "timestamp": "2026-08-05 09:55:00",
       "date": "2026-08-05",
       "symbol": "BNB",
       "raw_symbol": "BNB-USD",
-      "shares": 0.0385,
-      "price": 575.2,
+      "shares": 0.4279,
+      "price": 603.09,
       "harvested_pnl_thb": 300.0,
-      "total_trade_thb": 775.12
+      "total_trade_thb": 9032.22
+    },
+    {
+      "timestamp": "2026-08-05 01:22:00",
+      "date": "2026-08-05",
+      "symbol": "AMD",
+      "raw_symbol": "AMD",
+      "shares": 1.0,
+      "price": 528.18,
+      "harvested_pnl_thb": 300.0,
+      "total_trade_thb": 18486.3
     },
     {
       "timestamp": "2026-08-04 02:30:15",

@@ -1,14 +1,36 @@
 [
   {
-    "timestamp": "2026-08-05 09:15:20",
-    "symbol": "BNB-USD",
+    "timestamp": "2026-08-05 01:22:00",
+    "symbol": "AMD",
     "action": "SELL",
-    "shares": 0.0385,
-    "price": 575.2,
-    "total_thb": 775.12,
+    "shares": 1.0,
+    "price": 528.18,
+    "total_thb": 18486.3,
     "harvested_pnl_thb": 300.0,
     "reason": "🎯 AI Manual Daily Profit Harvest (เก็บกำไรเข้ากระเป๋าทีละ +฿300.00 บาท)",
-    "ai_summary": "AI คัดเลือก BNB ซึ่งมีผลตอบแทนสูงสุดเพื่อทำกำไรทีละ ฿300.00 บาท"
+    "ai_summary": "AI คัดเลือก AMD เพื่อทำกำไรทีละ ฿300.00 บาท"
+  },
+  {
+    "timestamp": "2026-08-05 09:55:00",
+    "symbol": "BNB-USD",
+    "action": "SELL",
+    "shares": 0.4279,
+    "price": 603.09,
+    "total_thb": 9032.22,
+    "harvested_pnl_thb": 300.0,
+    "reason": "🎯 AI Manual Daily Profit Harvest (เก็บกำไรเข้ากระเป๋าทีละ +฿300.00 บาท)",
+    "ai_summary": "AI คัดเลือก BNB เพื่อทำกำไรทีละ ฿300.00 บาท"
+  },
+  {
+    "timestamp": "2026-08-05 11:00:00",
+    "symbol": "KCE.BK",
+    "action": "SELL",
+    "shares": 200.0,
+    "price": 45.0,
+    "total_thb": 9000.0,
+    "harvested_pnl_thb": 300.0,
+    "reason": "🎯 AI Manual Daily Profit Harvest (เก็บกำไรเข้ากระเป๋าทีละ +฿300.00 บาท)",
+    "ai_summary": "AI คัดเลือก KCE.BK เพื่อทำกำไรทีละ ฿300.00 บาท"
   },
   {
     "timestamp": "2026-08-05 15:25:56",
