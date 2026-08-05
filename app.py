@@ -644,10 +644,10 @@ if st.session_state.active_system == "UNIFIED":
                     st.success(msg_st)
                     st.rerun()
         
-        # 6 Integrated Cards inside Unified Command Center Grid
-        col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1.25])
+        # Row 1: Top Financial Summary Cards (3 Columns)
+        row1_c1, row1_c2, row1_c3 = st.columns([1, 1, 1])
         
-        with col1:
+        with row1_c1:
             st.markdown(f"""
             <div style="background: {metric_card_bg}; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(56, 189, 248, 0.4); min-height: 105px;">
             <div style="font-size:0.82rem; color:{metric_label_color}; font-weight:700;">💵 เงินสดรวม 3 ระบบ:</div>
@@ -655,7 +655,7 @@ if st.session_state.active_system == "UNIFIED":
             </div>
             """, unsafe_allow_html=True)
             
-        with col2:
+        with row1_c2:
             st.markdown(f"""
             <div style="background: {metric_card_bg}; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(168, 85, 247, 0.4); min-height: 105px;">
             <div style="font-size:0.82rem; color:{metric_label_color}; font-weight:700;">💼 สินทรัพย์ถือครองรวม:</div>
@@ -663,7 +663,7 @@ if st.session_state.active_system == "UNIFIED":
             </div>
             """, unsafe_allow_html=True)
             
-        with col3:
+        with row1_c3:
             st.markdown(f"""
             <div style="background: {metric_card_bg}; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(0, 0, 0, 0.15); min-height: 105px;">
             <div style="font-size:0.82rem; color:{metric_label_color}; font-weight:700;">🏦 มูลค่าพอร์ตรวมทั้งหมด:</div>
@@ -671,7 +671,12 @@ if st.session_state.active_system == "UNIFIED":
             </div>
             """, unsafe_allow_html=True)
 
-        with col4:
+        st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+
+        # Row 2: Performance Action Cards (3 Columns: TP, Cut-Loss, Harvest Today)
+        row2_c1, row2_c2, row2_c3 = st.columns([1, 1, 1])
+
+        with row2_c1:
             st.markdown(f"""
             <div style="background: {metric_card_bg}; padding: 8px 12px; border-radius: 14px; border: 1px solid rgba(16, 185, 129, 0.4); margin-bottom: 6px;">
             <div style="font-size:0.80rem; color:{metric_label_color}; font-weight:700;">🎯 Take Profit สะสม:</div>
@@ -681,7 +686,7 @@ if st.session_state.active_system == "UNIFIED":
             if st.button("🔍 ที่มา TP", key="btn_modal_tp", use_container_width=True):
                 show_tp_dialog()
 
-        with col5:
+        with row2_c2:
             st.markdown(f"""
             <div style="background: {metric_card_bg}; padding: 8px 12px; border-radius: 14px; border: 1px solid rgba(239, 68, 68, 0.4); margin-bottom: 6px;">
             <div style="font-size:0.80rem; color:{metric_label_color}; font-weight:700;">🛑 Cut-Loss สะสม:</div>
@@ -691,6 +696,7 @@ if st.session_state.active_system == "UNIFIED":
             if st.button("🔍 ที่มา CL", key="btn_modal_cl", use_container_width=True):
                 show_cl_dialog()
 
+        with row2_c3:
             st.markdown(f"""
             <div style="background: {metric_card_bg}; padding: 8px 12px; border-radius: 14px; border: 1.5px solid #10b981; margin-bottom:6px;">
             <div style="font-size:0.80rem; color:{metric_label_color}; font-weight:700;">💰 เก็บกำไรสดวันนี้:</div>
