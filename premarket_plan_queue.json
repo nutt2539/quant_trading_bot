@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-08-05 22:55:35",
+  "timestamp": "2026-08-05 23:49:36",
   "systems": {
     "THAI_STOCK": {
-      "spendable_cash_thb": 4200.0,
-      "harvested_vault_thb": 3600.0,
+      "spendable_cash_thb": 4905.33,
+      "harvested_vault_thb": 2894.67,
       "held_count": 5,
       "candidate_plans": [
         {
@@ -13,8 +13,8 @@
           "confluence_score": 0.5,
           "ai_sentiment": 0.35,
           "rsi": 41.9,
-          "planned_alloc_thb": 4200.0,
-          "planned_shares": 66.6667,
+          "planned_alloc_thb": 4905.33,
+          "planned_shares": 77.8624,
           "ai_action_plan": "🎯 [AOT.BK] AI วิเคราะห์ข่าวเด็ด (Sentiment +0.35) + โอกาสชนะ 60.3% -> ตั้งแผนเข้าซื้อทันทีเมื่อเปิดตลาด",
           "ai_summary": "หุ้น AOT.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด"
         },
@@ -25,24 +25,37 @@
           "confluence_score": 0.5,
           "ai_sentiment": 0.35,
           "rsi": 51.4,
-          "planned_alloc_thb": 4200.0,
-          "planned_shares": 93.8547,
+          "planned_alloc_thb": 4905.33,
+          "planned_shares": 109.6163,
           "ai_action_plan": "🎯 [KCE.BK] AI วิเคราะห์ข่าวเด็ด (Sentiment +0.35) + โอกาสชนะ 55.5% -> ตั้งแผนเข้าซื้อทันทีเมื่อเปิดตลาด",
           "ai_summary": "หุ้น KCE.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด"
         }
       ]
     },
     "US_STOCK": {
-      "spendable_cash_thb": 276.56,
-      "harvested_vault_thb": 3600.0,
+      "spendable_cash_thb": 1466.29,
+      "harvested_vault_thb": 2894.67,
       "held_count": 9,
       "candidate_plans": []
     },
     "CRYPTO": {
-      "spendable_cash_thb": 0.0,
-      "harvested_vault_thb": 3600.0,
-      "held_count": 9,
-      "candidate_plans": []
+      "spendable_cash_thb": 17161.29,
+      "harvested_vault_thb": 2894.67,
+      "held_count": 8,
+      "candidate_plans": [
+        {
+          "symbol": "AVAX-USD",
+          "last_price": 6.67,
+          "win_probability_pct": 55.5,
+          "confluence_score": 0.5,
+          "ai_sentiment": 0.35,
+          "rsi": 51.1,
+          "planned_alloc_thb": 10000.0,
+          "planned_shares": 42.855,
+          "ai_action_plan": "🎯 [AVAX-USD] AI วิเคราะห์ข่าวเด็ด (Sentiment +0.35) + โอกาสชนะ 55.5% -> ตั้งแผนเข้าซื้อทันทีเมื่อเปิดตลาด",
+          "ai_summary": "หุ้น AVAX-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด"
+        }
+      ]
     }
   }
 }
