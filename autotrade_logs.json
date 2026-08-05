@@ -1,5 +1,60 @@
 [
   {
+    "timestamp": "2026-08-05 23:30:37",
+    "symbol": "ADA-USD",
+    "action": "BUY",
+    "shares": 1495.7297,
+    "price": 0.19,
+    "total_thb": 10000.0,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น ADA-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-05 23:30:12",
+    "symbol": "BNB-USD",
+    "action": "BUY",
+    "shares": 0.4751,
+    "price": 601.36,
+    "total_thb": 9999.71,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น BNB-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-05 23:30:05",
+    "symbol": "ETH-USD",
+    "action": "BUY",
+    "shares": 0.1508,
+    "price": 1894.51,
+    "total_thb": 9999.22,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น ETH-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-05 23:27:58",
+    "symbol": "COIN",
+    "action": "BUY",
+    "shares": 2.0,
+    "price": 151.62,
+    "total_thb": 10613.05,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.7 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น COIN มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-05 23:27:53",
+    "symbol": "PLTR",
+    "action": "SELL",
+    "shares": 1.0,
+    "price": 160.71,
+    "total_thb": 5624.68,
+    "reason": "[CUSTOM] [TECH_SELL] 📉 สัญญาณเทคนิคอลสั่ง SELL ตัดลดความเสี่ยง (0.00%)",
+    "ai_summary": "หุ้น PLTR มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
     "timestamp": "2026-08-05 23:27:02",
     "symbol": "MSFT",
     "action": "BUY",
