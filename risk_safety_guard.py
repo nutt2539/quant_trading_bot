@@ -108,4 +108,18 @@ def validate_trade_safety(symbol: str, action: str, trade_thb: float, portfolio_
         except Exception as e:
             print(f"Error checking trade duplicates: {e}")
 
-    return True, "ออเดอร์ผ่านการตรวจสอบความปลอดภัยและความเสี่ยง 100%"
+    # 4. HARVEST VAULT REINVESTMENT GUARD (FAIL-SAFE DOUBLE CHECK)
+    if action == "BUY":
+        try:
+            from pnl_tracker import get_system_pnl
+            category = "CRYPTO" if symbol.endswith("-USD") else ("THAI_STOCK" if symbol.endswith(".BK") else "US_STOCK")
+            sys_pnl = get_system_pnl(category, 100000.0)
+            spendable_cash = sys_pnl.get("spendable_cash_thb", 0.0)
+            harvested_vault = sys_pnl.get("harvested_vault_thb", 0.0)
+            
+            if trade_thb > spendable_cash:
+                return False, f"🛑 HARVEST VAULT LOCK ACTIVATED: ออเดอร์ซื้อ {symbol} (฿{trade_thb:,.2f}) เกินวงเงิน Spendable Cash (฿{spendable_cash:,.2f}) ไม่อนุญาตให้นำเงิน Harvest Vault (฿{harvested_vault:,.2f}) ไปใช้เด็ดขาด!"
+        except Exception as e:
+            print(f"Error checking harvest vault firewall: {e}")
+
+    return True, "ออเดอร์ผ่านเกณฑ์ความปลอดภัย Risk Guard เรียบร้อย 100%"
