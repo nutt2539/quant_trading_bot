@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-06 00:43:17",
+  "timestamp": "2026-08-06 00:57:03",
   "systems": {
     "THAI_STOCK": {
       "spendable_cash_thb": 7500.0,
@@ -35,24 +35,10 @@
       ]
     },
     "US_STOCK": {
-      "spendable_cash_thb": 3760.96,
-      "harvested_vault_thb": 600.0,
+      "spendable_cash_thb": 4060.96,
+      "harvested_vault_thb": 300.0,
       "held_count": 9,
-      "candidate_plans": [
-        {
-          "symbol": "COST",
-          "plan_type": "BUY",
-          "last_price": 941.68,
-          "win_probability_pct": 56.2,
-          "confluence_score": 0.5,
-          "ai_sentiment": 0.35,
-          "rsi": 48.9,
-          "planned_alloc_thb": 3760.96,
-          "planned_shares": 0.1141,
-          "ai_action_plan": "🟢 [COST] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 56.2% -> ตั้งแผนเข้าซื้อ",
-          "ai_summary": "หุ้น COST มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด"
-        }
-      ]
+      "candidate_plans": []
     },
     "CRYPTO": {
       "spendable_cash_thb": 47406.83,
@@ -60,30 +46,30 @@
       "held_count": 5,
       "candidate_plans": [
         {
-          "symbol": "AVAX-USD",
-          "plan_type": "BUY",
-          "last_price": 6.68,
-          "win_probability_pct": 65.5,
-          "confluence_score": 0.7,
-          "ai_sentiment": 0.35,
-          "rsi": 51.3,
-          "planned_alloc_thb": 10000.0,
-          "planned_shares": 42.7972,
-          "ai_action_plan": "🟢 [AVAX-USD] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 65.5% -> ตั้งแผนเข้าซื้อ",
-          "ai_summary": "หุ้น AVAX-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด"
-        },
-        {
           "symbol": "ETH-USD",
           "plan_type": "BUY",
-          "last_price": 1909.19,
-          "win_probability_pct": 57.1,
+          "last_price": 1914.18,
+          "win_probability_pct": 56.7,
           "confluence_score": 0.5,
           "ai_sentiment": 0.35,
-          "rsi": 47.4,
+          "rsi": 48.0,
           "planned_alloc_thb": 10000.0,
-          "planned_shares": 0.1497,
-          "ai_action_plan": "🟢 [ETH-USD] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 57.1% -> ตั้งแผนเข้าซื้อ",
+          "planned_shares": 0.1493,
+          "ai_action_plan": "🟢 [ETH-USD] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 56.7% -> ตั้งแผนเข้าซื้อ",
           "ai_summary": "หุ้น ETH-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด"
+        },
+        {
+          "symbol": "AVAX-USD",
+          "plan_type": "BUY",
+          "last_price": 6.67,
+          "win_probability_pct": 55.5,
+          "confluence_score": 0.5,
+          "ai_sentiment": 0.35,
+          "rsi": 51.1,
+          "planned_alloc_thb": 10000.0,
+          "planned_shares": 42.8486,
+          "ai_action_plan": "🟢 [AVAX-USD] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 55.5% -> ตั้งแผนเข้าซื้อ",
+          "ai_summary": "หุ้น AVAX-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด"
         }
       ]
     }

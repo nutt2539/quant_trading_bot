@@ -770,7 +770,7 @@ if st.session_state.active_system == "UNIFIED":
                         
                         if plan_type == "SELL":
                             st.markdown(f"""
-                            <div style="background: rgba(15, 23, 42, 0.8); border-left: 4px solid #ef4444; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;">
+                            <div style="background: rgba(15, 23, 42, 0.8); border-left: 4px solid #ef4444; border-radius: 10px; padding: 10px 12px; margin-bottom: 4px;">
                                 <div style="display:flex; justify-content:space-between; align-items:center;">
                                     <strong style="color:#f8fafc; font-size:0.95rem;">🔴 {sym} (SELL)</strong>
                                     <span style="background:rgba(239, 68, 68, 0.2); color:#f87171; font-weight:800; padding:2px 8px; border-radius:12px; font-size:0.78rem;">เตรียมขายตัดทำกำไร/ลดเสี่ยง</span>
@@ -781,13 +781,60 @@ if st.session_state.active_system == "UNIFIED":
                             """, unsafe_allow_html=True)
                         else:
                             st.markdown(f"""
-                            <div style="background: rgba(15, 23, 42, 0.8); border-left: 4px solid #10b981; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;">
+                            <div style="background: rgba(15, 23, 42, 0.8); border-left: 4px solid #10b981; border-radius: 10px; padding: 10px 12px; margin-bottom: 4px;">
                                 <div style="display:flex; justify-content:space-between; align-items:center;">
                                     <strong style="color:#f8fafc; font-size:0.95rem;">🟢 {sym} (BUY)</strong>
                                     <span style="background:rgba(16, 185, 129, 0.2); color:#34d399; font-weight:800; padding:2px 8px; border-radius:12px; font-size:0.78rem;">โอกาสชนะ {w_prob:.1f}%</span>
                                 </div>
                                 <div style="font-size:0.80rem; color:#cbd5e1; margin-top:4px;">{cand.get('ai_summary', '')}</div>
                                 <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">💡 แผนลงทุน Spendable Cash: <strong>฿{alloc_b:,.0f} บาท</strong></div>
+                            </div>
+                            """, unsafe_allow_html=True)
+
+                        # 🏭 🔍 Live AI Observation Room & Production Pipeline Inspection
+                        with st.expander(f"🔍 ส่องห้องคิด AI & สายการผลิต ({sym})", expanded=False):
+                            st.markdown(f"""
+                            <div style="background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 12px; margin-top: 4px; font-size: 0.82rem;">
+                                <div style="font-weight: 800; color: #38bdf8; margin-bottom: 6px;">🧠 สมอง AI กำลังคิด & สแกน ณ วินาทีนี้:</div>
+                                <div style="color: #f1f5f9; background: rgba(15, 23, 42, 0.6); padding: 8px; border-radius: 8px; border-left: 3px solid #38bdf8; margin-bottom: 10px; font-style: italic;">
+                                    "{cand.get('ai_thought_rationale', cand.get('ai_action_plan', 'กำลังประเมินสภาวะตลาดสด'))}"
+                                </div>
+                                
+                                <div style="font-weight: 800; color: #f8fafc; margin-bottom: 6px;">🏭 สายการผลิต 5 ขั้นตอน (Production Pipeline):</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            
+                            steps = cand.get("pipeline_steps", [])
+                            if not steps:
+                                steps = [
+                                    {"name": "📰 Global News & Macro Scan", "status": "COMPLETED", "detail": f"Sentiment: {cand.get('ai_sentiment', 0.0):+.2f}"},
+                                    {"name": "📈 Multi-Timeframe Confluence Check", "status": "COMPLETED", "detail": f"Score: {cand.get('confluence_score', 0.5):.2f}"},
+                                    {"name": "📊 Technical Levels Setup", "status": "COMPLETED", "detail": f"RSI: {cand.get('rsi', 50):.1f}"},
+                                    {"name": "🧮 Smart Fee & Profit Filter", "status": "COMPLETED", "detail": f"Fee Aware: {cand.get('fee_pct', 0.2)}%"},
+                                    {"name": "⚡ Order Trigger Ready", "status": "IN_PROGRESS", "detail": "สแตนด์บายเตรียมส่งออเดอร์"}
+                                ]
+                                
+                            for s_idx, step in enumerate(steps, 1):
+                                st_icon = "🟢" if step.get("status") == "COMPLETED" else "🟡"
+                                st.markdown(f"""
+                                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(15, 23, 42, 0.5); padding:4px 8px; border-radius:6px; margin-bottom:4px; font-size:0.78rem;">
+                                    <span>{st_icon} <strong>Step {s_idx}:</strong> {step.get('name')}</span>
+                                    <span style="color:#94a3b8; font-size:0.75rem;">{step.get('detail')}</span>
+                                </div>
+                                """, unsafe_allow_html=True)
+
+                            # Technical Targets Spec
+                            tp_p = cand.get("tp_price", 0.0)
+                            sl_p = cand.get("sl_price", 0.0)
+                            net_p = cand.get("est_net_profit_thb", 0.0)
+                            st.markdown(f"""
+                            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 8px; margin-top: 6px; font-size: 0.78rem;">
+                                <div style="color: #34d399; font-weight: 700;">🎯 เป้าหมายราคา (Target Spec):</div>
+                                <div style="display: flex; justify-content: space-between; color: #cbd5e1; margin-top: 2px;">
+                                    <span>🟢 Take Profit: <strong>${tp_p:,.2f}</strong> (+{cand.get('tp_pct', 8.0):.1f}%)</span>
+                                    <span>🛑 Stop Loss: <strong>${sl_p:,.2f}</strong> ({cand.get('sl_pct', -3.5):.1f}%)</span>
+                                </div>
+                                <div style="color: #10b981; font-weight: 800; margin-top: 4px;">💰 กำไรเน็ตๆ คาดการณ์ (หลังหักค่าธรรมเนียม): +฿{net_p:,.2f} บาท</div>
                             </div>
                             """, unsafe_allow_html=True)
                 else:

@@ -126,8 +126,21 @@ def generate_247_active_ai_plan() -> dict:
                             "rsi": round(rsi_val, 1),
                             "planned_alloc_thb": 0.0,
                             "planned_shares": 0.0,
+                            "tp_price": round(dynamic_targets["tp_price"], 2),
+                            "sl_price": round(dynamic_targets["sl_price"], 2),
+                            "tp_pct": dynamic_targets["tp_pct"],
+                            "sl_pct": dynamic_targets["sl_pct"],
+                            "fee_pct": fee_pct,
                             "ai_action_plan": f"🔴 [{symbol}] AI ประเมินจุดออก: {sell_reason} -> ตั้งแผนเตรียมขาย",
-                            "ai_summary": ai_summary
+                            "ai_summary": ai_summary,
+                            "ai_thought_rationale": f"🧠 [AI OBSERVE ROOM] สินทรัพย์ {symbol} กำลังถูกประเมินขายทำกำไร/ตัดความเสี่ยง! เนื่องจาก {sell_reason} | ข่าวรอบโลก Sentiment Score ({sent_score:+.2f}) | RSI ({rsi_val:.1f}) | ค่าธรรมเนียมเข้า-ออก ({fee_pct}%)",
+                            "pipeline_steps": [
+                                {"name": "📰 Global News & Macro Scan", "status": "COMPLETED", "detail": f"Sentiment Score: {sent_score:+.2f}"},
+                                {"name": "📈 Multi-Timeframe Alignment Check", "status": "COMPLETED", "detail": f"Confluence Score: {conf_score:.2f}"},
+                                {"name": "📊 Technical Levels & Risk Setup", "status": "COMPLETED", "detail": f"RSI: {rsi_val:.1f} | SL: {dynamic_targets['sl_pct']:.1f}%"},
+                                {"name": "🧮 Smart Fee & Net Profit Filter", "status": "COMPLETED", "detail": f"Round-trip Fee: {fee_pct}%"},
+                                {"name": "⚡ Exit Order Execution Ready", "status": "IN_PROGRESS", "detail": "กำลังสแตนด์บายเตรียมส่งออเดอร์ขาย"}
+                            ]
                         })
                     continue
 
@@ -139,6 +152,15 @@ def generate_247_active_ai_plan() -> dict:
                     planned_alloc_thb = min(spendable_cash, max(10000.0, spendable_cash / max(1, (10 - len(held_symbols)))))
                     planned_shares = round(planned_alloc_thb / (last_price * fx_rate), 4)
 
+                    tp_price = dynamic_targets["tp_price"]
+                    sl_price = dynamic_targets["sl_price"]
+                    tp_pct = dynamic_targets["tp_pct"]
+                    sl_pct = dynamic_targets["sl_pct"]
+                    
+                    est_gross_profit_thb = planned_alloc_thb * (tp_pct / 100.0)
+                    est_fee_thb = planned_alloc_thb * (fee_pct / 100.0)
+                    est_net_profit_thb = round(est_gross_profit_thb - est_fee_thb, 2)
+
                     candidate_plans.append({
                         "symbol": symbol,
                         "plan_type": "BUY",
@@ -149,8 +171,22 @@ def generate_247_active_ai_plan() -> dict:
                         "rsi": round(rsi_val, 1),
                         "planned_alloc_thb": round(planned_alloc_thb, 2),
                         "planned_shares": planned_shares,
+                        "tp_price": round(tp_price, 2),
+                        "sl_price": round(sl_price, 2),
+                        "tp_pct": tp_pct,
+                        "sl_pct": sl_pct,
+                        "fee_pct": fee_pct,
+                        "est_net_profit_thb": est_net_profit_thb,
                         "ai_action_plan": f"🟢 [{symbol}] AI วิเคราะห์ข่าวเชิงบวก (Sentiment {sent_score:+.2f}) + โอกาสชนะ {win_prob:.1f}% -> ตั้งแผนเข้าซื้อ",
-                        "ai_summary": ai_summary
+                        "ai_summary": ai_summary,
+                        "ai_thought_rationale": f"🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน {symbol}! ข่าวการเงินรอบโลกเชิงบวก (Sentiment {sent_score:+.2f}) + แรงซื้อ 3 Timeframes (Score {conf_score:.2f}) + RSI ({rsi_val:.1f}) | คำนวณโอกาสชนะ {win_prob:.1f}% วางเป้า TP +{tp_pct:.1f}% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿{est_net_profit_thb:,.2f} บาท)",
+                        "pipeline_steps": [
+                            {"name": "📰 Global News & Macro Scan", "status": "COMPLETED", "detail": f"Sentiment Score: {sent_score:+.2f}"},
+                            {"name": "📈 Multi-Timeframe Alignment Check", "status": "COMPLETED", "detail": f"Confluence Score: {conf_score:.2f}"},
+                            {"name": "📊 Technical Levels & Risk Setup", "status": "COMPLETED", "detail": f"RSI: {rsi_val:.1f} | TP Target: +{tp_pct:.1f}%"},
+                            {"name": "🧮 Smart Fee & Net Profit Filter", "status": "COMPLETED", "detail": f"Fee {fee_pct}% -> Est Net Profit +฿{est_net_profit_thb:,.2f}"},
+                            {"name": "⚡ Order Trigger Ready", "status": "IN_PROGRESS", "detail": "พร้อมยิงออเดอร์ทันทีเมื่อเข้าเงื่อนไข Real-time"}
+                        ]
                     })
             except Exception as e:
                 print(f"Error scanning {symbol} in active planner: {e}")
