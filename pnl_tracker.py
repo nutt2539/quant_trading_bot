@@ -190,17 +190,52 @@ def get_system_pnl(target_category: str = "THAI_STOCK", initial_capital: float =
                 'is_profit': pos_pnl_thb >= 0
             })
         
-    # 3. Calculate Total Harvested Profit Vault (LOCKED FROM REINVESTMENT)
-    total_harvested_vault_thb = 0.0
+    # 3. Calculate Total Harvested Profit Vault (FAIL-SAFE MULTI-SOURCE LOCK)
+    tracker_vault_thb = 0.0
+    log_vault_thb = 0.0
+    master_vault_thb = 0.0
+    
+    # Source A: daily_harvest_tracker.json
     try:
         harvest_file = "daily_harvest_tracker.json"
         if os.path.exists(harvest_file):
             with open(harvest_file, "r", encoding="utf-8") as f_h:
                 h_data = json.load(f_h)
                 for item in h_data.get("harvest_history", []):
-                    total_harvested_vault_thb += float(item.get("harvested_pnl_thb", 0.0))
+                    tracker_vault_thb += float(item.get("harvested_pnl_thb", 0.0))
     except Exception as e:
         print(f"Error reading harvest tracker: {e}")
+
+    # Source B: autotrade_logs.json
+    try:
+        if os.path.exists(TRADE_LOG_FILE):
+            with open(TRADE_LOG_FILE, "r", encoding="utf-8") as f_l:
+                logs_data = json.load(f_l)
+                for log_item in logs_data:
+                    if "Daily Profit Harvest" in str(log_item.get("reason", "")) or "เก็บกำไร" in str(log_item.get("reason", "")):
+                        log_vault_thb += float(log_item.get("harvested_pnl_thb", 300.0))
+    except Exception as e:
+        print(f"Error reading trade logs for harvest vault: {e}")
+
+    # Source C: harvest_vault_master.json (Master Fail-Safe Storage)
+    master_vault_file = "harvest_vault_master.json"
+    try:
+        if os.path.exists(master_vault_file):
+            with open(master_vault_file, "r", encoding="utf-8") as f_m:
+                m_data = json.load(f_m)
+                master_vault_thb = float(m_data.get("master_total_harvested_thb", 0.0))
+    except Exception:
+        pass
+
+    # FAIL-SAFE: Always enforce the MAXIMUM cumulative harvested amount across all sources
+    total_harvested_vault_thb = max(tracker_vault_thb, log_vault_thb, master_vault_thb)
+
+    # Persist the master vault total so it can NEVER drop or reset
+    try:
+        with open(master_vault_file, "w", encoding="utf-8") as f_m_w:
+            json.dump({"master_total_harvested_thb": total_harvested_vault_thb, "last_updated": str(today_dt)}, f_m_w, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
 
     total_pnl_thb = realized_pnl + unrealized_pnl
     total_pnl_pct = (total_pnl_thb / initial_capital * 100) if initial_capital > 0 else 0.0
