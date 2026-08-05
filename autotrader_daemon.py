@@ -193,13 +193,15 @@ def run_autotrader_cycle():
         sys_invested = fresh_sys_pnl['invested_cash_thb']
         active_pos_count = len(fresh_sys_pnl['active_positions_detail'])
         
-        # Dynamic Kelly Position Sizing (Base ฿10,000 THB to support up to 10 assets & minimize cash)
-        kelly_res = calculate_kelly_allocation(sys_cash, ai_sentiment_score=sentiment_score, base_allocation_thb=10000.0)
+        # Dynamic Kelly Position Sizing (Maximal spendable cash utilization while protecting Harvested Vault)
+        kelly_res = calculate_kelly_allocation(sys_cash, ai_sentiment_score=sentiment_score, base_allocation_thb=max(10000.0, sys_cash / max(1, (10 - active_pos_count))))
         target_alloc_baht = kelly_res["allocated_thb"]
         allocation_amount = min(target_alloc_baht, sys_cash)
         
-        if allocation_amount < 1000.0 and sys_cash >= 2000.0 and active_pos_count < 10:
-            allocation_amount = sys_cash # Utilize remaining cash to minimize idle cash
+        # Maximize spendable cash utilization (no idle spendable cash when valid signal is detected)
+        if sys_cash >= 1000.0 and active_pos_count < 10:
+            if sys_cash <= 25000.0 or active_pos_count >= 8:
+                allocation_amount = sys_cash # Fully deploy remaining spendable cash into high-conviction signal
             
         trade_qty = calculate_trade_quantity(symbol, last_price, allocation_thb=allocation_amount)
         fx_rate = 35.0 if not symbol.endswith(".BK") else 1.0

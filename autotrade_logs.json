@@ -1,5 +1,16 @@
 [
   {
+    "timestamp": "2026-08-05 15:25:56",
+    "symbol": "ADA-USD",
+    "action": "SELL",
+    "shares": 3398.9806,
+    "price": 0.19,
+    "total_thb": 23005.32,
+    "reason": "[CUSTOM] 📉 สัญญาณเทคนิคอล CUSTOM = SELL",
+    "ai_summary": "หุ้น ADA-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
     "timestamp": "2026-08-04 02:15:10",
     "symbol": "AVAX-USD",
     "action": "SELL",
