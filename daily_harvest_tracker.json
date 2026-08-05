@@ -1,7 +1,17 @@
 {
-  "date": "2026-08-04",
-  "harvested_today_thb": 600.0,
+  "date": "2026-08-05",
+  "harvested_today_thb": 300.0,
   "harvest_history": [
+    {
+      "timestamp": "2026-08-05 09:15:20",
+      "date": "2026-08-05",
+      "symbol": "BNB",
+      "raw_symbol": "BNB-USD",
+      "shares": 0.0385,
+      "price": 575.2,
+      "harvested_pnl_thb": 300.0,
+      "total_trade_thb": 775.12
+    },
     {
       "timestamp": "2026-08-04 02:30:15",
       "date": "2026-08-04",

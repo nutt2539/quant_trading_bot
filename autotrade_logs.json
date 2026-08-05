@@ -1,5 +1,16 @@
 [
   {
+    "timestamp": "2026-08-05 09:15:20",
+    "symbol": "BNB-USD",
+    "action": "SELL",
+    "shares": 0.0385,
+    "price": 575.2,
+    "total_thb": 775.12,
+    "harvested_pnl_thb": 300.0,
+    "reason": "🎯 AI Manual Daily Profit Harvest (เก็บกำไรเข้ากระเป๋าทีละ +฿300.00 บาท)",
+    "ai_summary": "AI คัดเลือก BNB ซึ่งมีผลตอบแทนสูงสุดเพื่อทำกำไรทีละ ฿300.00 บาท"
+  },
+  {
     "timestamp": "2026-08-05 15:25:56",
     "symbol": "ADA-USD",
     "action": "SELL",

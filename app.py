@@ -695,12 +695,10 @@ if st.session_state.active_system == "UNIFIED":
             if st.button("🔍 ที่มา CL", key="btn_modal_cl", use_container_width=True):
                 show_cl_dialog()
 
-            comp_sum = daily_profit_harvester.get_daily_harvest_comparison_summary()
-            all_time_harvest = comp_sum.get('all_time_thb', 0.0)
             st.markdown(f"""
             <div style="background: {metric_card_bg}; padding: 8px 12px; border-radius: 14px; border: 1.5px solid #10b981; margin-bottom:6px;">
-            <div style="font-size:0.80rem; color:{metric_label_color}; font-weight:700;">💰 ยอดเก็บกำไรสะสมรวม:</div>
-            <div style="font-size:1.20rem; color:#10b981; font-weight:800;">฿{all_time_harvest:,.2f} <span style="font-size:0.72rem; color:{metric_label_color};">(วันนี้ ฿{harvested_today:,.2f})</span></div>
+            <div style="font-size:0.80rem; color:{metric_label_color}; font-weight:700;">💰 เก็บกำไรสดวันนี้:</div>
+            <div style="font-size:1.20rem; color:#10b981; font-weight:800;">฿{harvested_today:,.2f}</div>
             </div>
             """, unsafe_allow_html=True)
             if is_eligible:
