@@ -392,8 +392,6 @@ if st.session_state.pending_strategy_modal and hasattr(st, 'dialog'):
     show_strategy_dialog(st.session_state.pending_strategy_modal)
 
 # ==================== SLEEK COMPACT STRATEGY DROPDOWN BAR & REAL-TIME AI RECOMMENDATION ====================
-st.markdown('<div class="glass-card" style="border: 1px solid rgba(99, 102, 241, 0.5); margin-bottom: 20px; padding: 16px 20px;">', unsafe_allow_html=True)
-
 # 1. REAL-TIME AUTOMATIC AI RECOMMENDATION BANNER (แสดงข้อความทันที ไม่ต้องกดปุ่ม)
 ai_rec = get_cached_ai_recommendation("BTC-USD")
 rec_key = ai_rec.get("recommended_key", "BALANCED_SWING")
@@ -445,8 +443,6 @@ with col_strat3:
         st.session_state.current_active_strategy = rec_key
         st.success(f"สลับไปใช้กลยุทธ์ตามที่ AI แนะนำ [{rec_info['name']}] เรียบร้อยแล้ว!")
         st.rerun()
-
-st.markdown('</div>', unsafe_allow_html=True)
 
 # ==================== BEGINNER-FRIENDLY VISUAL CUSTOM STRATEGY STUDIO ====================
 if chosen_key == "CUSTOM" or st.session_state.current_active_strategy == "CUSTOM":
@@ -619,7 +615,7 @@ if st.session_state.active_system == "UNIFIED":
         <span style="color: {metric_label_color}; font-weight: 700; font-size: 0.85rem;">⏰ {now_str} (Realtime Live)</span>
         </div>
         <div>
-        <span style="color: {pnl_color}; font-size: 1.35rem; font-weight: 800;">กำไร/ขาดทุนรวม 2 ระบบ: {pnl_sign}฿{unified_pnl['total_pnl_thb']:,.2f} ({pnl_sign}{unified_pnl['total_pnl_pct']:.2f}%)</span>
+        <span style="color: {pnl_color}; font-size: 1.35rem; font-weight: 800;">กำไร/ขาดทุนรวม 3 ระบบ: {pnl_sign}฿{unified_pnl['total_pnl_thb']:,.2f} ({pnl_sign}{unified_pnl['total_pnl_pct']:.2f}%)</span>
         </div>
         </div>
         </div>"""
