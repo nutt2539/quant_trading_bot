@@ -204,8 +204,8 @@ def get_system_pnl(target_category: str = "THAI_STOCK", initial_capital: float =
             with open(harvest_file, "r", encoding="utf-8") as f_h:
                 h_data = json.load(f_h)
                 for item in h_data.get("harvest_history", []):
-                    sym = item.get("symbol", "").replace("-USD", "").replace(".BK", "")
-                    if get_asset_category(sym) in target_cats or get_asset_category(item.get("symbol", "")) in target_cats:
+                    raw_sym = item.get("raw_symbol", item.get("symbol", ""))
+                    if get_asset_category(raw_sym) in target_cats:
                         tracker_vault_thb += float(item.get("harvested_pnl_thb", 0.0))
     except Exception as e:
         print(f"Error reading harvest tracker: {e}")
@@ -217,8 +217,8 @@ def get_system_pnl(target_category: str = "THAI_STOCK", initial_capital: float =
                 logs_data = json.load(f_l)
                 for log_item in logs_data:
                     if "Daily Profit Harvest" in str(log_item.get("reason", "")) or "เก็บกำไร" in str(log_item.get("reason", "")):
-                        sym = log_item.get("symbol", "").replace("-USD", "").replace(".BK", "")
-                        if get_asset_category(sym) in target_cats or get_asset_category(log_item.get("symbol", "")) in target_cats:
+                        raw_sym = log_item.get("raw_symbol", log_item.get("symbol", ""))
+                        if get_asset_category(raw_sym) in target_cats:
                             log_vault_thb += float(log_item.get("harvested_pnl_thb", 0.0))
     except Exception as e:
         print(f"Error reading trade logs for harvest vault: {e}")
