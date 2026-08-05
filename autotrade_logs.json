@@ -1,5 +1,71 @@
 [
   {
+    "timestamp": "2026-08-05 22:51:19",
+    "symbol": "DIS",
+    "action": "BUY",
+    "shares": 1.0,
+    "price": 100.2,
+    "total_thb": 3507.0,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿3,783.56 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น DIS มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-05 22:50:31",
+    "symbol": "PLTR",
+    "action": "BUY",
+    "shares": 2.0,
+    "price": 159.55,
+    "total_thb": 11168.85,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น PLTR มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-05 22:50:04",
+    "symbol": "AMD",
+    "action": "BUY",
+    "shares": 1.0,
+    "price": 484.97,
+    "total_thb": 16973.95,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น AMD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-05 22:49:28",
+    "symbol": "TSLA",
+    "action": "SELL",
+    "shares": 1.0,
+    "price": 322.7,
+    "total_thb": 11294.5,
+    "reason": "[CUSTOM] 📉 สัญญาณเทคนิคอล CUSTOM = SELL",
+    "ai_summary": "หุ้น TSLA มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-05 22:49:00",
+    "symbol": "MSFT",
+    "action": "SELL",
+    "shares": 1.0,
+    "price": 488.38,
+    "total_thb": 17093.3,
+    "reason": "[CUSTOM] 📉 สัญญาณเทคนิคอล CUSTOM = SELL",
+    "ai_summary": "หุ้น MSFT มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-05 22:48:47",
+    "symbol": "AAPL",
+    "action": "BUY",
+    "shares": 1.0,
+    "price": 307.88,
+    "total_thb": 10775.8,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.7 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น AAPL มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
     "timestamp": "2026-08-05 01:22:00",
     "symbol": "AMD",
     "action": "SELL",

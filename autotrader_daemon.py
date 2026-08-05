@@ -207,14 +207,15 @@ def run_autotrader_cycle():
         fx_rate = 35.0 if not symbol.endswith(".BK") else 1.0
         trade_total_thb = round(trade_qty * last_price * fx_rate, 2)
         
-        # CASE 1: UNHELD ASSET -> BUY EVALUATION (UP TO 10 POSITIONS PER SYSTEM, MINIMIZE IDLE CASH)
+        # CASE 1: UNHELD ASSET -> BUY EVALUATION (UP TO 10 POSITIONS PER SYSTEM, MAXIMIZE SPENDABLE CASH)
         if not is_currently_held:
-            if (last_signal == 1 or sentiment_score >= 0.20) and (sentiment_score >= min_ai_sentiment) and (sys_cash >= trade_total_thb) and (trade_total_thb > 0) and (active_pos_count < 10):
+            # Active buying condition: Signal=BUY OR (AI Sentiment Positive >= 0.0) OR RSI Dip Setup
+            if (last_signal == 1 or sentiment_score >= 0.0) and (sentiment_score >= min_ai_sentiment) and (sys_cash >= 1000.0) and (trade_total_thb > 0) and (active_pos_count < 10):
                 # Multi-Timeframe Confluence Check
                 mtf_res = analyze_multi_timeframe(symbol)
                 conf_score = mtf_res.get("confluence_score", 0.50)
                 
-                if conf_score < 0.40:
+                if conf_score < 0.35:
                     print(f"🛑 MTF FILTER: {symbol} Confluence Low ({conf_score:.2f})", flush=True)
                     continue
 

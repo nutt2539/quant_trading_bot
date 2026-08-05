@@ -268,7 +268,7 @@ if target_b_mode != curr_b_mode:
 # Dynamic CSS Injector
 st.markdown(f"""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;800&display=swap');
     
     html, body, [class*="css"] {{
         font-family: 'Plus Jakarta Sans', sans-serif;
@@ -287,75 +287,87 @@ st.markdown(f"""
         color: {app_text} !important;
     }}
     
+    /* Hero Title Holographic Gradient Styling */
+    .hero-title {{
+        font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 2.3rem !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.5px !important;
+        background: linear-gradient(135deg, #38bdf8 0%, #818cf8 40%, #c084fc 80%, #f472b6 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        margin-bottom: 12px !important;
+        text-shadow: 0 0 30px rgba(56, 189, 248, 0.2) !important;
+    }}
+    
     [data-testid="stSidebar"] {{
         background: {sidebar_bg} !important;
         backdrop-filter: blur(30px) !important;
-        border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
-        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 10px 0 35px rgba(0, 0, 0, 0.35) !important;
     }}
     
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {{
-        background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%);
+        background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 800 !important;
         font-size: 1.15rem !important;
+        letter-spacing: 0.3px !important;
     }}
     
     div.stButton > button {{
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%) !important;
         color: #ffffff !important;
-        font-weight: 800 !important;
-        border-radius: 12px !important;
-        border: 1px solid rgba(255, 255, 255, 0.3) !important;
-        padding: 10px 16px !important;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3) !important;
-        transition: all 0.25s ease-in-out !important;
+        font-weight: 700 !important;
+        border-radius: 14px !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        padding: 11px 18px !important;
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         line-height: 1.4 !important;
     }}
     
     div.stButton > button * {{
         color: #ffffff !important;
-        font-weight: 800 !important;
+        font-weight: 700 !important;
         font-size: 0.92rem !important;
     }}
     
     div.stButton > button:hover {{
-        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
-        border-color: #60a5fa !important;
-        box-shadow: 0 6px 22px rgba(59, 130, 246, 0.6) !important;
-        transform: translateY(-2px);
+        background: linear-gradient(135deg, #1d4ed8 0%, #4338ca 100%) !important;
+        border-color: #38bdf8 !important;
+        box-shadow: 0 8px 25px rgba(56, 189, 248, 0.5) !important;
+        transform: translateY(-2px) scale(1.01) !important;
     }}
 
     [data-testid="stSidebar"] div.stButton > button {{
-        background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95)) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3) !important;
     }}
     
     .glass-card {{
         background: {glass_card_bg} !important;
-        backdrop-filter: blur(20px) !important;
+        backdrop-filter: blur(24px) saturate(180%) !important;
         border: {glass_card_border} !important;
-        border-radius: 20px !important;
-        padding: 20px 24px !important;
-        margin-bottom: 20px !important;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
-    }}
-    
-    .hero-title {{
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: {title_color} !important;
-        margin-bottom: 8px;
+        border-radius: 22px !important;
+        padding: 22px 26px !important;
+        margin-bottom: 22px !important;
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
     }}
     
     .metric-card {{
         background: {metric_card_bg} !important;
-        border: 1px solid rgba(0, 0, 0, 0.1) !important;
-        border-radius: 16px !important;
-        padding: 16px !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 18px !important;
+        padding: 18px !important;
         text-align: center !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+        transition: transform 0.25s ease !important;
+    }}
+    .metric-card:hover {{
+        transform: translateY(-3px) !important;
     }}
     .metric-label {{
         color: {metric_label_color} !important;
@@ -364,13 +376,13 @@ st.markdown(f"""
     }}
     
     .stTabs [data-baseweb="tab-list"] {{
-        gap: 12px; background-color: {tab_list_bg} !important; padding: 8px; border-radius: 16px; border: 1px solid rgba(0, 0, 0, 0.1);
+        gap: 12px; background-color: {tab_list_bg} !important; padding: 8px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.1);
     }}
     .stTabs [data-baseweb="tab"] {{
-        height: 48px; border-radius: 12px; color: {metric_label_color} !important; font-weight: 700; padding: 0px 20px;
+        height: 48px; border-radius: 14px; color: {metric_label_color} !important; font-weight: 700; padding: 0px 22px; transition: all 0.25s ease;
     }}
     .stTabs [aria-selected="true"] {{
-        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important; color: #ffffff !important;
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%) !important; color: #ffffff !important; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4) !important;
     }}
 </style>
 """, unsafe_allow_html=True)
