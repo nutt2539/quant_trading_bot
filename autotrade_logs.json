@@ -1,5 +1,16 @@
 [
   {
+    "timestamp": "2026-08-05 23:27:02",
+    "symbol": "MSFT",
+    "action": "BUY",
+    "shares": 1.0,
+    "price": 489.31,
+    "total_thb": 17125.85,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น MSFT มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
     "timestamp": "2026-08-05 11:00:00",
     "symbol": "KCE.BK",
     "action": "SELL",

@@ -247,7 +247,7 @@ def run_autotrader_cycle():
                 logs.insert(0, log_entry)
                 save_auto_logs(logs)
 
-        # CASE 2: CURRENTLY HELD ASSET -> ONLY EVALUATE SELL (TECHNICAL SELL / DYNAMIC ATR TP / SL / AI DROP)
+        # CASE 2: CURRENTLY HELD ASSET -> EVALUATE ADVANCED AI DYNAMIC EXIT & EARLY PROFIT TAKING
         else:
             entry_price = held_pos_detail.get('ต้นทุนเฉลี่ย', last_price) if held_pos_detail else last_price
             hold_qty = held_pos_detail.get('จำนวนหุ้น/หน่วย', trade_qty) if held_pos_detail else trade_qty
@@ -261,25 +261,30 @@ def run_autotrader_cycle():
             eff_sl_pct = dynamic_targets["sl_pct"]
             
             pnl_pct = ((last_price - entry_price) / entry_price) * 100.0 if entry_price > 0 else 0.0
+            rsi_val = float(df_sig["RSI"].iloc[-1]) if "RSI" in df_sig.columns else 50.0
             
-            is_take_profit = (pnl_pct >= eff_tp_pct)
-            is_stop_loss = (pnl_pct <= eff_sl_pct)
-            is_tech_sell = (last_signal == -1)
-            is_ai_sell = (sentiment_score <= -0.4)
+            # Multi-Timeframe Confluence Check
+            mtf_res = analyze_multi_timeframe(symbol)
+            conf_score = float(mtf_res.get("confluence_score", 0.50))
+
+            # Advanced AI Dynamic Exit Evaluation (Global News Shift, Momentum Fading, Early Profit Taking)
+            from ai_exit_analyzer import evaluate_ai_dynamic_exit
+            should_exit, exit_type, sell_reason = evaluate_ai_dynamic_exit(
+                symbol=symbol,
+                pnl_pct=pnl_pct,
+                sentiment_score=sentiment_score,
+                rsi_val=rsi_val,
+                conf_score=conf_score,
+                eff_tp_pct=eff_tp_pct,
+                eff_sl_pct=eff_sl_pct,
+                last_signal=last_signal
+            )
             
-            if is_take_profit or is_stop_loss or is_tech_sell or is_ai_sell:
+            if should_exit:
                 is_safe, safety_reason = validate_trade_safety(symbol, "SELL", hold_total_thb)
                 if not is_safe:
                     print(f"🛑 RISK GUARD BLOCKED SELL {symbol}: {safety_reason}", flush=True)
                     continue
-                if is_take_profit:
-                    sell_reason = f"🎯 Dynamic ATR Take Profit ชนเป้า (+{pnl_pct:.2f}% >= +{eff_tp_pct:.2f}%)"
-                elif is_stop_loss:
-                    sell_reason = f"🛑 Dynamic ATR Stop Loss ตัดขาดทุน ({pnl_pct:.2f}% <= {eff_sl_pct:.2f}%)"
-                elif is_tech_sell:
-                    sell_reason = f"📉 สัญญาณเทคนิคอล {active_strategy} = SELL"
-                else:
-                    sell_reason = f"⚠️ AI ตรวจพบข่าวเชิงลบหนัก (Sentiment = {sentiment_score:+.2f})"
                     
                 log_entry = {
                     "timestamp": get_thai_str(),
@@ -288,7 +293,7 @@ def run_autotrader_cycle():
                     "shares": hold_qty,
                     "price": round(last_price, 2),
                     "total_thb": hold_total_thb,
-                    "reason": f"[{active_strategy}] {sell_reason}",
+                    "reason": f"[{active_strategy}] [{exit_type}] {sell_reason}",
                     "ai_summary": ai_res.get('summary', '')
                 }
                 print(f"🔴 AUTO SELL TRIGGERED for {symbol} ({hold_qty} units at {last_price}) | Reason: {sell_reason}", flush=True)
