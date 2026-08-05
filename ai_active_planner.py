@@ -37,6 +37,20 @@ def generate_247_active_ai_plan() -> dict:
         "systems": {}
     }
 
+    # Load old plans to diff for Telegram notifications
+    old_plans = {}
+    if os.path.exists(PREMARKET_QUEUE_FILE):
+        try:
+            with open(PREMARKET_QUEUE_FILE, "r", encoding="utf-8") as f:
+                old_data = json.load(f)
+                for sys_cat, sys_data in old_data.get("systems", {}).items():
+                    for cp in sys_data.get("candidate_plans", []):
+                        sym = cp.get("symbol", "")
+                        pt = cp.get("plan_type", "BUY")
+                        old_plans[f"{sym}_{pt}"] = True
+        except Exception:
+            pass
+
     for category, symbols in WATCHLISTS.items():
         sys_pnl = get_system_pnl(category, 100000.0)
         spendable_cash = sys_pnl.get("spendable_cash_thb", 0.0)
@@ -47,8 +61,13 @@ def generate_247_active_ai_plan() -> dict:
         candidate_plans = []
 
         for symbol in symbols:
-            if symbol in held_symbols or symbol in held_raw_symbols:
-                continue
+            is_held = False
+            held_detail = None
+            for p in sys_pnl.get("active_positions_detail", []):
+                if p.get("raw_symbol", p["ชื่อสินทรัพย์"]) == symbol or p["ชื่อสินทรัพย์"] == symbol:
+                    is_held = True
+                    held_detail = p
+                    break
 
             try:
                 # 1. News Sentiment Scan
@@ -70,7 +89,49 @@ def generate_247_active_ai_plan() -> dict:
                 mtf_res = analyze_multi_timeframe(symbol)
                 conf_score = float(mtf_res.get("confluence_score", 0.50))
 
-                # Calculate AI Win Probability Score (0 - 100%)
+                if is_held:
+                    # Evaluate Sell Plan
+                    entry_price_str = str(held_detail.get("ต้นทุน/หน่วย", last_price)).replace("$", "").replace("฿", "").replace(",", "")
+                    entry_price = float(entry_price_str)
+                    pnl_pct_str = str(held_detail.get("กำไร/ขาดทุน (%)", "0.00")).replace("+", "").replace("%", "").strip()
+                    pnl_pct = float(pnl_pct_str)
+                    
+                    from volatility_engine import calculate_atr, get_dynamic_tp_sl, get_asset_fee_pct
+                    df_sig["ATR"] = calculate_atr(df_sig, 14)
+                    last_atr = float(df_sig["ATR"].iloc[-1]) if "ATR" in df_sig.columns else 0.0
+                    dynamic_targets = get_dynamic_tp_sl(entry_price, last_atr, base_tp_pct=8.0, base_sl_pct=-3.5)
+                    
+                    from ai_exit_analyzer import evaluate_ai_dynamic_exit
+                    fee_pct = get_asset_fee_pct(symbol)
+                    should_exit, exit_type, sell_reason = evaluate_ai_dynamic_exit(
+                        symbol=symbol,
+                        pnl_pct=pnl_pct,
+                        sentiment_score=sent_score,
+                        rsi_val=rsi_val,
+                        conf_score=conf_score,
+                        eff_tp_pct=dynamic_targets["tp_pct"],
+                        eff_sl_pct=dynamic_targets["sl_pct"],
+                        last_signal=last_sig,
+                        fee_pct=fee_pct
+                    )
+                    
+                    if should_exit:
+                        candidate_plans.append({
+                            "symbol": symbol,
+                            "plan_type": "SELL",
+                            "last_price": round(last_price, 2),
+                            "win_probability_pct": 0.0,
+                            "confluence_score": round(conf_score, 2),
+                            "ai_sentiment": round(sent_score, 2),
+                            "rsi": round(rsi_val, 1),
+                            "planned_alloc_thb": 0.0,
+                            "planned_shares": 0.0,
+                            "ai_action_plan": f"🔴 [{symbol}] AI ประเมินจุดออก: {sell_reason} -> ตั้งแผนเตรียมขาย",
+                            "ai_summary": ai_summary
+                        })
+                    continue
+
+                # Calculate AI Win Probability Score for BUY Plan
                 win_prob = min(98.0, max(20.0, (conf_score * 50) + (sent_score * 30) + ((50 - min(50, rsi_val)) * 0.6) + (20 if last_sig == 1 else 0)))
 
                 if win_prob >= 55.0 and spendable_cash >= 1000.0:
@@ -80,6 +141,7 @@ def generate_247_active_ai_plan() -> dict:
 
                     candidate_plans.append({
                         "symbol": symbol,
+                        "plan_type": "BUY",
                         "last_price": round(last_price, 2),
                         "win_probability_pct": round(win_prob, 1),
                         "confluence_score": round(conf_score, 2),
@@ -87,20 +149,20 @@ def generate_247_active_ai_plan() -> dict:
                         "rsi": round(rsi_val, 1),
                         "planned_alloc_thb": round(planned_alloc_thb, 2),
                         "planned_shares": planned_shares,
-                        "ai_action_plan": f"🎯 [{symbol}] AI วิเคราะห์ข่าวเด็ด (Sentiment {sent_score:+.2f}) + โอกาสชนะ {win_prob:.1f}% -> ตั้งแผนเข้าซื้อทันทีเมื่อเปิดตลาด",
+                        "ai_action_plan": f"🟢 [{symbol}] AI วิเคราะห์ข่าวเชิงบวก (Sentiment {sent_score:+.2f}) + โอกาสชนะ {win_prob:.1f}% -> ตั้งแผนเข้าซื้อ",
                         "ai_summary": ai_summary
                     })
             except Exception as e:
                 print(f"Error scanning {symbol} in active planner: {e}")
 
-        # Sort candidates by highest AI win probability
-        candidate_plans.sort(key=lambda x: x["win_probability_pct"], reverse=True)
+        # Sort candidates: SELL plans first, then BUY plans by highest AI win probability
+        candidate_plans.sort(key=lambda x: (0 if x.get("plan_type") == "SELL" else 1, -x["win_probability_pct"]))
 
         active_plans["systems"][category] = {
             "spendable_cash_thb": round(spendable_cash, 2),
             "harvested_vault_thb": round(harvested_vault, 2),
             "held_count": len(held_symbols),
-            "candidate_plans": candidate_plans[:5]  # Top 5 highest conviction targets
+            "candidate_plans": candidate_plans[:5]  # Top 5 targets per system
         }
 
     try:
@@ -108,6 +170,23 @@ def generate_247_active_ai_plan() -> dict:
             json.dump(active_plans, f, ensure_ascii=False, indent=2)
     except Exception as e:
         print(f"Error saving premarket queue: {e}")
+        
+    # Send Notifications for NEW plans
+    try:
+        from execution_engine import send_instant_notification
+        for category, sys_data in active_plans["systems"].items():
+            for cp in sys_data.get("candidate_plans", []):
+                sym = cp.get("symbol", "")
+                pt = cp.get("plan_type", "BUY")
+                plan_key = f"{sym}_{pt}"
+                if plan_key not in old_plans:
+                    if pt == "SELL":
+                        msg = f"🔴 [AI PRE-MARKET PLAN - เตรียมขาย]\nเป้าหมาย: {sym}\nราคาปัจจุบัน: {cp.get('last_price')}\nแผนของ AI: {cp.get('ai_action_plan')}\nบทวิเคราะห์: {cp.get('ai_summary')}"
+                    else:
+                        msg = f"🟢 [AI PRE-MARKET PLAN - เตรียมซื้อ]\nเป้าหมาย: {sym}\nราคาปัจจุบัน: {cp.get('last_price')}\nความน่าจะเป็นที่จะชนะ: {cp.get('win_probability_pct')}%\nแผนของ AI: {cp.get('ai_action_plan')}\nบทวิเคราะห์: {cp.get('ai_summary')}"
+                    send_instant_notification(msg)
+    except Exception as e:
+        print(f"Error sending plan notifications: {e}")
 
     return active_plans
 

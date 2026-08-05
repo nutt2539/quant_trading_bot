@@ -72,3 +72,17 @@ def update_trailing_stop(current_price: float, highest_price: float, atr_value: 
         
     trailing_level = highest_price - (multiplier * atr_value)
     return round(max(trailing_level, current_price * 0.90), 4)
+
+def get_asset_fee_pct(symbol: str) -> float:
+    """
+    Returns the estimated round-trip transaction fee + tax percentage for the asset.
+    - THAI_STOCK (.BK): ~0.157% Maker/Taker + 7% VAT -> Safely 0.40% round trip.
+    - CRYPTO (-USD): ~0.10% Binance Maker/Taker -> 0.20% round trip.
+    - US_STOCK: SEC/TAF/Slippage -> Safely 0.15% round trip.
+    """
+    if symbol.endswith(".BK"):
+        return 0.40
+    elif symbol.endswith("-USD"):
+        return 0.20
+    else:
+        return 0.15

@@ -195,6 +195,8 @@ def get_system_pnl(target_category: str = "THAI_STOCK", initial_capital: float =
     log_vault_thb = 0.0
     master_vault_thb = 0.0
     
+    cat_key = target_cats[0]
+    
     # Source A: daily_harvest_tracker.json
     try:
         harvest_file = "daily_harvest_tracker.json"
@@ -202,7 +204,9 @@ def get_system_pnl(target_category: str = "THAI_STOCK", initial_capital: float =
             with open(harvest_file, "r", encoding="utf-8") as f_h:
                 h_data = json.load(f_h)
                 for item in h_data.get("harvest_history", []):
-                    tracker_vault_thb += float(item.get("harvested_pnl_thb", 0.0))
+                    sym = item.get("symbol", "").replace("-USD", "").replace(".BK", "")
+                    if get_asset_category(sym) in target_cats or get_asset_category(item.get("symbol", "")) in target_cats:
+                        tracker_vault_thb += float(item.get("harvested_pnl_thb", 0.0))
     except Exception as e:
         print(f"Error reading harvest tracker: {e}")
 
@@ -213,27 +217,38 @@ def get_system_pnl(target_category: str = "THAI_STOCK", initial_capital: float =
                 logs_data = json.load(f_l)
                 for log_item in logs_data:
                     if "Daily Profit Harvest" in str(log_item.get("reason", "")) or "เก็บกำไร" in str(log_item.get("reason", "")):
-                        log_vault_thb += float(log_item.get("harvested_pnl_thb", 300.0))
+                        sym = log_item.get("symbol", "").replace("-USD", "").replace(".BK", "")
+                        if get_asset_category(sym) in target_cats or get_asset_category(log_item.get("symbol", "")) in target_cats:
+                            log_vault_thb += float(log_item.get("harvested_pnl_thb", 0.0))
     except Exception as e:
         print(f"Error reading trade logs for harvest vault: {e}")
 
     # Source C: harvest_vault_master.json (Master Fail-Safe Storage)
     master_vault_file = "harvest_vault_master.json"
+    m_data = {}
     try:
         if os.path.exists(master_vault_file):
             with open(master_vault_file, "r", encoding="utf-8") as f_m:
                 m_data = json.load(f_m)
-                master_vault_thb = float(m_data.get("master_total_harvested_thb", 0.0))
+                master_vault_thb = float(m_data.get(f"{cat_key}_harvested_thb", 0.0))
     except Exception:
         pass
 
-    # FAIL-SAFE: Always enforce the MAXIMUM cumulative harvested amount across all sources
+    # FAIL-SAFE: Always enforce the MAXIMUM cumulative harvested amount across all sources for this specific category
     total_harvested_vault_thb = max(tracker_vault_thb, log_vault_thb, master_vault_thb)
 
-    # Persist the master vault total so it can NEVER drop or reset
+    # Persist the master vault total for this category so it can NEVER drop or reset
     try:
+        m_data[f"{cat_key}_harvested_thb"] = total_harvested_vault_thb
+        
+        # Also compute global total
+        global_total = sum(v for k, v in m_data.items() if k.endswith("_harvested_thb") and k != "master_total_harvested_thb")
+        if global_total > 0:
+            m_data["master_total_harvested_thb"] = max(global_total, float(m_data.get("master_total_harvested_thb", 0.0)))
+            
+        m_data["last_updated"] = str(today_dt)
         with open(master_vault_file, "w", encoding="utf-8") as f_m_w:
-            json.dump({"master_total_harvested_thb": total_harvested_vault_thb, "last_updated": str(today_dt)}, f_m_w, ensure_ascii=False, indent=2)
+            json.dump(m_data, f_m_w, ensure_ascii=False, indent=2)
     except Exception:
         pass
 

@@ -182,9 +182,9 @@ def get_daily_harvest_comparison_summary() -> dict:
                 for item in logs:
                     if "Daily Profit Harvest" in item.get("reason", "") or "เก็บกำไรเข้ากระเป๋า" in item.get("reason", ""):
                         dt_str = item.get("timestamp", "")[:10]
-                        pnl = float(item.get("harvested_pnl_thb", 300.0))
+                        pnl = float(item.get("harvested_pnl_thb", 0.0))
                         sym = item.get("symbol", "").replace("-USD", "").replace(".BK", "")
-                        if not any(r.get("date") == dt_str and r.get("symbol") == sym for r in history):
+                        if not any(r.get("date") == dt_str and r.get("symbol", "").replace("-USD", "").replace(".BK", "") == sym for r in history):
                             history.append({
                                 "date": dt_str,
                                 "timestamp": item.get("timestamp"),

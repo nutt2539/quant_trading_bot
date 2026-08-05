@@ -10,7 +10,7 @@ from execution_engine import execute_alpaca_trade, send_instant_notification, se
 from pnl_tracker import get_system_pnl, get_asset_category, get_unified_portfolio_pnl
 from risk_safety_guard import validate_market_hours, validate_trade_safety, check_daily_circuit_breaker
 from multi_timeframe_analyzer import analyze_multi_timeframe
-from volatility_engine import calculate_atr, get_dynamic_tp_sl, update_trailing_stop
+from volatility_engine import calculate_atr, get_dynamic_tp_sl, update_trailing_stop, get_asset_fee_pct
 from macro_calendar_guard import is_macro_event_near
 from kelly_position_sizer import calculate_kelly_allocation
 from robot_control import get_robot_status
@@ -269,6 +269,7 @@ def run_autotrader_cycle():
 
             # Advanced AI Dynamic Exit Evaluation (Global News Shift, Momentum Fading, Early Profit Taking)
             from ai_exit_analyzer import evaluate_ai_dynamic_exit
+            fee_pct = get_asset_fee_pct(symbol)
             should_exit, exit_type, sell_reason = evaluate_ai_dynamic_exit(
                 symbol=symbol,
                 pnl_pct=pnl_pct,
@@ -277,7 +278,8 @@ def run_autotrader_cycle():
                 conf_score=conf_score,
                 eff_tp_pct=eff_tp_pct,
                 eff_sl_pct=eff_sl_pct,
-                last_signal=last_signal
+                last_signal=last_signal,
+                fee_pct=fee_pct
             )
             
             if should_exit:
