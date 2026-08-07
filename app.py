@@ -221,6 +221,24 @@ elif b5: st.session_state.active_system = "FOREX"
 elif b6: st.session_state.active_system = "BROKER_CONFIG"
 
 st.sidebar.markdown("---")
+st.sidebar.markdown("### ⚙️ กลยุทธ์รันแยกรายสินทรัพย์ (Active Strategies):")
+all_strats = get_all_active_strategies()
+us_strat_name = config.STRATEGY_CATALOG.get(all_strats.get("US_INDEX"), {}).get("name", "Trend Following")
+gold_strat_name = config.STRATEGY_CATALOG.get(all_strats.get("GOLD"), {}).get("name", "Mean Reversion")
+crypto_strat_name = config.STRATEGY_CATALOG.get(all_strats.get("CRYPTO"), {}).get("name", "Volatility Breakout")
+forex_strat_name = config.STRATEGY_CATALOG.get(all_strats.get("FOREX"), {}).get("name", "Grid Trading")
+
+sidebar_strat_html = f"""
+<div style="font-size:0.78rem; background:rgba(255,255,255,0.06); padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.12); margin-bottom:10px;">
+    <div style="margin-bottom:6px;">🇺🇸 <strong>US Index:</strong><br><span style="color:#38bdf8; font-weight:700;">{us_strat_name}</span></div>
+    <div style="margin-bottom:6px;">🥇 <strong>Gold Bot:</strong><br><span style="color:#f59e0b; font-weight:700;">{gold_strat_name}</span></div>
+    <div style="margin-bottom:6px;">🪙 <strong>Crypto Spot:</strong><br><span style="color:#10b981; font-weight:700;">{crypto_strat_name}</span></div>
+    <div>💱 <strong>Forex Bot:</strong><br><span style="color:#a855f7; font-weight:700;">{forex_strat_name}</span></div>
+</div>
+"""
+st.sidebar.markdown(sidebar_strat_html, unsafe_allow_html=True)
+
+st.sidebar.markdown("---")
 st.sidebar.markdown("### ☀️/🌙 ธีมหน้าเว็บ (Theme Mode)")
 theme_choice = st.sidebar.radio(
     "เลือกโหมดการแสดงผล:",
@@ -1273,11 +1291,13 @@ else:
         inv_val = p_data['invested_cash_thb']
         eq_val = p_data['current_equity']
         
+        active_strat_name = config.STRATEGY_CATALOG.get(get_active_strategy(sys_cat), {}).get('name', 'Trend Following')
         sys_header_html = (
             f'<div style="background: {glass_card_bg}; backdrop-filter: blur(16px); border: {glass_card_border}; border-radius: 16px; padding: 18px 22px; margin-bottom: 20px;">'
             f'<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">'
             f'<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">'
             f'<span style="background: rgba(16, 185, 129, 0.25); border: 1px solid rgba(16, 185, 129, 0.6); color: {app_text}; padding: 5px 14px; border-radius: 20px; font-weight: 800; font-size: 0.82rem;">🤖 {sys_cat} AI AUTO-PILOT ON</span>'
+            f'<span style="background: rgba(99, 102, 241, 0.25); border: 1px solid rgba(99, 102, 241, 0.6); color: {app_text}; padding: 5px 14px; border-radius: 20px; font-weight: 800; font-size: 0.82rem;">⚙️ กลยุทธ์ที่รันอยู่: {active_strat_name}</span>'
             f'<span style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: {app_text}; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem;">{market_badge_text}</span>'
             f'<span style="color: {metric_label_color}; font-weight: 700; font-size: 0.85rem;">⏰ {now_str} (Realtime Live)</span>'
             f'</div><div><span style="color: {p_color}; font-size: 1.2rem; font-weight: 800;">กำไร/ขาดทุนรวม ({sys_cat}): {p_sign}฿{tot_thb:,.2f} ({p_sign}{tot_pct:.2f}%)</span></div></div>'
