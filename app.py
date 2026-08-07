@@ -455,7 +455,8 @@ with col_r1:
     </div>
     """, unsafe_allow_html=True)
     if st.button("⚡ ใช้กับ US Index", key="btn_apply_rec_us", use_container_width=True):
-        set_active_strategy(rec_us['strategy_key'], "US_INDEX")
+        strat_k = rec_us.get('recommended_key') or rec_us.get('strategy_key') or "VOLATILITY_BREAKOUT"
+        set_active_strategy(strat_k, "US_INDEX")
         st.success(f"สลับระบบ US Index ไปใช้ {rec_us['strategy_name']} เรียบร้อย!")
         st.rerun()
 
@@ -468,7 +469,8 @@ with col_r2:
     </div>
     """, unsafe_allow_html=True)
     if st.button("⚡ ใช้กับ Gold", key="btn_apply_rec_gold", use_container_width=True):
-        set_active_strategy(rec_gold['strategy_key'], "GOLD")
+        strat_k = rec_gold.get('recommended_key') or rec_gold.get('strategy_key') or "MEAN_REVERSION"
+        set_active_strategy(strat_k, "GOLD")
         st.success(f"สลับระบบ Gold ไปใช้ {rec_gold['strategy_name']} เรียบร้อย!")
         st.rerun()
 
@@ -481,7 +483,8 @@ with col_r3:
     </div>
     """, unsafe_allow_html=True)
     if st.button("⚡ ใช้กับ Crypto", key="btn_apply_rec_crypto", use_container_width=True):
-        set_active_strategy(rec_crypto['strategy_key'], "CRYPTO")
+        strat_k = rec_crypto.get('recommended_key') or rec_crypto.get('strategy_key') or "SUPERVISED_ML"
+        set_active_strategy(strat_k, "CRYPTO")
         st.success(f"สลับระบบ Crypto ไปใช้ {rec_crypto['strategy_name']} เรียบร้อย!")
         st.rerun()
 
@@ -494,7 +497,8 @@ with col_r4:
     </div>
     """, unsafe_allow_html=True)
     if st.button("⚡ ใช้กับ Forex", key="btn_apply_rec_forex", use_container_width=True):
-        set_active_strategy(rec_forex['strategy_key'], "FOREX")
+        strat_k = rec_forex.get('recommended_key') or rec_forex.get('strategy_key') or "ORDER_FLOW_HFT"
+        set_active_strategy(strat_k, "FOREX")
         st.success(f"สลับระบบ Forex ไปใช้ {rec_forex['strategy_name']} เรียบร้อย!")
         st.rerun()
 

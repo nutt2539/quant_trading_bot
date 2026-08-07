@@ -136,6 +136,7 @@ def recommend_daily_strategy_for_asset(category: str = "US_INDEX") -> dict:
     return {
         "category": category,
         "recommended_key": rec_key,
+        "strategy_key": rec_key,
         "strategy_name": strat_info["name"],
         "level_label": strat_info["level_label"],
         "recommendation_reason": reason,
