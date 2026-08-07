@@ -87,6 +87,12 @@ def generate_247_active_ai_plan() -> dict:
                 mtf_res = analyze_multi_timeframe(symbol)
                 conf_score = float(mtf_res.get("confluence_score", 0.50))
 
+                from volatility_engine import calculate_atr, get_dynamic_tp_sl, get_asset_fee_pct
+                df_sig["ATR"] = calculate_atr(df_sig, 14)
+                last_atr = float(df_sig["ATR"].iloc[-1]) if "ATR" in df_sig.columns and not df_sig["ATR"].isna().iloc[-1] else 0.0
+                dynamic_targets = get_dynamic_tp_sl(last_price, last_atr, base_tp_pct=8.0, base_sl_pct=-3.5)
+                fee_pct = get_asset_fee_pct(symbol)
+
                 if is_held:
                     # Evaluate Sell Plan
                     entry_price_str = str(held_detail.get("ต้นทุน/หน่วย", last_price)).replace("$", "").replace("฿", "").replace(",", "")
@@ -94,13 +100,7 @@ def generate_247_active_ai_plan() -> dict:
                     pnl_pct_str = str(held_detail.get("กำไร/ขาดทุน (%)", "0.00")).replace("+", "").replace("%", "").strip()
                     pnl_pct = float(pnl_pct_str)
                     
-                    from volatility_engine import calculate_atr, get_dynamic_tp_sl, get_asset_fee_pct
-                    df_sig["ATR"] = calculate_atr(df_sig, 14)
-                    last_atr = float(df_sig["ATR"].iloc[-1]) if "ATR" in df_sig.columns else 0.0
-                    dynamic_targets = get_dynamic_tp_sl(entry_price, last_atr, base_tp_pct=8.0, base_sl_pct=-3.5)
-                    
                     from ai_exit_analyzer import evaluate_ai_dynamic_exit
-                    fee_pct = get_asset_fee_pct(symbol)
                     should_exit, exit_type, sell_reason = evaluate_ai_dynamic_exit(
                         symbol=symbol,
                         pnl_pct=pnl_pct,

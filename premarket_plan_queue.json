@@ -1,104 +1,11 @@
 {
-  "timestamp": "2026-08-07 19:36:30",
+  "timestamp": "2026-08-07 19:38:57",
   "systems": {
     "US_INDEX": {
-      "spendable_cash_thb": 0.0,
-      "harvested_vault_thb": 600.0,
-      "held_count": 14,
-      "candidate_plans": [
-        {
-          "symbol": "NVDA",
-          "plan_type": "SELL",
-          "last_price": 218.99,
-          "win_probability_pct": 0.0,
-          "confluence_score": 0.3,
-          "ai_sentiment": 0.35,
-          "rsi": 63.1,
-          "planned_alloc_thb": 0.0,
-          "planned_shares": 0.0,
-          "tp_price": 231.78,
-          "sl_price": 195.79,
-          "tp_pct": 11.55,
-          "sl_pct": -5.77,
-          "fee_pct": 0.15,
-          "ai_action_plan": "🔴 [NVDA] AI ประเมินจุดออก: 📉 แรงซื้อ MTF 3-Timeframe เริ่มแผ่วลง (0.30) -> ขายล็อกกำไรก่อนเปลี่ยนเทรนด์ (+5.40%) -> ตั้งแผนเตรียมขาย",
-          "ai_summary": "สินทรัพย์ NVDA มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
-          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] สินทรัพย์ NVDA กำลังถูกประเมินขายทำกำไร/ตัดความเสี่ยง! เนื่องจาก 📉 แรงซื้อ MTF 3-Timeframe เริ่มแผ่วลง (0.30) -> ขายล็อกกำไรก่อนเปลี่ยนเทรนด์ (+5.40%) | ข่าวรอบโลก Sentiment Score (+0.35) | RSI (63.1) | ค่าธรรมเนียมเข้า-ออก (0.15%)",
-          "pipeline_steps": [
-            {
-              "name": "📰 Global News & Macro Scan",
-              "status": "COMPLETED",
-              "detail": "Sentiment Score: +0.35"
-            },
-            {
-              "name": "📈 Multi-Timeframe Alignment Check",
-              "status": "COMPLETED",
-              "detail": "Confluence Score: 0.30"
-            },
-            {
-              "name": "📊 Technical Levels & Risk Setup",
-              "status": "COMPLETED",
-              "detail": "RSI: 63.1 | SL: -5.8%"
-            },
-            {
-              "name": "🧮 Smart Fee & Net Profit Filter",
-              "status": "COMPLETED",
-              "detail": "Round-trip Fee: 0.15%"
-            },
-            {
-              "name": "⚡ Exit Order Execution Ready",
-              "status": "IN_PROGRESS",
-              "detail": "กำลังสแตนด์บายเตรียมส่งออเดอร์ขาย"
-            }
-          ]
-        },
-        {
-          "symbol": "MSFT",
-          "plan_type": "SELL",
-          "last_price": 499.86,
-          "win_probability_pct": 0.0,
-          "confluence_score": 0.5,
-          "ai_sentiment": 0.35,
-          "rsi": 82.4,
-          "planned_alloc_thb": 0.0,
-          "planned_shares": 0.0,
-          "tp_price": 544.6,
-          "sl_price": 461.66,
-          "tp_pct": 11.3,
-          "sl_pct": -5.65,
-          "fee_pct": 0.15,
-          "ai_action_plan": "🔴 [MSFT] AI ประเมินจุดออก: 📈 RSI เข้าเขต Overbought สูง (82.4) -> ขายล็อกกำไรก่อนราคาย่อตัว (+2.16%) -> ตั้งแผนเตรียมขาย",
-          "ai_summary": "สินทรัพย์ MSFT มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
-          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] สินทรัพย์ MSFT กำลังถูกประเมินขายทำกำไร/ตัดความเสี่ยง! เนื่องจาก 📈 RSI เข้าเขต Overbought สูง (82.4) -> ขายล็อกกำไรก่อนราคาย่อตัว (+2.16%) | ข่าวรอบโลก Sentiment Score (+0.35) | RSI (82.4) | ค่าธรรมเนียมเข้า-ออก (0.15%)",
-          "pipeline_steps": [
-            {
-              "name": "📰 Global News & Macro Scan",
-              "status": "COMPLETED",
-              "detail": "Sentiment Score: +0.35"
-            },
-            {
-              "name": "📈 Multi-Timeframe Alignment Check",
-              "status": "COMPLETED",
-              "detail": "Confluence Score: 0.50"
-            },
-            {
-              "name": "📊 Technical Levels & Risk Setup",
-              "status": "COMPLETED",
-              "detail": "RSI: 82.4 | SL: -5.7%"
-            },
-            {
-              "name": "🧮 Smart Fee & Net Profit Filter",
-              "status": "COMPLETED",
-              "detail": "Round-trip Fee: 0.15%"
-            },
-            {
-              "name": "⚡ Exit Order Execution Ready",
-              "status": "IN_PROGRESS",
-              "detail": "กำลังสแตนด์บายเตรียมส่งออเดอร์ขาย"
-            }
-          ]
-        }
-      ]
+      "spendable_cash_thb": 100000.0,
+      "harvested_vault_thb": 0.0,
+      "held_count": 0,
+      "candidate_plans": []
     },
     "GOLD": {
       "spendable_cash_thb": 90000.0,
@@ -107,158 +14,16 @@
       "candidate_plans": []
     },
     "CRYPTO": {
-      "spendable_cash_thb": 0.0,
-      "harvested_vault_thb": 2594.67,
-      "held_count": 8,
-      "candidate_plans": [
-        {
-          "symbol": "XRP-USD",
-          "plan_type": "SELL",
-          "last_price": 1.04,
-          "win_probability_pct": 0.0,
-          "confluence_score": 0.7,
-          "ai_sentiment": 0.35,
-          "rsi": 35.1,
-          "planned_alloc_thb": 0.0,
-          "planned_shares": 0.0,
-          "tp_price": 1.16,
-          "sl_price": 1.04,
-          "tp_pct": 6.98,
-          "sl_pct": -3.49,
-          "fee_pct": 0.2,
-          "ai_action_plan": "🔴 [XRP-USD] AI ประเมินจุดออก: 🛑 HARD CUT-LOSS: ชนเกณฑ์ Stop-Loss สูงสุด (-4.16% <= -3.49%) กัดฟันขายทันทีเพื่อปกป้องเงินต้น! -> ตั้งแผนเตรียมขาย",
-          "ai_summary": "สินทรัพย์ XRP-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
-          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] สินทรัพย์ XRP-USD กำลังถูกประเมินขายทำกำไร/ตัดความเสี่ยง! เนื่องจาก 🛑 HARD CUT-LOSS: ชนเกณฑ์ Stop-Loss สูงสุด (-4.16% <= -3.49%) กัดฟันขายทันทีเพื่อปกป้องเงินต้น! | ข่าวรอบโลก Sentiment Score (+0.35) | RSI (35.1) | ค่าธรรมเนียมเข้า-ออก (0.2%)",
-          "pipeline_steps": [
-            {
-              "name": "📰 Global News & Macro Scan",
-              "status": "COMPLETED",
-              "detail": "Sentiment Score: +0.35"
-            },
-            {
-              "name": "📈 Multi-Timeframe Alignment Check",
-              "status": "COMPLETED",
-              "detail": "Confluence Score: 0.70"
-            },
-            {
-              "name": "📊 Technical Levels & Risk Setup",
-              "status": "COMPLETED",
-              "detail": "RSI: 35.1 | SL: -3.5%"
-            },
-            {
-              "name": "🧮 Smart Fee & Net Profit Filter",
-              "status": "COMPLETED",
-              "detail": "Round-trip Fee: 0.2%"
-            },
-            {
-              "name": "⚡ Exit Order Execution Ready",
-              "status": "IN_PROGRESS",
-              "detail": "กำลังสแตนด์บายเตรียมส่งออเดอร์ขาย"
-            }
-          ]
-        }
-      ]
-    },
-    "FOREX": {
-      "spendable_cash_thb": 29888.56,
+      "spendable_cash_thb": 80000.0,
       "harvested_vault_thb": 0.0,
       "held_count": 0,
-      "candidate_plans": [
-        {
-          "symbol": "GBPUSD=X",
-          "plan_type": "BUY",
-          "last_price": 1.35,
-          "win_probability_pct": 55.5,
-          "confluence_score": 0.5,
-          "ai_sentiment": 0.35,
-          "rsi": 54.0,
-          "planned_alloc_thb": 10000.0,
-          "planned_shares": 211.76,
-          "tp_price": 8.96,
-          "sl_price": 7.84,
-          "tp_pct": 9.09,
-          "sl_pct": -4.54,
-          "fee_pct": 0.2,
-          "est_net_profit_thb": 889.0,
-          "ai_action_plan": "🟢 [GBPUSD=X] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 55.5% -> ตั้งแผนเข้าซื้อ",
-          "ai_summary": "สินทรัพย์ GBPUSD=X มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
-          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน GBPUSD=X! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (54.0) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +9.1% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿889.00 บาท)",
-          "pipeline_steps": [
-            {
-              "name": "📰 Global News & Macro Scan",
-              "status": "COMPLETED",
-              "detail": "Sentiment Score: +0.35"
-            },
-            {
-              "name": "📈 Multi-Timeframe Alignment Check",
-              "status": "COMPLETED",
-              "detail": "Confluence Score: 0.50"
-            },
-            {
-              "name": "📊 Technical Levels & Risk Setup",
-              "status": "COMPLETED",
-              "detail": "RSI: 54.0 | TP Target: +9.1%"
-            },
-            {
-              "name": "🧮 Smart Fee & Net Profit Filter",
-              "status": "COMPLETED",
-              "detail": "Fee 0.2% -> Est Net Profit +฿889.00"
-            },
-            {
-              "name": "⚡ Order Trigger Ready",
-              "status": "IN_PROGRESS",
-              "detail": "พร้อมยิงออเดอร์ทันทีเมื่อเข้าเงื่อนไข Real-time"
-            }
-          ]
-        },
-        {
-          "symbol": "AUDUSD=X",
-          "plan_type": "BUY",
-          "last_price": 0.71,
-          "win_probability_pct": 55.5,
-          "confluence_score": 0.5,
-          "ai_sentiment": 0.35,
-          "rsi": 64.2,
-          "planned_alloc_thb": 10000.0,
-          "planned_shares": 404.0286,
-          "tp_price": 8.96,
-          "sl_price": 7.84,
-          "tp_pct": 9.09,
-          "sl_pct": -4.54,
-          "fee_pct": 0.2,
-          "est_net_profit_thb": 889.0,
-          "ai_action_plan": "🟢 [AUDUSD=X] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 55.5% -> ตั้งแผนเข้าซื้อ",
-          "ai_summary": "สินทรัพย์ AUDUSD=X มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
-          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน AUDUSD=X! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (64.2) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +9.1% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿889.00 บาท)",
-          "pipeline_steps": [
-            {
-              "name": "📰 Global News & Macro Scan",
-              "status": "COMPLETED",
-              "detail": "Sentiment Score: +0.35"
-            },
-            {
-              "name": "📈 Multi-Timeframe Alignment Check",
-              "status": "COMPLETED",
-              "detail": "Confluence Score: 0.50"
-            },
-            {
-              "name": "📊 Technical Levels & Risk Setup",
-              "status": "COMPLETED",
-              "detail": "RSI: 64.2 | TP Target: +9.1%"
-            },
-            {
-              "name": "🧮 Smart Fee & Net Profit Filter",
-              "status": "COMPLETED",
-              "detail": "Fee 0.2% -> Est Net Profit +฿889.00"
-            },
-            {
-              "name": "⚡ Order Trigger Ready",
-              "status": "IN_PROGRESS",
-              "detail": "พร้อมยิงออเดอร์ทันทีเมื่อเข้าเงื่อนไข Real-time"
-            }
-          ]
-        }
-      ]
+      "candidate_plans": []
+    },
+    "FOREX": {
+      "spendable_cash_thb": 30000.0,
+      "harvested_vault_thb": 0.0,
+      "held_count": 0,
+      "candidate_plans": []
     }
   }
 }
