@@ -143,8 +143,9 @@ def generate_247_active_ai_plan() -> dict:
                         })
                     continue
 
-                # Calculate AI Win Probability Score for BUY Plan
-                win_prob = min(98.0, max(20.0, (conf_score * 50) + (sent_score * 30) + ((50 - min(50, rsi_val)) * 0.6) + (20 if last_sig == 1 else 0)))
+                # Calculate AI Win Probability Score for BUY Plan based on Strategy Fit & Indicators
+                strat_bonus = 15.0 if last_sig == 1 else 0.0
+                win_prob = min(98.0, max(20.0, (conf_score * 45) + (sent_score * 25) + ((50 - min(50, rsi_val)) * 0.5) + strat_bonus + 10.0))
 
                 if win_prob >= 55.0 and spendable_cash >= 1000.0:
                     fx_rate = 35.0 if not symbol.endswith(".BK") else 1.0
