@@ -1,3 +1,7 @@
 {
-  "active_strategy": "CUSTOM"
+  "US_INDEX": "TREND_FOLLOWING",
+  "GOLD": "MEAN_REVERSION",
+  "CRYPTO": "VOLATILITY_BREAKOUT",
+  "FOREX": "GRID_TRADING",
+  "active_strategy": "TREND_FOLLOWING"
 }
