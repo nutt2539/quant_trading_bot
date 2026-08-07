@@ -4,7 +4,8 @@ import os
 from datetime import datetime
 import config
 from data_loader import fetch_stock_data
-from strategies.swing_strategy import generate_swing_trading_signals, get_active_strategy, get_custom_strategy_params
+from strategies.quant_strategy_library import generate_quant_signal
+from strategies.swing_strategy import get_active_strategy, get_custom_strategy_params
 from ai_analyst import analyze_stock_sentiment
 from execution_engine import execute_alpaca_trade, send_instant_notification, send_hourly_portfolio_summary
 from pnl_tracker import get_system_pnl, get_asset_category, get_unified_portfolio_pnl
@@ -153,11 +154,12 @@ def run_autotrader_cycle():
         alloc_pct, tp_pct, sl_pct, min_ai_sentiment = 20.0, 8.0, -3.5, 0.10
         
     logs = load_auto_logs()
-    all_watchlist = config.THAI_WATCHLIST + config.US_WATCHLIST + config.CRYPTO_WATCHLIST
+    all_watchlist = config.US_INDEX_WATCHLIST + config.GOLD_WATCHLIST + config.CRYPTO_WATCHLIST + config.FOREX_WATCHLIST
     
-    thai_sys = get_system_pnl("THAI_STOCK", 100000.0)
-    us_sys = get_system_pnl("US_STOCK", 100000.0)
-    crypto_sys = get_system_pnl("CRYPTO", 100000.0)
+    system_pnls = {
+        cat: get_system_pnl(cat, config.SYSTEM_ALLOCATIONS.get(cat, 100000.0))
+        for cat in ["US_INDEX", "GOLD", "CRYPTO", "FOREX"]
+    }
     
     for symbol in all_watchlist:
         if not is_market_open(symbol):
@@ -170,7 +172,7 @@ def run_autotrader_cycle():
         is_currently_held = False
         held_pos_detail = None
         
-        target_sys = thai_sys if category == "THAI_STOCK" else (us_sys if category == "US_STOCK" else crypto_sys)
+        target_sys = system_pnls.get(category, system_pnls["US_INDEX"])
         for p in target_sys['active_positions_detail']:
             if p.get('ชื่อสินทรัพย์') in [symbol, display_sym]:
                 is_currently_held = True
@@ -181,12 +183,12 @@ def run_autotrader_cycle():
         if df.empty:
             continue
             
-        df_sig = generate_swing_trading_signals(df, strategy_key=active_strategy)
-        last_signal = df_sig['Signal'].iloc[-1]
-        last_price = df_sig['Close'].iloc[-1]
-        
         ai_res = analyze_stock_sentiment(symbol)
         sentiment_score = ai_res.get('sentiment_score', 0.0)
+
+        df_sig = generate_quant_signal(df, strategy_key=active_strategy, news_sentiment=sentiment_score)
+        last_signal = df_sig['Signal'].iloc[-1]
+        last_price = df_sig['Close'].iloc[-1]
         
         fresh_sys_pnl = get_system_pnl(category, 100000.0)
         sys_cash = fresh_sys_pnl.get('spendable_cash_thb', fresh_sys_pnl['cash_balance_thb'])

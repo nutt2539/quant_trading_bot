@@ -12,23 +12,27 @@ TRADE_LOG_FILE = "autotrade_logs.json"
 
 def get_asset_category(symbol: str) -> str:
     """
-    Categorizes symbol into THAI_STOCK, US_STOCK, or CRYPTO.
+    Categorizes symbol into US_INDEX, GOLD, CRYPTO, or FOREX.
     """
-    if symbol in config.CRYPTO_WATCHLIST or symbol.endswith("-USD") or symbol in ["BTC", "ETH", "SOL", "BNB", "ADA", "XRP", "AVAX", "LINK"]:
+    if symbol in config.GOLD_WATCHLIST or symbol in ["GC=F", "XAUUSD=X", "GLD", "IAU"]:
+        return "GOLD"
+    elif symbol in config.CRYPTO_WATCHLIST or symbol.endswith("-USD") or symbol in ["BTC", "ETH", "SOL", "BNB", "ADA", "XRP", "AVAX", "LINK"]:
         return "CRYPTO"
-    elif symbol.endswith(".BK") or symbol in config.THAI_WATCHLIST:
-        return "THAI_STOCK"
+    elif symbol in config.FOREX_WATCHLIST or (symbol.endswith("=X") and symbol not in ["GC=F", "XAUUSD=X"]):
+        return "FOREX"
     else:
-        return "US_STOCK"
+        return "US_INDEX"
 
-def get_system_pnl(target_category: str = "THAI_STOCK", initial_capital: float = 100000.0) -> dict:
+def get_system_pnl(target_category: str = "US_INDEX", initial_capital: float = None) -> dict:
     """
     Calculates Real-Time PnL, Remaining Cash Balance, Cumulative Take Profit, Cumulative Cut Loss, and Active Holdings Detail for a specific system.
     """
-    # Legacy alias support: map 'STOCK' -> 'THAI_STOCK' or include all stocks if requested
+    if initial_capital is None:
+        initial_capital = config.SYSTEM_ALLOCATIONS.get(target_category, 100000.0)
+        
     target_cats = [target_category]
-    if target_category == "STOCK":
-        target_cats = ["THAI_STOCK", "US_STOCK"]
+    if target_category in ["STOCK", "THAI_STOCK", "US_STOCK"]:
+        target_cats = ["US_INDEX", target_category]
 
     realized_pnl = 0.0
     closed_trades_count = 0
@@ -287,39 +291,41 @@ def get_system_pnl(target_category: str = "THAI_STOCK", initial_capital: float =
         'pnl_7days': pnl_7days,
         'realized_pnl_thb': round(realized_pnl, 2),
         'unrealized_pnl_thb': round(unrealized_pnl, 2),
-        'cumulative_take_profit_thb': round(cumulative_take_profit_thb, 2),
-        'cumulative_cut_loss_thb': round(cumulative_cut_loss_thb, 2),
-        'closed_trades': closed_trades_count,
-        'win_rate': round(win_rate, 1),
-        'active_positions_detail': active_positions_detail
-    }
+                        'cumulative_take_profit_thb': round(cumulative_take_profit_thb, 2),
+                        'cumulative_cut_loss_thb': round(cumulative_cut_loss_thb, 2),
+                        'closed_trades': closed_trades_count,
+                        'win_rate': round(win_rate, 1),
+                        'active_positions_detail': active_positions_detail
+                    }
 
 def get_realtime_portfolio_pnl(initial_capital: float = 100000.0) -> dict:
     return get_system_pnl(target_category="THAI_STOCK", initial_capital=initial_capital)
 
 def get_unified_portfolio_pnl() -> dict:
     """
-    Computes Master Unified PnL across 3 dedicated systems:
-    1. หุ้นไทย (THAI_STOCK): ทุน ฿100,000
-    2. หุ้นอเมริกา (US_STOCK): ทุน ฿100,000 (ย้ายมาจาก Forex)
-    3. คริปโทฯ (CRYPTO): ทุน ฿100,000
-    Total Initial Capital: 300,000 THB.
+    Combines PnL metrics across all 4 asset systems (US_INDEX ฿100k, GOLD ฿90k, CRYPTO ฿80k, FOREX ฿30k).
+    Total Capital = 300,000 THB.
     """
-    thai_stock_pnl = get_system_pnl("THAI_STOCK", 100000.0)
-    us_stock_pnl = get_system_pnl("US_STOCK", 100000.0)
-    crypto_pnl = get_system_pnl("CRYPTO", 100000.0)
+    us_index_pnl = get_system_pnl("US_INDEX", config.US_INDEX_ALLOCATION_THB)
+    gold_pnl = get_system_pnl("GOLD", config.GOLD_ALLOCATION_THB)
+    crypto_pnl = get_system_pnl("CRYPTO", config.CRYPTO_ALLOCATION_THB)
+    forex_pnl = get_system_pnl("FOREX", config.FOREX_ALLOCATION_THB)
+
+    total_initial = config.TOTAL_CAPITAL_THB
+    total_equity = us_index_pnl['current_equity'] + gold_pnl['current_equity'] + crypto_pnl['current_equity'] + forex_pnl['current_equity']
+    total_cash = us_index_pnl['cash_balance_thb'] + gold_pnl['cash_balance_thb'] + crypto_pnl['cash_balance_thb'] + forex_pnl['cash_balance_thb']
+    total_invested = us_index_pnl['invested_cash_thb'] + gold_pnl['invested_cash_thb'] + crypto_pnl['invested_cash_thb'] + forex_pnl['invested_cash_thb']
     
-    total_initial = 300000.0
-    total_equity = thai_stock_pnl['current_equity'] + us_stock_pnl['current_equity'] + crypto_pnl['current_equity']
-    total_cash = thai_stock_pnl['cash_balance_thb'] + us_stock_pnl['cash_balance_thb'] + crypto_pnl['cash_balance_thb']
-    total_invested = thai_stock_pnl['invested_cash_thb'] + us_stock_pnl['invested_cash_thb'] + crypto_pnl['invested_cash_thb']
-    total_pnl_thb = thai_stock_pnl['total_pnl_thb'] + us_stock_pnl['total_pnl_thb'] + crypto_pnl['total_pnl_thb']
-    total_pnl_pct = (total_pnl_thb / total_initial) * 100
+    total_pnl_thb = total_equity - total_initial
+    total_pnl_pct = (total_pnl_thb / total_initial * 100.0) if total_initial > 0 else 0.0
     
-    total_tp_thb = thai_stock_pnl['cumulative_take_profit_thb'] + us_stock_pnl['cumulative_take_profit_thb'] + crypto_pnl['cumulative_take_profit_thb']
-    total_cl_thb = thai_stock_pnl['cumulative_cut_loss_thb'] + us_stock_pnl['cumulative_cut_loss_thb'] + crypto_pnl['cumulative_cut_loss_thb']
+    total_tp_thb = (us_index_pnl['cumulative_take_profit_thb'] + gold_pnl['cumulative_take_profit_thb'] +
+                    crypto_pnl['cumulative_take_profit_thb'] + forex_pnl['cumulative_take_profit_thb'])
+    total_cl_thb = (us_index_pnl['cumulative_cut_loss_thb'] + gold_pnl['cumulative_cut_loss_thb'] +
+                    crypto_pnl['cumulative_cut_loss_thb'] + forex_pnl['cumulative_cut_loss_thb'])
     
-    all_active_positions = thai_stock_pnl['active_positions_detail'] + us_stock_pnl['active_positions_detail'] + crypto_pnl['active_positions_detail']
+    all_active_positions = (us_index_pnl['active_positions_detail'] + gold_pnl['active_positions_detail'] +
+                            crypto_pnl['active_positions_detail'] + forex_pnl['active_positions_detail'])
     
     return {
         'total_initial': total_initial,
@@ -330,10 +336,13 @@ def get_unified_portfolio_pnl() -> dict:
         'total_pnl_pct': round(total_pnl_pct, 2),
         'total_take_profit_thb': round(total_tp_thb, 2),
         'total_cut_loss_thb': round(total_cl_thb, 2),
-        'thai_stock_pnl': thai_stock_pnl,
-        'us_stock_pnl': us_stock_pnl,
+        'us_index_pnl': us_index_pnl,
+        'gold_pnl': gold_pnl,
         'crypto_pnl': crypto_pnl,
-        'stock_pnl': thai_stock_pnl,  # Alias for backward compatibility
+        'forex_pnl': forex_pnl,
+        'thai_stock_pnl': us_index_pnl,  # Alias
+        'us_stock_pnl': us_index_pnl,    # Alias
+        'stock_pnl': us_index_pnl,       # Alias
         'all_active_positions': all_active_positions
     }
 

@@ -203,19 +203,21 @@ def check_forex_market_status(now_dt):
 
 # ==================== MODERN ABSTRACT GRAPHIC SIDEBAR & THEME TOGGLE ====================
 st.sidebar.markdown("### ⚡ QUANT AI SYSTEM SELECTOR")
-st.sidebar.caption("คลิกเลือกเปิดดูระบบการเทรดที่ต้องการ:")
+st.sidebar.caption("คลิกเลือกเปิดดูระบบการเทรดที่ต้องการ (ทุนรวม ฿300,000):")
 
-b1 = st.sidebar.button("🌐 ศูนย์กลางรวม 3 ระบบ\n(Master Command Center)", use_container_width=True)
-b2 = st.sidebar.button("🇹🇭 ระบบเทรดหุ้นไทย\n(Thai SET100 - ทุน ฿100k)", use_container_width=True)
-b3 = st.sidebar.button("🇺🇸 ระบบเทรดหุ้นอเมริกา\n(US Stocks - ทุน ฿100k)", use_container_width=True)
-b4 = st.sidebar.button("🪙 ระบบเทรดคริปโทฯ\n(24/7 Crypto Bot - ทุน ฿100k)", use_container_width=True)
-b5 = st.sidebar.button("🔑 ตั้งค่า Broker API Keys\n(Live Credentials Center)", use_container_width=True)
+b1 = st.sidebar.button("🌐 ศูนย์กลางรวม 4 ระบบ\n(Master Command Center - ฿300k)", use_container_width=True)
+b2 = st.sidebar.button("🇺🇸 ดัชนีหุ้นสหรัฐฯ\n(S&P 500 / NASDAQ - ฿100k)", use_container_width=True)
+b3 = st.sidebar.button("🥇 บอททองคำ\n(Gold Bot - ฿90k)", use_container_width=True)
+b4 = st.sidebar.button("🪙 บอท Crypto Spot\n(24/7 Crypto Bot - ฿80k)", use_container_width=True)
+b5 = st.sidebar.button("💱 บอท Forex\n(24/5 Forex Bot - ฿30k)", use_container_width=True)
+b6 = st.sidebar.button("🔑 ตั้งค่า Broker API Keys\n(Live Credentials Center)", use_container_width=True)
 
 if b1: st.session_state.active_system = "UNIFIED"
-elif b2: st.session_state.active_system = "THAI_STOCK"
-elif b3: st.session_state.active_system = "US_STOCK"
+elif b2: st.session_state.active_system = "US_INDEX"
+elif b3: st.session_state.active_system = "GOLD"
 elif b4: st.session_state.active_system = "CRYPTO"
-elif b5: st.session_state.active_system = "BROKER_CONFIG"
+elif b5: st.session_state.active_system = "FOREX"
+elif b6: st.session_state.active_system = "BROKER_CONFIG"
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### ☀️/🌙 ธีมหน้าเว็บ (Theme Mode)")
@@ -405,43 +407,66 @@ if st.session_state.pending_strategy_modal and hasattr(st, 'dialog'):
     show_strategy_dialog(st.session_state.pending_strategy_modal)
 
 # ==================== SLEEK COMPACT STRATEGY DROPDOWN BAR & REAL-TIME AI RECOMMENDATION ====================
-# 1. REAL-TIME AUTOMATIC AI RECOMMENDATION BANNER (แสดงข้อความทันที ไม่ต้องกดปุ่ม)
-ai_rec = get_cached_ai_recommendation("BTC-USD")
-rec_key = ai_rec.get("recommended_key", "BALANCED_SWING")
-rec_info = STRATEGY_DETAILS.get(rec_key, STRATEGY_DETAILS["BALANCED_SWING"])
+# 1. REAL-TIME AUTOMATIC AI RECOMMENDATION BANNER FOR 4 ASSETS
+rec_us = ai_analyst.recommend_daily_strategy_for_asset("US_INDEX")
+rec_gold = ai_analyst.recommend_daily_strategy_for_asset("GOLD")
+rec_crypto = ai_analyst.recommend_daily_strategy_for_asset("CRYPTO")
+rec_forex = ai_analyst.recommend_daily_strategy_for_asset("FOREX")
+
 is_dark = (st.session_state.theme_mode == "DARK")
 txt_color = "#f8fafc" if is_dark else "#1e293b"
 sub_txt_color = "#94a3b8" if is_dark else "#475569"
 
 st.markdown(f"""
-<div style="background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;">
+<div style="background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 14px; padding: 14px 18px; margin-bottom: 16px;">
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-        <div>
-            <span style="font-weight: 800; font-size: 1.02rem; color: #6366f1;">🤖 AI Real-Time Strategy Recommendation:</span>
-            <span style="margin-left: 8px; font-weight: 700; font-size: 1.02rem; color: {txt_color};">{rec_info['icon']} {rec_info['name']}</span>
-        </div>
+        <span style="font-weight: 800; font-size: 1.05rem; color: #6366f1;">🤖 Daily AI Strategy Recommendations (แนะนำกลยุทธ์ประจำวันโดย AI):</span>
         <span style="font-size: 0.82rem; font-weight: 600; color: #6366f1; background: rgba(99, 102, 241, 0.18); padding: 3px 8px; border-radius: 6px;">อัปเดตเรียลไทม์สด</span>
     </div>
-    <div style="font-size: 0.92rem; color: {sub_txt_color}; margin-top: 4px; font-weight: 500;">
-        💡 <strong>วิเคราะห์สภาวะตลาดสด:</strong> {ai_rec['reason']}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 10px;">
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border-left: 3px solid #38bdf8;">
+            <div style="font-size: 0.82rem; color: #38bdf8; font-weight: 700;">🇺🇸 US Index (฿100k)</div>
+            <div style="font-size: 0.88rem; color: #f8fafc; font-weight: 700; margin-top: 2px;">{rec_us['strategy_name']}</div>
+            <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">💡 {rec_us['recommendation_reason']}</div>
+        </div>
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border-left: 3px solid #f59e0b;">
+            <div style="font-size: 0.82rem; color: #f59e0b; font-weight: 700;">🥇 Gold (฿90k)</div>
+            <div style="font-size: 0.88rem; color: #f8fafc; font-weight: 700; margin-top: 2px;">{rec_gold['strategy_name']}</div>
+            <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">💡 {rec_gold['recommendation_reason']}</div>
+        </div>
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border-left: 3px solid #10b981;">
+            <div style="font-size: 0.82rem; color: #10b981; font-weight: 700;">🪙 Crypto Spot (฿80k)</div>
+            <div style="font-size: 0.88rem; color: #f8fafc; font-weight: 700; margin-top: 2px;">{rec_crypto['strategy_name']}</div>
+            <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">💡 {rec_crypto['recommendation_reason']}</div>
+        </div>
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border-left: 3px solid #a855f7;">
+            <div style="font-size: 0.82rem; color: #a855f7; font-weight: 700;">💱 Forex (฿30k)</div>
+            <div style="font-size: 0.88rem; color: #f8fafc; font-weight: 700; margin-top: 2px;">{rec_forex['strategy_name']}</div>
+            <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">💡 {rec_forex['recommendation_reason']}</div>
+        </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-col_strat1, col_strat2, col_strat3 = st.columns([2.0, 1.0, 1.2])
+col_strat1, col_strat2, col_strat3 = st.columns([2.2, 1.0, 1.2])
 
-strategy_map = {f"{info['icon']} {info['name']}": key for key, info in STRATEGY_DETAILS.items()}
-strategy_keys = list(STRATEGY_DETAILS.keys())
+strategy_options = {
+    f"[{info['level_label']}] {info['name']}": key 
+    for key, info in config.STRATEGY_CATALOG.items()
+}
+
 curr_key = st.session_state.current_active_strategy
-curr_index = strategy_keys.index(curr_key) if curr_key in strategy_keys else 0
+option_keys = list(strategy_options.values())
+curr_index = option_keys.index(curr_key) if curr_key in option_keys else 0
 
 with col_strat1:
     selected_label = st.selectbox(
-        "⚙️ เลือกกลยุทธ์การเทรด (Strategy Dropdown Menu):",
-        options=list(strategy_map.keys()),
-        index=curr_index
+        "⚙️ เลือกกลยุทธ์การเทรด 10 รูปแบบ (3 ระดับ Beginner / Intermediate / Professional):",
+        options=list(strategy_options.keys()),
+        index=curr_index,
+        key="strategy_selector_dropdown"
     )
-    chosen_key = strategy_map[selected_label]
+    chosen_key = strategy_options[selected_label]
 
 with col_strat2:
     st.markdown("<div style='margin-top:28px;'></div>", unsafe_allow_html=True)
@@ -742,15 +767,16 @@ if st.session_state.active_system == "UNIFIED":
     with st.expander("🧠 ⚡ คลิกเปิด/พับเก็บ: ศูนย์วิเคราะห์ข่าว AI 24 ชั่วโมง & แผนเตรียมเข้าซื้อล่วงหน้า (24/7 Active AI Pre-Market Strategy Queue)", expanded=True):
         st.markdown("<div style='font-size:0.95rem; font-weight:700; color:#38bdf8; margin-bottom:8px;'>🤖 AI Robot สแกนข่าวการเงิน สถิติราคา และคำนวณโอกาสชนะ (Win Probability %) ตลอด 24 ชั่วโมงแม้ตลาดปิด เพื่อตั้งแผนเข้าซื้อทันทีเมื่อเปิดตลาด:</div>", unsafe_allow_html=True)
         
-        plan_cols = st.columns(3)
-        sys_labels = {"THAI_STOCK": "🇹🇭 หุ้นไทย (SET100)", "US_STOCK": "🇺🇸 หุ้นอเมริกา (US)", "CRYPTO": "🪙 คริปโทฯ (24/7)"}
+        plan_cols = st.columns(4)
+        sys_labels = config.SYSTEM_LABELS
         
         for idx, (sys_code, sys_label) in enumerate(sys_labels.items()):
             with plan_cols[idx]:
                 sys_plan = ai_plan_data.get("systems", {}).get(sys_code, {})
                 sp_cash = sys_plan.get("spendable_cash_thb", 0.0)
+                init_cap = config.SYSTEM_ALLOCATIONS.get(sys_code, 100000.0)
                 # Fetch fresh category-specific harvested vault
-                sys_pnl_fresh = pnl_tracker.get_system_pnl(sys_code, 100000.0)
+                sys_pnl_fresh = pnl_tracker.get_system_pnl(sys_code, init_cap)
                 hv_cash = sys_pnl_fresh.get("harvested_vault_thb", sys_plan.get("harvested_vault_thb", 0.0))
                 candidates = sys_plan.get("candidate_plans", [])
                 

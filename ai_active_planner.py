@@ -12,6 +12,7 @@ Features:
 import json
 import os
 from datetime import datetime
+import config
 from utils_tz import get_thai_now, get_thai_str
 from pnl_tracker import get_system_pnl
 from ai_analyst import analyze_stock_sentiment
@@ -21,11 +22,7 @@ from multi_timeframe_analyzer import analyze_multi_timeframe
 
 PREMARKET_QUEUE_FILE = "premarket_plan_queue.json"
 
-WATCHLISTS = {
-    "THAI_STOCK": ["BDMS.BK", "KCE.BK", "MINT.BK", "HANA.BK", "PTT.BK", "SCB.BK", "ADVANC.BK", "CPALL.BK", "AOT.BK", "KBANK.BK"],
-    "US_STOCK": ["NVDA", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "AMD", "NFLX", "AAPL", "COST", "PLTR", "COIN", "ORCL"],
-    "CRYPTO": ["BTC-USD", "ETH-USD", "SOL-USD", "BNB-USD", "LINK-USD", "XRP-USD", "DOGE-USD", "AVAX-USD", "NEAR-USD", "DOT-USD"]
-}
+WATCHLISTS = config.SYSTEM_WATCHLISTS
 
 def generate_247_active_ai_plan() -> dict:
     """
@@ -52,7 +49,8 @@ def generate_247_active_ai_plan() -> dict:
             pass
 
     for category, symbols in WATCHLISTS.items():
-        sys_pnl = get_system_pnl(category, 100000.0)
+        init_cap = config.SYSTEM_ALLOCATIONS.get(category, 100000.0)
+        sys_pnl = get_system_pnl(category, init_cap)
         spendable_cash = sys_pnl.get("spendable_cash_thb", 0.0)
         harvested_vault = sys_pnl.get("harvested_vault_thb", 0.0)
         held_symbols = [p["ชื่อสินทรัพย์"] for p in sys_pnl.get("active_positions_detail", [])]
