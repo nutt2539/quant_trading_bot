@@ -240,15 +240,15 @@ st.sidebar.markdown(sidebar_strat_html, unsafe_allow_html=True)
 
 if st.sidebar.button("🤖 ⚡ ปรับกลยุทธ์ทุก Asset ตาม AI แนะนำ", key="btn_apply_all_ai_strats", use_container_width=True):
     with st.spinner("AI กำลังวิเคราะห์สภาวะตลาดและปรับกลยุทธ์ทั้ง 4 สินทรัพย์..."):
-        rec_us = recommend_daily_strategy_for_asset("US_INDEX")
-        rec_gold = recommend_daily_strategy_for_asset("GOLD")
-        rec_crypto = recommend_daily_strategy_for_asset("CRYPTO")
-        rec_forex = recommend_daily_strategy_for_asset("FOREX")
+        rec_us = ai_analyst.recommend_daily_strategy_for_asset("US_INDEX")
+        rec_gold = ai_analyst.recommend_daily_strategy_for_asset("GOLD")
+        rec_crypto = ai_analyst.recommend_daily_strategy_for_asset("CRYPTO")
+        rec_forex = ai_analyst.recommend_daily_strategy_for_asset("FOREX")
         
-        set_active_strategy(rec_us.get("recommended_key", "VOLATILITY_BREAKOUT"), "US_INDEX")
-        set_active_strategy(rec_gold.get("recommended_key", "MEAN_REVERSION"), "GOLD")
-        set_active_strategy(rec_crypto.get("recommended_key", "SUPERVISED_ML"), "CRYPTO")
-        set_active_strategy(rec_forex.get("recommended_key", "ORDER_FLOW_HFT"), "FOREX")
+        swing.set_active_strategy(rec_us.get("recommended_key", "VOLATILITY_BREAKOUT"), "US_INDEX")
+        swing.set_active_strategy(rec_gold.get("recommended_key", "MEAN_REVERSION"), "GOLD")
+        swing.set_active_strategy(rec_crypto.get("recommended_key", "SUPERVISED_ML"), "CRYPTO")
+        swing.set_active_strategy(rec_forex.get("recommended_key", "ORDER_FLOW_HFT"), "FOREX")
         
         st.sidebar.success("🎉 ปรับกลยุทธ์ทั้ง 4 สินทรัพย์ตาม AI แนะนำเรียบร้อย!")
         st.rerun()
