@@ -79,56 +79,56 @@ def send_hourly_portfolio_summary() -> bool:
         pnl_sign = "+" if total_pnl >= 0 else ""
         pnl_icon = "🟢" if total_pnl >= 0 else "🔴"
         
-        s_pnl = unified_pnl['thai_stock_pnl']
-        us_pnl = unified_pnl['us_stock_pnl']
+        us_pnl = unified_pnl['us_index_pnl']
+        gold_pnl = unified_pnl['gold_pnl']
         c_pnl = unified_pnl['crypto_pnl']
+        forex_pnl = unified_pnl['forex_pnl']
         
-        msg = f"📊 [QUANT AI - สรุปพอร์ตรวม 3 ระบบประจำชั่วโมง]\n"
+        msg = f"📊 [QUANT AI - สรุปพอร์ตรวม 4 ระบบประจำชั่วโมง]\n"
         msg += f"⏰ เวลาอัปเดต: {now_str}\n"
         msg += f"-----------------------------------\n"
-        msg += f"{pnl_icon} มูลค่าพอร์ตรวม 3 ระบบ: ฿{total_eq:,.2f}\n"
+        msg += f"{pnl_icon} มูลค่าพอร์ตรวม 4 ระบบ: ฿{total_eq:,.2f}\n"
         msg += f"📈 กำไร/ขาดทุนรวม: {pnl_sign}฿{total_pnl:,.2f} ({pnl_sign}{total_pct:.2f}%)\n\n"
         
-        # 1. Thai Stock System
-        s_sign = "+" if s_pnl['total_pnl_thb'] >= 0 else ""
-        msg += f"🇹🇭 [1. พอร์ตหุ้นไทย SET100 (ทุน ฿100,000)]\n"
-        msg += f"• มูลค่าพอร์ต: ฿{s_pnl['current_equity']:,.2f}\n"
-        msg += f"• เงินสดคงเหลือ: ฿{s_pnl['cash_balance_thb']:,.2f}\n"
-        msg += f"• กำไร/ขาดทุน: {s_sign}฿{s_pnl['total_pnl_thb']:,.2f} ({s_sign}{s_pnl['total_pnl_pct']:.2f}%)\n"
-        s_pos = s_pnl['active_positions_detail']
-        if s_pos:
-            holdings_str = ", ".join([f"{p['ชื่อสินทรัพย์']} ({p['กำไร/ขาดทุน (%)']})" for p in s_pos])
-            msg += f"• ถือครอง ({len(s_pos)}): {holdings_str}\n"
-        else:
-            msg += f"• ถือครอง: ถือเงินสด 100%\n"
-        msg += "\n"
-        
-        # 2. US Stock System (Transferred Forex capital)
-        us_sign = "+" if us_pnl['total_pnl_thb'] >= 0 else ""
-        msg += f"🇺🇸 [2. พอร์ตหุ้นอเมริกา US (ทุน ฿100,000 - ย้ายจาก Forex)]\n"
+        # 1. US Index System
+        u_sign = "+" if us_pnl['total_pnl_thb'] >= 0 else ""
+        msg += f"🇺🇸 [1. พอร์ตดัชนีหุ้นสหรัฐฯ (ทุน ฿100,000)]\n"
         msg += f"• มูลค่าพอร์ต: ฿{us_pnl['current_equity']:,.2f}\n"
         msg += f"• เงินสดคงเหลือ: ฿{us_pnl['cash_balance_thb']:,.2f}\n"
-        msg += f"• กำไร/ขาดทุน: {us_sign}฿{us_pnl['total_pnl_thb']:,.2f} ({us_sign}{us_pnl['total_pnl_pct']:.2f}%)\n"
-        us_pos = us_pnl['active_positions_detail']
-        if us_pos:
-            holdings_str = ", ".join([f"{p['ชื่อสินทรัพย์']} ({p['กำไร/ขาดทุน (%)']})" for p in us_pos])
-            msg += f"• ถือครอง ({len(us_pos)}): {holdings_str}\n"
-        else:
-            msg += f"• ถือครอง: ถือเงินสด 100%\n"
-        msg += "\n"
+        msg += f"• กำไร/ขาดทุน: {u_sign}฿{us_pnl['total_pnl_thb']:,.2f} ({u_sign}{us_pnl['total_pnl_pct']:.2f}%)\n"
+        u_pos = us_pnl['active_positions_detail']
+        u_str = ", ".join([f"{p['ชื่อสินทรัพย์']} ({p['กำไร/ขาดทุน (%)']})" for p in u_pos]) if u_pos else "ถือเงินสด 100%"
+        msg += f"• ถือครอง: {u_str}\n\n"
+        
+        # 2. Gold System
+        g_sign = "+" if gold_pnl['total_pnl_thb'] >= 0 else ""
+        msg += f"🥇 [2. พอร์ตทองคำ Gold (ทุน ฿90,000)]\n"
+        msg += f"• มูลค่าพอร์ต: ฿{gold_pnl['current_equity']:,.2f}\n"
+        msg += f"• เงินสดคงเหลือ: ฿{gold_pnl['cash_balance_thb']:,.2f}\n"
+        msg += f"• กำไร/ขาดทุน: {g_sign}฿{gold_pnl['total_pnl_thb']:,.2f} ({g_sign}{gold_pnl['total_pnl_pct']:.2f}%)\n"
+        g_pos = gold_pnl['active_positions_detail']
+        g_str = ", ".join([f"{p['ชื่อสินทรัพย์']} ({p['กำไร/ขาดทุน (%)']})" for p in g_pos]) if g_pos else "ถือเงินสด 100%"
+        msg += f"• ถือครอง: {g_str}\n\n"
 
         # 3. Crypto System
         c_sign = "+" if c_pnl['total_pnl_thb'] >= 0 else ""
-        msg += f"🪙 [3. พอร์ตคริปโทฯ 24/7 (ทุน ฿100,000)]\n"
+        msg += f"🪙 [3. พอร์ตคริปโทฯ Spot 24/7 (ทุน ฿80,000)]\n"
         msg += f"• มูลค่าพอร์ต: ฿{c_pnl['current_equity']:,.2f}\n"
         msg += f"• เงินสดคงเหลือ: ฿{c_pnl['cash_balance_thb']:,.2f}\n"
         msg += f"• กำไร/ขาดทุน: {c_sign}฿{c_pnl['total_pnl_thb']:,.2f} ({c_sign}{c_pnl['total_pnl_pct']:.2f}%)\n"
         c_pos = c_pnl['active_positions_detail']
-        if c_pos:
-            holdings_str = ", ".join([f"{p['ชื่อสินทรัพย์']} ({p['กำไร/ขาดทุน (%)']})" for p in c_pos])
-            msg += f"• ถือครอง ({len(c_pos)}): {holdings_str}\n"
-        else:
-            msg += f"• ถือครอง: ถือเงินสด 100%\n"
+        c_str = ", ".join([f"{p['ชื่อสินทรัพย์']} ({p['กำไร/ขาดทุน (%)']})" for p in c_pos]) if c_pos else "ถือเงินสด 100%"
+        msg += f"• ถือครอง: {c_str}\n\n"
+
+        # 4. Forex System
+        fx_sign = "+" if forex_pnl['total_pnl_thb'] >= 0 else ""
+        msg += f"💱 [4. พอร์ต Forex 24/5 (ทุน ฿30,000)]\n"
+        msg += f"• มูลค่าพอร์ต: ฿{forex_pnl['current_equity']:,.2f}\n"
+        msg += f"• เงินสดคงเหลือ: ฿{forex_pnl['cash_balance_thb']:,.2f}\n"
+        msg += f"• กำไร/ขาดทุน: {fx_sign}฿{forex_pnl['total_pnl_thb']:,.2f} ({fx_sign}{forex_pnl['total_pnl_pct']:.2f}%)\n"
+        fx_pos = forex_pnl['active_positions_detail']
+        fx_str = ", ".join([f"{p['ชื่อสินทรัพย์']} ({p['กำไร/ขาดทุน (%)']})" for p in fx_pos]) if fx_pos else "ถือเงินสด 100%"
+        msg += f"• ถือครอง: {fx_str}\n"
             
         return send_instant_notification(msg)
     except Exception as e:

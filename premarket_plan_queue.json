@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-07 19:39:26",
+  "timestamp": "2026-08-07 19:43:57",
   "systems": {
     "US_INDEX": {
       "spendable_cash_thb": 100000.0,
@@ -69,22 +69,22 @@
         {
           "symbol": "BTC-USD",
           "plan_type": "BUY",
-          "last_price": 65076.73,
+          "last_price": 65122.11,
           "win_probability_pct": 55.5,
           "confluence_score": 0.5,
           "ai_sentiment": 0.35,
-          "rsi": 55.5,
+          "rsi": 55.8,
           "planned_alloc_thb": 10000.0,
           "planned_shares": 0.0044,
-          "tp_price": 69052.92,
-          "sl_price": 63091.89,
-          "tp_pct": 6.11,
+          "tp_price": 69094.56,
+          "sl_price": 63135.89,
+          "tp_pct": 6.1,
           "sl_pct": -3.05,
           "fee_pct": 0.2,
-          "est_net_profit_thb": 591.0,
+          "est_net_profit_thb": 590.0,
           "ai_action_plan": "🟢 [BTC-USD] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 55.5% -> ตั้งแผนเข้าซื้อ",
           "ai_summary": "สินทรัพย์ BTC-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
-          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน BTC-USD! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (55.5) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +6.1% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿591.00 บาท)",
+          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน BTC-USD! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (55.8) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +6.1% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿590.00 บาท)",
           "pipeline_steps": [
             {
               "name": "📰 Global News & Macro Scan",
@@ -99,12 +99,12 @@
             {
               "name": "📊 Technical Levels & Risk Setup",
               "status": "COMPLETED",
-              "detail": "RSI: 55.5 | TP Target: +6.1%"
+              "detail": "RSI: 55.8 | TP Target: +6.1%"
             },
             {
               "name": "🧮 Smart Fee & Net Profit Filter",
               "status": "COMPLETED",
-              "detail": "Fee 0.2% -> Est Net Profit +฿591.00"
+              "detail": "Fee 0.2% -> Est Net Profit +฿590.00"
             },
             {
               "name": "⚡ Order Trigger Ready",
@@ -116,22 +116,22 @@
         {
           "symbol": "ETH-USD",
           "plan_type": "BUY",
-          "last_price": 1926.76,
+          "last_price": 1928.81,
           "win_probability_pct": 55.5,
           "confluence_score": 0.5,
           "ai_sentiment": 0.35,
-          "rsi": 57.9,
+          "rsi": 58.1,
           "planned_alloc_thb": 10000.0,
-          "planned_shares": 0.1483,
-          "tp_price": 2083.98,
-          "sl_price": 1848.15,
-          "tp_pct": 8.16,
+          "planned_shares": 0.1481,
+          "tp_price": 2086.01,
+          "sl_price": 1850.11,
+          "tp_pct": 8.15,
           "sl_pct": -4.08,
           "fee_pct": 0.2,
-          "est_net_profit_thb": 796.0,
+          "est_net_profit_thb": 795.0,
           "ai_action_plan": "🟢 [ETH-USD] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 55.5% -> ตั้งแผนเข้าซื้อ",
           "ai_summary": "สินทรัพย์ ETH-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
-          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน ETH-USD! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (57.9) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +8.2% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿796.00 บาท)",
+          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน ETH-USD! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (58.1) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +8.2% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿795.00 บาท)",
           "pipeline_steps": [
             {
               "name": "📰 Global News & Macro Scan",
@@ -146,12 +146,12 @@
             {
               "name": "📊 Technical Levels & Risk Setup",
               "status": "COMPLETED",
-              "detail": "RSI: 57.9 | TP Target: +8.2%"
+              "detail": "RSI: 58.1 | TP Target: +8.2%"
             },
             {
               "name": "🧮 Smart Fee & Net Profit Filter",
               "status": "COMPLETED",
-              "detail": "Fee 0.2% -> Est Net Profit +฿796.00"
+              "detail": "Fee 0.2% -> Est Net Profit +฿795.00"
             },
             {
               "name": "⚡ Order Trigger Ready",
@@ -174,9 +174,9 @@
           "win_probability_pct": 55.5,
           "confluence_score": 0.5,
           "ai_sentiment": 0.35,
-          "rsi": 54.1,
+          "rsi": 54.8,
           "planned_alloc_thb": 10000.0,
-          "planned_shares": 211.7486,
+          "planned_shares": 211.6029,
           "tp_price": 1.39,
           "sl_price": 1.32,
           "tp_pct": 3.0,
@@ -185,7 +185,7 @@
           "est_net_profit_thb": 285.0,
           "ai_action_plan": "🟢 [GBPUSD=X] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 55.5% -> ตั้งแผนเข้าซื้อ",
           "ai_summary": "สินทรัพย์ GBPUSD=X มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
-          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน GBPUSD=X! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (54.1) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +3.0% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿285.00 บาท)",
+          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน GBPUSD=X! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (54.8) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +3.0% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿285.00 บาท)",
           "pipeline_steps": [
             {
               "name": "📰 Global News & Macro Scan",
@@ -200,7 +200,7 @@
             {
               "name": "📊 Technical Levels & Risk Setup",
               "status": "COMPLETED",
-              "detail": "RSI: 54.1 | TP Target: +3.0%"
+              "detail": "RSI: 54.8 | TP Target: +3.0%"
             },
             {
               "name": "🧮 Smart Fee & Net Profit Filter",
@@ -221,9 +221,9 @@
           "win_probability_pct": 55.5,
           "confluence_score": 0.5,
           "ai_sentiment": 0.35,
-          "rsi": 64.2,
+          "rsi": 64.7,
           "planned_alloc_thb": 10000.0,
-          "planned_shares": 404.0286,
+          "planned_shares": 403.7429,
           "tp_price": 0.73,
           "sl_price": 0.69,
           "tp_pct": 3.0,
@@ -232,7 +232,7 @@
           "est_net_profit_thb": 285.0,
           "ai_action_plan": "🟢 [AUDUSD=X] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 55.5% -> ตั้งแผนเข้าซื้อ",
           "ai_summary": "สินทรัพย์ AUDUSD=X มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
-          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน AUDUSD=X! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (64.2) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +3.0% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿285.00 บาท)",
+          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน AUDUSD=X! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (64.7) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +3.0% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿285.00 บาท)",
           "pipeline_steps": [
             {
               "name": "📰 Global News & Macro Scan",
@@ -247,7 +247,7 @@
             {
               "name": "📊 Technical Levels & Risk Setup",
               "status": "COMPLETED",
-              "detail": "RSI: 64.2 | TP Target: +3.0%"
+              "detail": "RSI: 64.7 | TP Target: +3.0%"
             },
             {
               "name": "🧮 Smart Fee & Net Profit Filter",
