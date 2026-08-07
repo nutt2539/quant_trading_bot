@@ -689,7 +689,7 @@ if chosen_key == "CUSTOM" or st.session_state.current_active_strategy == "CUSTOM
 if st.session_state.active_system == "UNIFIED":
     st.markdown('<div class="hero-title">🌐 ศูนย์กลางควบคุมระบบเทรด (Unified Command Center)</div>', unsafe_allow_html=True)
 
-    @st.fragment(run_every=5)
+    @st.fragment
     def render_live_unified_metrics():
         now_dt = get_thai_now_naive()
         now_str = now_dt.strftime('%H:%M:%S น.')
@@ -1271,7 +1271,7 @@ else:
 
     st.markdown(f'<div class="hero-title">{sys_title}</div>', unsafe_allow_html=True)
     
-    @st.fragment(run_every=5)
+    @st.fragment
     def render_live_sys_header(sys_cat):
         now_dt = get_thai_now_naive()
         now_str = now_dt.strftime('%H:%M:%S น.')

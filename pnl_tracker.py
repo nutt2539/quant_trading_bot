@@ -23,6 +23,19 @@ def get_asset_category(symbol: str) -> str:
     else:
         return "US_INDEX"
 
+import streamlit as st
+
+@st.cache_data(ttl=30)
+def fetch_cached_ticker_price(sym: str) -> float:
+    try:
+        ticker = yf.Ticker(sym)
+        hist = ticker.history(period="1d")
+        if not hist.empty:
+            return float(hist['Close'].iloc[-1])
+    except Exception:
+        pass
+    return 0.0
+
 def get_system_pnl(target_category: str = "US_INDEX", initial_capital: float = None) -> dict:
     """
     Calculates Real-Time PnL, Remaining Cash Balance, Cumulative Take Profit, Cumulative Cut Loss, and Active Holdings Detail for a specific system.
@@ -161,14 +174,8 @@ def get_system_pnl(target_category: str = "US_INDEX", initial_capital: float = N
             entry_p = pos['avg_entry_price']
             fx_rate = 35.0 if not sym.endswith(".BK") else 1.0
             
-            mkt_price = entry_p
-            try:
-                ticker = yf.Ticker(sym)
-                hist = ticker.history(period="1d")
-                if not hist.empty:
-                    mkt_price = float(hist['Close'].iloc[-1])
-            except Exception:
-                pass
+            fetched_p = fetch_cached_ticker_price(sym)
+            mkt_price = fetched_p if fetched_p > 0 else entry_p
                 
             pos_cost_thb = qty * entry_p * fx_rate
             pos_current_val_thb = qty * mkt_price * fx_rate
