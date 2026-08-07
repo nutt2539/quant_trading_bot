@@ -193,7 +193,7 @@ def generate_247_active_ai_plan() -> dict:
         # Sort candidates: SELL plans first, then BUY plans by highest AI win probability
         candidate_plans.sort(key=lambda x: (0 if x.get("plan_type") == "SELL" else 1, -x["win_probability_pct"]))
 
-        active_plans["systems"][category] = {
+        active_plans["systems"][sys_cat] = {
             "spendable_cash_thb": round(spendable_cash, 2),
             "harvested_vault_thb": round(harvested_vault, 2),
             "held_count": len(held_symbols),
