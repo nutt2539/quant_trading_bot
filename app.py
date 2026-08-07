@@ -47,9 +47,10 @@ importlib.reload(robot_control)
 
 from data_loader import fetch_stock_data
 from strategies.swing_strategy import (
-    generate_swing_trading_signals, STRATEGY_DETAILS, ai_recommend_strategy,
+    STRATEGY_DETAILS, ai_recommend_strategy,
     get_active_strategy, set_active_strategy, get_custom_strategy_params, save_custom_strategy_params
 )
+from strategies.quant_strategy_library import generate_quant_signal
 from ai_analyst import analyze_stock_sentiment
 from execution_engine import send_telegram_notification
 from pnl_tracker import get_system_pnl, get_unified_portfolio_pnl, get_daily_market_summary, get_closed_trades_breakdown
@@ -467,6 +468,10 @@ with col_strat1:
         key="strategy_selector_dropdown"
     )
     chosen_key = strategy_options[selected_label]
+    if chosen_key != st.session_state.current_active_strategy:
+        set_active_strategy(chosen_key)
+        st.session_state.current_active_strategy = chosen_key
+        st.rerun()
 
 with col_strat2:
     st.markdown("<div style='margin-top:28px;'></div>", unsafe_allow_html=True)
@@ -1160,18 +1165,23 @@ elif st.session_state.active_system == "BROKER_CONFIG":
 # ==================== VIEW 3: FULL DETAILED VIEW PER SYSTEM ====================
 else:
     target_cat = st.session_state.active_system
-    if target_cat == "THAI_STOCK":
-        sys_title = "🇹🇭 ระบบเทรดหุ้นไทยอัจฉริยะ (Thai SET100 Quant Bot)"
-        watchlist_options = config.THAI_WATCHLIST
-        default_sym = "PTT.BK"
-        market_badge_text = check_thai_market_status(now_dt)
-    elif target_cat == "US_STOCK":
-        sys_title = "🇺🇸 ระบบเทรดหุ้นอเมริกาอัจฉริยะ (US Stocks Quant Bot)"
-        watchlist_options = config.US_WATCHLIST
-        default_sym = "AAPL"
+    if target_cat == "US_INDEX":
+        sys_title = "🇺🇸 ระบบเทรดดัชนีหุ้นสหรัฐฯ (S&P 500 / NASDAQ / Dow Jones Bot - ทุน ฿100,000)"
+        watchlist_options = config.US_INDEX_WATCHLIST
+        default_sym = "SPY"
         market_badge_text = check_us_market_status(now_dt)
-    else:
-        sys_title = "🪙 ระบบเทรดคริปโทเคอร์เรนซี 24/7 (Crypto Quant Bot)"
+    elif target_cat == "GOLD":
+        sys_title = "🥇 บอททองคำอัจฉริยะ (Gold Bot - ทุน ฿90,000)"
+        watchlist_options = config.GOLD_WATCHLIST
+        default_sym = "GC=F"
+        market_badge_text = check_forex_market_status(now_dt)
+    elif target_cat == "FOREX":
+        sys_title = "💱 บอท Forex อัจฉริยะ 24/5 (Forex Quant Bot - ทุน ฿30,000)"
+        watchlist_options = config.FOREX_WATCHLIST
+        default_sym = "EURUSD=X"
+        market_badge_text = check_forex_market_status(now_dt)
+    else: # CRYPTO
+        sys_title = "🪙 ระบบเทรดคริปโทเคอร์เรนซี 24/7 (Crypto Quant Bot - ทุน ฿80,000)"
         watchlist_options = config.CRYPTO_WATCHLIST
         default_sym = "BTC-USD"
         market_badge_text = check_crypto_market_status()
@@ -1182,7 +1192,8 @@ else:
     def render_live_sys_header(sys_cat):
         now_dt = get_thai_now_naive()
         now_str = now_dt.strftime('%H:%M:%S น.')
-        p_data = get_system_pnl(sys_cat, initial_capital=100000.0)
+        init_cap = config.SYSTEM_ALLOCATIONS.get(sys_cat, 100000.0)
+        p_data = get_system_pnl(sys_cat, initial_capital=init_cap)
         p_color = "#059669" if p_data['total_pnl_thb'] >= 0 else "#dc2626"
         p_sign = "+" if p_data['total_pnl_thb'] >= 0 else ""
         tot_thb = p_data['total_pnl_thb']
@@ -1208,7 +1219,8 @@ else:
         st.markdown(sys_header_html, unsafe_allow_html=True)
 
     render_live_sys_header(target_cat)
-    pnl_data = get_system_pnl(target_cat, initial_capital=100000.0)
+    init_cap_main = config.SYSTEM_ALLOCATIONS.get(target_cat, 100000.0)
+    pnl_data = get_system_pnl(target_cat, initial_capital=init_cap_main)
     
     # Sidebar Master AI Robot Toggle Switch (ON / OFF)
     st.sidebar.markdown("---")
@@ -1350,7 +1362,7 @@ else:
             
         df_data = fetch_stock_data(selected_symbol, period=period_used, interval=interval_used)
         if not df_data.empty:
-            df_signals = generate_swing_trading_signals(df_data, strategy_key=st.session_state.current_active_strategy)
+            df_signals = generate_quant_signal(df_data, strategy_key=st.session_state.current_active_strategy)
             fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.06, row_heights=[0.72, 0.28])
             fig.add_trace(go.Candlestick(
                 x=df_signals.index, open=df_signals['Open'], high=df_signals['High'], low=df_signals['Low'], close=df_signals['Close'], name="ราคา"

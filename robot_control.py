@@ -60,8 +60,8 @@ def execute_force_sell(symbol: str, shares: float, current_price: float, fx_rate
         category = get_asset_category(symbol)
         display_sym = "GOLD (ทองคำ)" if symbol in ["GC=F", "XAUUSD=X"] else symbol.replace("-USD", "").replace("=X", "")
         
-        # 1. Execute Alpaca API if US Stock
-        if category == "US_STOCK":
+        # 1. Execute Alpaca API if US Index / Gold / Forex
+        if category in ["US_INDEX", "GOLD", "FOREX", "US_STOCK"]:
             res = execute_alpaca_trade(symbol, qty=shares, side="sell")
             alpaca_status = res.get('status', 'executed')
         else:

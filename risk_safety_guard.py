@@ -111,9 +111,10 @@ def validate_trade_safety(symbol: str, action: str, trade_thb: float, portfolio_
     # 4. HARVEST VAULT REINVESTMENT GUARD (FAIL-SAFE DOUBLE CHECK)
     if action == "BUY":
         try:
-            from pnl_tracker import get_system_pnl
-            category = "CRYPTO" if symbol.endswith("-USD") else ("THAI_STOCK" if symbol.endswith(".BK") else "US_STOCK")
-            sys_pnl = get_system_pnl(category, 100000.0)
+            from pnl_tracker import get_system_pnl, get_asset_category
+            category = get_asset_category(symbol)
+            init_cap = config.SYSTEM_ALLOCATIONS.get(category, 100000.0)
+            sys_pnl = get_system_pnl(category, init_cap)
             spendable_cash = sys_pnl.get("spendable_cash_thb", 0.0)
             harvested_vault = sys_pnl.get("harvested_vault_thb", 0.0)
             
