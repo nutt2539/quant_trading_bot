@@ -20,7 +20,7 @@ SYSTEM_ALLOCATIONS = {
 }
 
 SYSTEM_LABELS = {
-    "US_INDEX": "🇺🇸 ดัชนีหุ้นสหรัฐฯ (S&P 500 / NASDAQ)",
+    "US_INDEX": "🇺🇸 ดัชนีหุ้นสหรัฐฯ (S&P 500 / NASDAQ / Dow Jones)",
     "GOLD": "🥇 บอททองคำ (Gold / XAUUSD)",
     "CRYPTO": "🪙 บอท Crypto Spot (24/7)",
     "FOREX": "💱 บอท Forex (24/5)"
@@ -67,7 +67,7 @@ def update_discord_config(webhook_url: str):
 
 # 4 Asset Watchlists Universes
 US_INDEX_WATCHLIST = [
-    "SPY", "QQQ", "AAPL", "NVDA", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "AMD"
+    "SPY", "QQQ", "DIA", "AAPL", "NVDA", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "AMD"
 ]
 
 GOLD_WATCHLIST = [
