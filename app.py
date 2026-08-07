@@ -601,12 +601,6 @@ if chosen_key == "CUSTOM" or st.session_state.current_active_strategy == "CUSTOM
                 min_value=-15.0, max_value=-1.0, value=float(c_params.get("sl_pct", -3.5)), step=0.5
             )
             
-            rsi_b_val = st.slider(
-                "📉 4. อยากให้บอทเริ่มช้อนซื้อ ตอนราคาย่อตัวลงมาลึกแค่ไหน ?:",
-                min_value=15, max_value=45, value=int(c_params.get("rsi_buy", 35)),
-                help="ค่า 20-30 = รอราคาย่อลงมาลึกมากๆ (ปลอดภัย) / ค่า 35-45 = ช้อนซื้อไว (ซิ่งเร็ว)"
-            )
-            
             ai_min_val = st.slider(
                 "🤖 5. บอทต้องอ่านข่าว AI แล้วมั่นใจแค่ไหน ถึงจะกล้าช้อนซื้อ ?:",
                 min_value=-0.50, max_value=0.50, value=float(c_params.get("ai_min_sentiment", 0.10)), step=0.05,
@@ -667,7 +661,7 @@ if chosen_key == "CUSTOM" or st.session_state.current_active_strategy == "CUSTOM
                 <h4 style="margin:0 0 10px 0;">💡 จำลองตัวเงินบาทจริงที่จะเกิดขึ้นต่อ 1 ออเดอร์:</h4>
                 <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>💵 งบซื้อต่อ 1 สินค้า:</span> <strong>฿{sim_order_baht:,.0f} บาท</strong></div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:6px; color:#10b981;"><span>🎯 ถ้าราคาพุ่งชนเป้า (กำไร):</span> <strong>+฿{sim_tp_baht:,.0f} บาท (+{tp_val}%)</strong></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:6px; color:#ef4444;"><span>🛑 ถ้าราคาย่อผิดทาง (ขาดทุน):</span> <strong>-฿{sim_sl_baht:,.0f} บาท ({sl_val}%)</strong></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px; color:#ef4444;"><span>🛑 ถาคาย่อผิดทาง (ขาดทุน):</span> <strong>-฿{sim_sl_baht:,.0f} บาท ({sl_val}%)</strong></div>
                 <hr style="margin:8px 0; border-color:rgba(0,0,0,0.1);">
                 <div style="display:flex; justify-content:space-between; font-weight:700;"><span>📊 อัตราความคุ้มค่า (Risk/Reward):</span> <span style="color:#2563eb;">1 : {rr_ratio:.2f}</span></div>
             </div>
@@ -695,7 +689,7 @@ if chosen_key == "CUSTOM" or st.session_state.current_active_strategy == "CUSTOM
 if st.session_state.active_system == "UNIFIED":
     st.markdown('<div class="hero-title">🌐 ศูนย์กลางควบคุมระบบเทรด (Unified Command Center)</div>', unsafe_allow_html=True)
 
-    @st.fragment(run_every=15)
+    @st.fragment(run_every=5)
     def render_live_unified_metrics():
         now_dt = get_thai_now_naive()
         now_str = now_dt.strftime('%H:%M:%S น.')
@@ -723,7 +717,7 @@ if st.session_state.active_system == "UNIFIED":
         <span style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: {app_text}; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem;">{check_us_market_status(now_dt)}</span>
         <span style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: {app_text}; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem;">{check_forex_market_status(now_dt)}</span>
         <span style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: {app_text}; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem;">{check_crypto_market_status()}</span>
-        <span style="color: {metric_label_color}; font-weight: 700; font-size: 0.85rem;">⏰ {now_str} (Realtime Live)</span>
+        <span style="color: {metric_label_color}; font-weight: 700; font-size: 0.85rem;">⏰ {now_str} (Realtime Live ⚡ 5s Auto-Refresh)</span>
         </div>
         <div>
         <span style="color: {pnl_color}; font-size: 1.35rem; font-weight: 800;">กำไร/ขาดทุนรวม 4 ระบบ: {pnl_sign}฿{unified_pnl['total_pnl_thb']:,.2f} ({pnl_sign}{unified_pnl['total_pnl_pct']:.2f}%)</span>
@@ -1277,7 +1271,7 @@ else:
 
     st.markdown(f'<div class="hero-title">{sys_title}</div>', unsafe_allow_html=True)
     
-    @st.fragment(run_every=15)
+    @st.fragment(run_every=5)
     def render_live_sys_header(sys_cat):
         now_dt = get_thai_now_naive()
         now_str = now_dt.strftime('%H:%M:%S น.')
