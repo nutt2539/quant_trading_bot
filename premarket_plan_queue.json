@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-07 19:34:42",
+  "timestamp": "2026-08-07 19:36:30",
   "systems": {
     "US_INDEX": {
       "spendable_cash_thb": 0.0,
@@ -114,11 +114,11 @@
         {
           "symbol": "XRP-USD",
           "plan_type": "SELL",
-          "last_price": 1.03,
+          "last_price": 1.04,
           "win_probability_pct": 0.0,
           "confluence_score": 0.7,
           "ai_sentiment": 0.35,
-          "rsi": 34.8,
+          "rsi": 35.1,
           "planned_alloc_thb": 0.0,
           "planned_shares": 0.0,
           "tp_price": 1.16,
@@ -126,9 +126,9 @@
           "tp_pct": 6.98,
           "sl_pct": -3.49,
           "fee_pct": 0.2,
-          "ai_action_plan": "🔴 [XRP-USD] AI ประเมินจุดออก: 🛑 HARD CUT-LOSS: ชนเกณฑ์ Stop-Loss สูงสุด (-4.22% <= -3.49%) กัดฟันขายทันทีเพื่อปกป้องเงินต้น! -> ตั้งแผนเตรียมขาย",
+          "ai_action_plan": "🔴 [XRP-USD] AI ประเมินจุดออก: 🛑 HARD CUT-LOSS: ชนเกณฑ์ Stop-Loss สูงสุด (-4.16% <= -3.49%) กัดฟันขายทันทีเพื่อปกป้องเงินต้น! -> ตั้งแผนเตรียมขาย",
           "ai_summary": "สินทรัพย์ XRP-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
-          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] สินทรัพย์ XRP-USD กำลังถูกประเมินขายทำกำไร/ตัดความเสี่ยง! เนื่องจาก 🛑 HARD CUT-LOSS: ชนเกณฑ์ Stop-Loss สูงสุด (-4.22% <= -3.49%) กัดฟันขายทันทีเพื่อปกป้องเงินต้น! | ข่าวรอบโลก Sentiment Score (+0.35) | RSI (34.8) | ค่าธรรมเนียมเข้า-ออก (0.2%)",
+          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] สินทรัพย์ XRP-USD กำลังถูกประเมินขายทำกำไร/ตัดความเสี่ยง! เนื่องจาก 🛑 HARD CUT-LOSS: ชนเกณฑ์ Stop-Loss สูงสุด (-4.16% <= -3.49%) กัดฟันขายทันทีเพื่อปกป้องเงินต้น! | ข่าวรอบโลก Sentiment Score (+0.35) | RSI (35.1) | ค่าธรรมเนียมเข้า-ออก (0.2%)",
           "pipeline_steps": [
             {
               "name": "📰 Global News & Macro Scan",
@@ -143,7 +143,7 @@
             {
               "name": "📊 Technical Levels & Risk Setup",
               "status": "COMPLETED",
-              "detail": "RSI: 34.8 | SL: -3.5%"
+              "detail": "RSI: 35.1 | SL: -3.5%"
             },
             {
               "name": "🧮 Smart Fee & Net Profit Filter",
@@ -171,18 +171,18 @@
           "win_probability_pct": 55.5,
           "confluence_score": 0.5,
           "ai_sentiment": 0.35,
-          "rsi": 54.4,
+          "rsi": 54.0,
           "planned_alloc_thb": 10000.0,
-          "planned_shares": 211.6829,
+          "planned_shares": 211.76,
           "tp_price": 8.96,
           "sl_price": 7.84,
-          "tp_pct": 9.1,
-          "sl_pct": -4.55,
+          "tp_pct": 9.09,
+          "sl_pct": -4.54,
           "fee_pct": 0.2,
-          "est_net_profit_thb": 890.0,
+          "est_net_profit_thb": 889.0,
           "ai_action_plan": "🟢 [GBPUSD=X] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 55.5% -> ตั้งแผนเข้าซื้อ",
           "ai_summary": "สินทรัพย์ GBPUSD=X มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
-          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน GBPUSD=X! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (54.4) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +9.1% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿890.00 บาท)",
+          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน GBPUSD=X! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (54.0) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +9.1% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿889.00 บาท)",
           "pipeline_steps": [
             {
               "name": "📰 Global News & Macro Scan",
@@ -197,12 +197,12 @@
             {
               "name": "📊 Technical Levels & Risk Setup",
               "status": "COMPLETED",
-              "detail": "RSI: 54.4 | TP Target: +9.1%"
+              "detail": "RSI: 54.0 | TP Target: +9.1%"
             },
             {
               "name": "🧮 Smart Fee & Net Profit Filter",
               "status": "COMPLETED",
-              "detail": "Fee 0.2% -> Est Net Profit +฿890.00"
+              "detail": "Fee 0.2% -> Est Net Profit +฿889.00"
             },
             {
               "name": "⚡ Order Trigger Ready",
@@ -218,18 +218,18 @@
           "win_probability_pct": 55.5,
           "confluence_score": 0.5,
           "ai_sentiment": 0.35,
-          "rsi": 64.0,
+          "rsi": 64.2,
           "planned_alloc_thb": 10000.0,
-          "planned_shares": 404.1143,
+          "planned_shares": 404.0286,
           "tp_price": 8.96,
           "sl_price": 7.84,
-          "tp_pct": 9.1,
-          "sl_pct": -4.55,
+          "tp_pct": 9.09,
+          "sl_pct": -4.54,
           "fee_pct": 0.2,
-          "est_net_profit_thb": 890.0,
+          "est_net_profit_thb": 889.0,
           "ai_action_plan": "🟢 [AUDUSD=X] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 55.5% -> ตั้งแผนเข้าซื้อ",
           "ai_summary": "สินทรัพย์ AUDUSD=X มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
-          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน AUDUSD=X! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (64.0) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +9.1% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿890.00 บาท)",
+          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน AUDUSD=X! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (64.2) | คำนวณโอกาสชนะ 55.5% วางเป้า TP +9.1% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿889.00 บาท)",
           "pipeline_steps": [
             {
               "name": "📰 Global News & Macro Scan",
@@ -244,12 +244,12 @@
             {
               "name": "📊 Technical Levels & Risk Setup",
               "status": "COMPLETED",
-              "detail": "RSI: 64.0 | TP Target: +9.1%"
+              "detail": "RSI: 64.2 | TP Target: +9.1%"
             },
             {
               "name": "🧮 Smart Fee & Net Profit Filter",
               "status": "COMPLETED",
-              "detail": "Fee 0.2% -> Est Net Profit +฿890.00"
+              "detail": "Fee 0.2% -> Est Net Profit +฿889.00"
             },
             {
               "name": "⚡ Order Trigger Ready",

@@ -1,10 +1,8 @@
 {
-  "master_total_harvested_thb": 3794.67,
+  "master_total_harvested_thb": 0.0,
   "last_updated": "2026-08-07",
-  "THAI_STOCK_harvested_thb": 300.0,
-  "US_STOCK_harvested_thb": 300.0,
-  "CRYPTO_harvested_thb": 2594.67,
-  "US_INDEX_harvested_thb": 600.0,
+  "US_INDEX_harvested_thb": 0.0,
   "GOLD_harvested_thb": 0.0,
+  "CRYPTO_harvested_thb": 0.0,
   "FOREX_harvested_thb": 0.0
 }
