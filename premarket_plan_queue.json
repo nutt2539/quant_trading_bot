@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-06 00:57:03",
+  "timestamp": "2026-08-06 01:12:28",
   "systems": {
     "THAI_STOCK": {
       "spendable_cash_thb": 7500.0,
@@ -16,8 +16,42 @@
           "rsi": 46.2,
           "planned_alloc_thb": 7500.0,
           "planned_shares": NaN,
+          "tp_price": 20.44,
+          "sl_price": 19.03,
+          "tp_pct": 4.8,
+          "sl_pct": -2.4,
+          "fee_pct": 0.4,
+          "est_net_profit_thb": 330.0,
           "ai_action_plan": "🟢 [KCE.BK] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 57.8% -> ตั้งแผนเข้าซื้อ",
-          "ai_summary": "หุ้น KCE.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด"
+          "ai_summary": "หุ้น KCE.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน KCE.BK! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (46.2) | คำนวณโอกาสชนะ 57.8% วางเป้า TP +4.8% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿330.00 บาท)",
+          "pipeline_steps": [
+            {
+              "name": "📰 Global News & Macro Scan",
+              "status": "COMPLETED",
+              "detail": "Sentiment Score: +0.35"
+            },
+            {
+              "name": "📈 Multi-Timeframe Alignment Check",
+              "status": "COMPLETED",
+              "detail": "Confluence Score: 0.50"
+            },
+            {
+              "name": "📊 Technical Levels & Risk Setup",
+              "status": "COMPLETED",
+              "detail": "RSI: 46.2 | TP Target: +4.8%"
+            },
+            {
+              "name": "🧮 Smart Fee & Net Profit Filter",
+              "status": "COMPLETED",
+              "detail": "Fee 0.4% -> Est Net Profit +฿330.00"
+            },
+            {
+              "name": "⚡ Order Trigger Ready",
+              "status": "IN_PROGRESS",
+              "detail": "พร้อมยิงออเดอร์ทันทีเมื่อเข้าเงื่อนไข Real-time"
+            }
+          ]
         },
         {
           "symbol": "AOT.BK",
@@ -29,8 +63,42 @@
           "rsi": 48.1,
           "planned_alloc_thb": 7500.0,
           "planned_shares": NaN,
+          "tp_price": 160.5,
+          "sl_price": 149.25,
+          "tp_pct": 4.9,
+          "sl_pct": -2.45,
+          "fee_pct": 0.4,
+          "est_net_profit_thb": 337.5,
           "ai_action_plan": "🟢 [AOT.BK] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 56.6% -> ตั้งแผนเข้าซื้อ",
-          "ai_summary": "หุ้น AOT.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด"
+          "ai_summary": "หุ้น AOT.BK มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน AOT.BK! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (48.1) | คำนวณโอกาสชนะ 56.6% วางเป้า TP +4.9% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿337.50 บาท)",
+          "pipeline_steps": [
+            {
+              "name": "📰 Global News & Macro Scan",
+              "status": "COMPLETED",
+              "detail": "Sentiment Score: +0.35"
+            },
+            {
+              "name": "📈 Multi-Timeframe Alignment Check",
+              "status": "COMPLETED",
+              "detail": "Confluence Score: 0.50"
+            },
+            {
+              "name": "📊 Technical Levels & Risk Setup",
+              "status": "COMPLETED",
+              "detail": "RSI: 48.1 | TP Target: +4.9%"
+            },
+            {
+              "name": "🧮 Smart Fee & Net Profit Filter",
+              "status": "COMPLETED",
+              "detail": "Fee 0.4% -> Est Net Profit +฿337.50"
+            },
+            {
+              "name": "⚡ Order Trigger Ready",
+              "status": "IN_PROGRESS",
+              "detail": "พร้อมยิงออเดอร์ทันทีเมื่อเข้าเงื่อนไข Real-time"
+            }
+          ]
         }
       ]
     },
@@ -46,30 +114,98 @@
       "held_count": 5,
       "candidate_plans": [
         {
-          "symbol": "ETH-USD",
-          "plan_type": "BUY",
-          "last_price": 1914.18,
-          "win_probability_pct": 56.7,
-          "confluence_score": 0.5,
-          "ai_sentiment": 0.35,
-          "rsi": 48.0,
-          "planned_alloc_thb": 10000.0,
-          "planned_shares": 0.1493,
-          "ai_action_plan": "🟢 [ETH-USD] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 56.7% -> ตั้งแผนเข้าซื้อ",
-          "ai_summary": "หุ้น ETH-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด"
-        },
-        {
           "symbol": "AVAX-USD",
           "plan_type": "BUY",
           "last_price": 6.67,
-          "win_probability_pct": 55.5,
+          "win_probability_pct": 65.5,
+          "confluence_score": 0.7,
+          "ai_sentiment": 0.35,
+          "rsi": 51.2,
+          "planned_alloc_thb": 10000.0,
+          "planned_shares": 42.8101,
+          "tp_price": 0.08,
+          "sl_price": 0.07,
+          "tp_pct": 7.76,
+          "sl_pct": -3.88,
+          "fee_pct": 0.2,
+          "est_net_profit_thb": 756.0,
+          "ai_action_plan": "🟢 [AVAX-USD] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 65.5% -> ตั้งแผนเข้าซื้อ",
+          "ai_summary": "หุ้น AVAX-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน AVAX-USD! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.70) + RSI (51.2) | คำนวณโอกาสชนะ 65.5% วางเป้า TP +7.8% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿756.00 บาท)",
+          "pipeline_steps": [
+            {
+              "name": "📰 Global News & Macro Scan",
+              "status": "COMPLETED",
+              "detail": "Sentiment Score: +0.35"
+            },
+            {
+              "name": "📈 Multi-Timeframe Alignment Check",
+              "status": "COMPLETED",
+              "detail": "Confluence Score: 0.70"
+            },
+            {
+              "name": "📊 Technical Levels & Risk Setup",
+              "status": "COMPLETED",
+              "detail": "RSI: 51.2 | TP Target: +7.8%"
+            },
+            {
+              "name": "🧮 Smart Fee & Net Profit Filter",
+              "status": "COMPLETED",
+              "detail": "Fee 0.2% -> Est Net Profit +฿756.00"
+            },
+            {
+              "name": "⚡ Order Trigger Ready",
+              "status": "IN_PROGRESS",
+              "detail": "พร้อมยิงออเดอร์ทันทีเมื่อเข้าเงื่อนไข Real-time"
+            }
+          ]
+        },
+        {
+          "symbol": "ETH-USD",
+          "plan_type": "BUY",
+          "last_price": 1916.4,
+          "win_probability_pct": 56.6,
           "confluence_score": 0.5,
           "ai_sentiment": 0.35,
-          "rsi": 51.1,
+          "rsi": 48.2,
           "planned_alloc_thb": 10000.0,
-          "planned_shares": 42.8486,
-          "ai_action_plan": "🟢 [AVAX-USD] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 55.5% -> ตั้งแผนเข้าซื้อ",
-          "ai_summary": "หุ้น AVAX-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด"
+          "planned_shares": 0.1491,
+          "tp_price": 68055.47,
+          "sl_price": 61717.16,
+          "tp_pct": 6.62,
+          "sl_pct": -3.31,
+          "fee_pct": 0.2,
+          "est_net_profit_thb": 642.0,
+          "ai_action_plan": "🟢 [ETH-USD] AI วิเคราะห์ข่าวเชิงบวก (Sentiment +0.35) + โอกาสชนะ 56.6% -> ตั้งแผนเข้าซื้อ",
+          "ai_summary": "หุ้น ETH-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+          "ai_thought_rationale": "🧠 [AI OBSERVE ROOM] AI สแกนพบจังหวะทองคำใน ETH-USD! ข่าวการเงินรอบโลกเชิงบวก (Sentiment +0.35) + แรงซื้อ 3 Timeframes (Score 0.50) + RSI (48.2) | คำนวณโอกาสชนะ 56.6% วางเป้า TP +6.6% (คาดกำไรสุทธิหลังหักค่าธรรมเนียม +฿642.00 บาท)",
+          "pipeline_steps": [
+            {
+              "name": "📰 Global News & Macro Scan",
+              "status": "COMPLETED",
+              "detail": "Sentiment Score: +0.35"
+            },
+            {
+              "name": "📈 Multi-Timeframe Alignment Check",
+              "status": "COMPLETED",
+              "detail": "Confluence Score: 0.50"
+            },
+            {
+              "name": "📊 Technical Levels & Risk Setup",
+              "status": "COMPLETED",
+              "detail": "RSI: 48.2 | TP Target: +6.6%"
+            },
+            {
+              "name": "🧮 Smart Fee & Net Profit Filter",
+              "status": "COMPLETED",
+              "detail": "Fee 0.2% -> Est Net Profit +฿642.00"
+            },
+            {
+              "name": "⚡ Order Trigger Ready",
+              "status": "IN_PROGRESS",
+              "detail": "พร้อมยิงออเดอร์ทันทีเมื่อเข้าเงื่อนไข Real-time"
+            }
+          ]
         }
       ]
     }

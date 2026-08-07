@@ -236,7 +236,7 @@ def run_autotrader_cycle():
                 }
                 print(f"🚀 AUTO BUY TRIGGERED for {symbol} ({trade_qty} units at {last_price}) | Kelly Sizing: ฿{trade_total_thb:,.2f}", flush=True)
                 
-                if category == "STOCK" and not symbol.endswith(".BK"):
+                if category == "US_STOCK":
                     res = execute_alpaca_trade(symbol, qty=trade_qty, side="buy")
                     log_entry['status'] = res.get('status')
                 else:
@@ -300,7 +300,7 @@ def run_autotrader_cycle():
                 }
                 print(f"🔴 AUTO SELL TRIGGERED for {symbol} ({hold_qty} units at {last_price}) | Reason: {sell_reason}", flush=True)
                 
-                if category == "STOCK" and not symbol.endswith(".BK"):
+                if category == "US_STOCK":
                     res = execute_alpaca_trade(symbol, qty=hold_qty, side="sell")
                     log_entry['status'] = res.get('status')
                 else:
@@ -328,6 +328,30 @@ def start_daemon_loop(interval_seconds: int = 180):
         except Exception as e:
             print(f"Error in autotrader cycle: {e}", flush=True)
         time.sleep(interval_seconds)
+
+def _background_autotrader_loop(interval_seconds: int = 180):
+    """
+    Daemon background thread running continuous 24/7 scanning cycle inside web server.
+    """
+    time.sleep(10)
+    print("🤖 [AUTOTRADER DAEMON] 24/7 Background Thread Active & Scanning Portfolio...", flush=True)
+    while True:
+        try:
+            from robot_control import get_robot_status
+            if get_robot_status():
+                run_autotrader_cycle()
+        except Exception as e:
+            print(f"[AUTOTRADER DAEMON ERROR] {e}", flush=True)
+        time.sleep(interval_seconds)
+
+def init_autotrader_background_loop():
+    """
+    Launches autotrader background thread on web app startup if not already running.
+    """
+    if not getattr(init_autotrader_background_loop, "_started", False):
+        init_autotrader_background_loop._started = True
+        thread = threading.Thread(target=_background_autotrader_loop, daemon=True)
+        thread.start()
 
 if __name__ == "__main__":
     start_daemon_loop(180)

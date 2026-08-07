@@ -1,5 +1,38 @@
 [
   {
+    "timestamp": "2026-08-07 18:58:59",
+    "symbol": "ADA-USD",
+    "action": "BUY",
+    "shares": 1419.4867,
+    "price": 0.2,
+    "total_thb": 10000.0,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น ADA-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-07 18:58:55",
+    "symbol": "BNB-USD",
+    "action": "BUY",
+    "shares": 0.4835,
+    "price": 590.87,
+    "total_thb": 9999.0,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.7 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น BNB-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
+    "timestamp": "2026-08-07 18:58:51",
+    "symbol": "ETH-USD",
+    "action": "BUY",
+    "shares": 0.1492,
+    "price": 1914.66,
+    "total_thb": 9998.35,
+    "reason": "[CUSTOM] Signal=BUY | MTF Score=0.5 | Kelly Sizing = ฿10,000.00 (🟢 MODERATE CONVICTION (เกรด B+) | AI Score: +0.35)",
+    "ai_summary": "หุ้น ETH-USD มีแนวโน้มเชิงบวกตามสถิติราคาและข่าวสารการเงินล่าสุด",
+    "status": "notified"
+  },
+  {
     "timestamp": "2026-08-05 11:00:00",
     "symbol": "KCE.BK",
     "action": "SELL",

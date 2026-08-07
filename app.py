@@ -28,6 +28,7 @@ import server_heartbeat_guard
 
 keep_alive.init_keep_alive()
 server_heartbeat_guard.init_server_guard()
+autotrader_daemon.init_autotrader_background_loop()
 
 importlib.reload(config)
 importlib.reload(data_loader)
