@@ -167,6 +167,7 @@ def run_autotrader_cycle():
             continue
             
         category = get_asset_category(symbol)
+        active_strategy = get_active_strategy(category)
         display_sym = symbol.replace("-USD", "").replace("=X", "")
         
         # Determine if asset is CURRENTLY HELD in portfolio

@@ -48,7 +48,7 @@ importlib.reload(robot_control)
 from data_loader import fetch_stock_data
 from strategies.swing_strategy import (
     STRATEGY_DETAILS, ai_recommend_strategy,
-    get_active_strategy, set_active_strategy, get_custom_strategy_params, save_custom_strategy_params
+    get_active_strategy, set_active_strategy, get_all_active_strategies, get_custom_strategy_params, save_custom_strategy_params
 )
 from strategies.quant_strategy_library import generate_quant_signal
 from ai_analyst import analyze_stock_sentiment
@@ -421,33 +421,78 @@ sub_txt_color = "#94a3b8" if is_dark else "#475569"
 st.markdown(f"""
 <div style="background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 14px; padding: 14px 18px; margin-bottom: 16px;">
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-        <span style="font-weight: 800; font-size: 1.05rem; color: #6366f1;">🤖 Daily AI Strategy Recommendations (แนะนำกลยุทธ์ประจำวันโดย AI):</span>
+        <span style="font-weight: 800; font-size: 1.05rem; color: #6366f1;">🤖 Daily AI Strategy Recommendations (คำแนะนำกลยุทธ์แยกรายสินทรัพย์โดย AI):</span>
         <span style="font-size: 0.82rem; font-weight: 600; color: #6366f1; background: rgba(99, 102, 241, 0.18); padding: 3px 8px; border-radius: 6px;">อัปเดตเรียลไทม์สด</span>
-    </div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 10px;">
-        <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border-left: 3px solid #38bdf8;">
-            <div style="font-size: 0.82rem; color: #38bdf8; font-weight: 700;">🇺🇸 US Index (฿100k)</div>
-            <div style="font-size: 0.88rem; color: #f8fafc; font-weight: 700; margin-top: 2px;">{rec_us['strategy_name']}</div>
-            <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">💡 {rec_us['recommendation_reason']}</div>
-        </div>
-        <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border-left: 3px solid #f59e0b;">
-            <div style="font-size: 0.82rem; color: #f59e0b; font-weight: 700;">🥇 Gold (฿90k)</div>
-            <div style="font-size: 0.88rem; color: #f8fafc; font-weight: 700; margin-top: 2px;">{rec_gold['strategy_name']}</div>
-            <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">💡 {rec_gold['recommendation_reason']}</div>
-        </div>
-        <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border-left: 3px solid #10b981;">
-            <div style="font-size: 0.82rem; color: #10b981; font-weight: 700;">🪙 Crypto Spot (฿80k)</div>
-            <div style="font-size: 0.88rem; color: #f8fafc; font-weight: 700; margin-top: 2px;">{rec_crypto['strategy_name']}</div>
-            <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">💡 {rec_crypto['recommendation_reason']}</div>
-        </div>
-        <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border-left: 3px solid #a855f7;">
-            <div style="font-size: 0.82rem; color: #a855f7; font-weight: 700;">💱 Forex (฿30k)</div>
-            <div style="font-size: 0.88rem; color: #f8fafc; font-weight: 700; margin-top: 2px;">{rec_forex['strategy_name']}</div>
-            <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">💡 {rec_forex['recommendation_reason']}</div>
-        </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
+
+col_r1, col_r2, col_r3, col_r4 = st.columns(4)
+with col_r1:
+    st.markdown(f"""
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border-left: 3px solid #38bdf8; min-height: 100px;">
+        <div style="font-size: 0.82rem; color: #38bdf8; font-weight: 700;">🇺🇸 US Index (฿100k)</div>
+        <div style="font-size: 0.88rem; color: #f8fafc; font-weight: 700; margin-top: 2px;">{rec_us['strategy_name']}</div>
+        <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">💡 {rec_us['recommendation_reason']}</div>
+    </div>
+    """, unsafe_allow_html=True)
+    if st.button("⚡ ใช้กับ US Index", key="btn_apply_rec_us", use_container_width=True):
+        set_active_strategy(rec_us['strategy_key'], "US_INDEX")
+        st.success(f"สลับระบบ US Index ไปใช้ {rec_us['strategy_name']} เรียบร้อย!")
+        st.rerun()
+
+with col_r2:
+    st.markdown(f"""
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border-left: 3px solid #f59e0b; min-height: 100px;">
+        <div style="font-size: 0.82rem; color: #f59e0b; font-weight: 700;">🥇 Gold (฿90k)</div>
+        <div style="font-size: 0.88rem; color: #f8fafc; font-weight: 700; margin-top: 2px;">{rec_gold['strategy_name']}</div>
+        <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">💡 {rec_gold['recommendation_reason']}</div>
+    </div>
+    """, unsafe_allow_html=True)
+    if st.button("⚡ ใช้กับ Gold", key="btn_apply_rec_gold", use_container_width=True):
+        set_active_strategy(rec_gold['strategy_key'], "GOLD")
+        st.success(f"สลับระบบ Gold ไปใช้ {rec_gold['strategy_name']} เรียบร้อย!")
+        st.rerun()
+
+with col_r3:
+    st.markdown(f"""
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border-left: 3px solid #10b981; min-height: 100px;">
+        <div style="font-size: 0.82rem; color: #10b981; font-weight: 700;">🪙 Crypto Spot (฿80k)</div>
+        <div style="font-size: 0.88rem; color: #f8fafc; font-weight: 700; margin-top: 2px;">{rec_crypto['strategy_name']}</div>
+        <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">💡 {rec_crypto['recommendation_reason']}</div>
+    </div>
+    """, unsafe_allow_html=True)
+    if st.button("⚡ ใช้กับ Crypto", key="btn_apply_rec_crypto", use_container_width=True):
+        set_active_strategy(rec_crypto['strategy_key'], "CRYPTO")
+        st.success(f"สลับระบบ Crypto ไปใช้ {rec_crypto['strategy_name']} เรียบร้อย!")
+        st.rerun()
+
+with col_r4:
+    st.markdown(f"""
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border-left: 3px solid #a855f7; min-height: 100px;">
+        <div style="font-size: 0.82rem; color: #a855f7; font-weight: 700;">💱 Forex (฿30k)</div>
+        <div style="font-size: 0.88rem; color: #f8fafc; font-weight: 700; margin-top: 2px;">{rec_forex['strategy_name']}</div>
+        <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">💡 {rec_forex['recommendation_reason']}</div>
+    </div>
+    """, unsafe_allow_html=True)
+    if st.button("⚡ ใช้กับ Forex", key="btn_apply_rec_forex", use_container_width=True):
+        set_active_strategy(rec_forex['strategy_key'], "FOREX")
+        st.success(f"สลับระบบ Forex ไปใช้ {rec_forex['strategy_name']} เรียบร้อย!")
+        st.rerun()
+
+st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
+
+# Determine active asset system being configured
+active_sys = st.session_state.active_system if st.session_state.active_system in ["US_INDEX", "GOLD", "CRYPTO", "FOREX"] else "US_INDEX"
+
+sys_names_map = {
+    "US_INDEX": "🇺🇸 ดัชนีหุ้นสหรัฐฯ (US Index)",
+    "GOLD": "🥇 บอททองคำ (Gold)",
+    "CRYPTO": "🪙 บอท Crypto Spot",
+    "FOREX": "💱 บอท Forex 24/5"
+}
+
+target_active_strat = get_active_strategy(active_sys)
 
 col_strat1, col_strat2, col_strat3 = st.columns([2.2, 1.0, 1.2])
 
@@ -456,21 +501,21 @@ strategy_options = {
     for key, info in config.STRATEGY_CATALOG.items()
 }
 
-curr_key = st.session_state.current_active_strategy
 option_keys = list(strategy_options.values())
-curr_index = option_keys.index(curr_key) if curr_key in option_keys else 0
+curr_index = option_keys.index(target_active_strat) if target_active_strat in option_keys else 0
 
 with col_strat1:
     selected_label = st.selectbox(
-        "⚙️ เลือกกลยุทธ์การเทรด 10 รูปแบบ (3 ระดับ Beginner / Intermediate / Professional):",
+        f"⚙️ ตั้งค่ากลยุทธ์เฉพาะสำหรับระบบ [{sys_names_map[active_sys]}]:",
         options=list(strategy_options.keys()),
         index=curr_index,
-        key="strategy_selector_dropdown"
+        key=f"strategy_selector_dropdown_{active_sys}"
     )
     chosen_key = strategy_options[selected_label]
-    if chosen_key != st.session_state.current_active_strategy:
-        set_active_strategy(chosen_key)
+    if chosen_key != target_active_strat:
+        set_active_strategy(chosen_key, asset_category=active_sys)
         st.session_state.current_active_strategy = chosen_key
+        st.success(f"บันทึกกลยุทธ์ {chosen_key} สำหรับระบบ {active_sys} เรียบร้อยแล้ว!")
         st.rerun()
 
 with col_strat2:
@@ -481,16 +526,15 @@ with col_strat2:
 
 with col_strat3:
     st.markdown("<div style='margin-top:28px;'></div>", unsafe_allow_html=True)
-    active_sys = st.session_state.active_system if st.session_state.active_system in ["US_INDEX", "GOLD", "CRYPTO", "FOREX"] else "US_INDEX"
     rec_map = {"US_INDEX": rec_us, "GOLD": rec_gold, "CRYPTO": rec_crypto, "FOREX": rec_forex}
     active_rec = rec_map.get(active_sys, rec_us)
     rec_key = active_rec.get('strategy_key', 'TREND_FOLLOWING')
     rec_name = active_rec.get('strategy_name', 'Trend Following')
     
-    if st.button("⚡ ปรับใช้กลยุทธ์ AI แนะนำ", use_container_width=True):
-        set_active_strategy(rec_key)
+    if st.button(f"⚡ AI แนะนำ ({rec_name})", use_container_width=True):
+        set_active_strategy(rec_key, asset_category=active_sys)
         st.session_state.current_active_strategy = rec_key
-        st.success(f"สลับไปใช้กลยุทธ์ตามที่ AI แนะนำ [{rec_name}] เรียบร้อยแล้ว!")
+        st.success(f"สลับระบบ {active_sys} ไปใช้กลยุทธ์ตามที่ AI แนะนำ [{rec_name}] เรียบร้อยแล้ว!")
         st.rerun()
 
 # ==================== BEGINNER-FRIENDLY VISUAL CUSTOM STRATEGY STUDIO ====================

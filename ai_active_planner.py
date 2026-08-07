@@ -17,7 +17,8 @@ from utils_tz import get_thai_now, get_thai_str
 from pnl_tracker import get_system_pnl
 from ai_analyst import analyze_stock_sentiment
 from data_loader import fetch_stock_data
-from strategies.swing_strategy import generate_swing_trading_signals
+from strategies.quant_strategy_library import generate_quant_signal
+from strategies.swing_strategy import get_active_strategy
 from multi_timeframe_analyzer import analyze_multi_timeframe
 
 PREMARKET_QUEUE_FILE = "premarket_plan_queue.json"
@@ -26,7 +27,7 @@ WATCHLISTS = config.SYSTEM_WATCHLISTS
 
 def generate_247_active_ai_plan() -> dict:
     """
-    Scans news, technical momentum, and calculated win probability for all 3 asset classes 24/7.
+    Scans news, technical momentum, and calculated win probability for all 4 asset classes 24/7.
     Generates a pre-market & live execution plan queue saved to premarket_plan_queue.json.
     """
     active_plans = {
@@ -48,17 +49,17 @@ def generate_247_active_ai_plan() -> dict:
         except Exception:
             pass
 
-    for category, symbols in WATCHLISTS.items():
-        init_cap = config.SYSTEM_ALLOCATIONS.get(category, 100000.0)
-        sys_pnl = get_system_pnl(category, init_cap)
+    for sys_cat, watchlist in WATCHLISTS.items():
+        sys_pnl = get_system_pnl(sys_cat, config.SYSTEM_ALLOCATIONS.get(sys_cat, 100000.0))
+        cat_strat = get_active_strategy(sys_cat)
+        
         spendable_cash = sys_pnl.get("spendable_cash_thb", 0.0)
         harvested_vault = sys_pnl.get("harvested_vault_thb", 0.0)
         held_symbols = [p["ชื่อสินทรัพย์"] for p in sys_pnl.get("active_positions_detail", [])]
-        held_raw_symbols = [p.get("raw_symbol", p["ชื่อสินทรัพย์"]) for p in sys_pnl.get("active_positions_detail", [])]
 
         candidate_plans = []
 
-        for symbol in symbols:
+        for symbol in watchlist:
             is_held = False
             held_detail = None
             for p in sys_pnl.get("active_positions_detail", []):
@@ -78,7 +79,7 @@ def generate_247_active_ai_plan() -> dict:
                 if df.empty:
                     continue
 
-                df_sig = generate_swing_trading_signals(df, strategy_key="CUSTOM")
+                df_sig = generate_quant_signal(df, strategy_key=cat_strat, news_sentiment=sent_score)
                 last_price = float(df_sig["Close"].iloc[-1])
                 last_sig = int(df_sig["Signal"].iloc[-1])
                 rsi_val = float(df_sig["RSI"].iloc[-1]) if "RSI" in df_sig.columns else 50.0

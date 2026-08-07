@@ -17,22 +17,58 @@ DEFAULT_CUSTOM_PARAMS = {
     "ai_min_sentiment": 0.10
 }
 
-def get_active_strategy() -> str:
+DEFAULT_SYSTEM_STRATEGIES = {
+    "US_INDEX": "TREND_FOLLOWING",
+    "GOLD": "MEAN_REVERSION",
+    "CRYPTO": "VOLATILITY_BREAKOUT",
+    "FOREX": "GRID_TRADING"
+}
+
+def get_active_strategy(asset_category: str = "US_INDEX") -> str:
     if os.path.exists(STRATEGY_CONFIG_FILE):
         try:
             with open(STRATEGY_CONFIG_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                return data.get("active_strategy", "BALANCED_SWING")
+                if isinstance(data, dict):
+                    if asset_category in data:
+                        return data[asset_category]
+                    elif "active_strategy" in data:
+                        return data["active_strategy"]
         except Exception:
-            return "BALANCED_SWING"
-    return "BALANCED_SWING"
+            pass
+    return DEFAULT_SYSTEM_STRATEGIES.get(asset_category, "TREND_FOLLOWING")
 
-def set_active_strategy(strategy_key: str):
+def set_active_strategy(strategy_key: str, asset_category: str = "US_INDEX"):
     try:
+        data = {}
+        if os.path.exists(STRATEGY_CONFIG_FILE):
+            try:
+                with open(STRATEGY_CONFIG_FILE, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except Exception:
+                data = {}
+        if not isinstance(data, dict):
+            data = {}
+        data[asset_category] = strategy_key
+        data["active_strategy"] = strategy_key
         with open(STRATEGY_CONFIG_FILE, "w", encoding="utf-8") as f:
-            json.dump({"active_strategy": strategy_key}, f, ensure_ascii=False, indent=2)
+            json.dump(data, f, ensure_ascii=False, indent=2)
     except Exception as e:
         print(f"Error saving active strategy: {e}")
+
+def get_all_active_strategies() -> dict:
+    res = dict(DEFAULT_SYSTEM_STRATEGIES)
+    if os.path.exists(STRATEGY_CONFIG_FILE):
+        try:
+            with open(STRATEGY_CONFIG_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, dict):
+                    for k in res.keys():
+                        if k in data:
+                            res[k] = data[k]
+        except Exception:
+            pass
+    return res
 
 def get_custom_strategy_params() -> dict:
     if os.path.exists(CUSTOM_CONFIG_FILE):
