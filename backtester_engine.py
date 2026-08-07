@@ -6,12 +6,12 @@ Author: Quant AI Engineering Team
 import pandas as pd
 import numpy as np
 from data_loader import fetch_stock_data
-from strategies.swing_strategy import generate_swing_trading_signals
+from strategies.quant_strategy_library import generate_quant_signal
 from volatility_engine import calculate_atr
 
 def run_historical_backtest(
     symbol: str = "BTC-USD",
-    strategy_key: str = "BALANCED_SWING",
+    strategy_key: str = "TREND_FOLLOWING",
     period: str = "2y",
     initial_capital_thb: float = 100000.0,
     trade_allocation_thb: float = 20000.0,
@@ -27,7 +27,7 @@ def run_historical_backtest(
         if df.empty or len(df) < 30:
             return {"success": False, "error": f"ข้อมูลย้อนหลัง {symbol} ไม่เพียงพอในการทำ Backtest"}
             
-        df_sig = generate_swing_trading_signals(df, strategy_key=strategy_key)
+        df_sig = generate_quant_signal(df, strategy_key=strategy_key)
         df_sig['ATR'] = calculate_atr(df_sig, 14)
         
         cash = initial_capital_thb

@@ -87,17 +87,17 @@ if "theme_mode" not in st.session_state:
 if hasattr(st, 'dialog'):
     @st.dialog("🎯 ยืนยันการเลือกกลยุทธ์การเทรด (Strategy Confirmation)")
     def show_strategy_dialog(strategy_key):
-        info = STRATEGY_DETAILS.get(strategy_key, STRATEGY_DETAILS["BALANCED_SWING"])
-        st.markdown(f"### {info['icon']} {info['name']}")
-        st.markdown(f"**ระดับความเสี่ยง:** `{info['risk_level']}`")
-        st.markdown(f"**คำอธิบายกลยุทธ์:** {info['description']}")
+        info = config.STRATEGY_CATALOG.get(strategy_key, config.STRATEGY_CATALOG["TREND_FOLLOWING"])
+        st.markdown(f"### {info.get('icon', '⚙️')} {info['name']}")
+        st.markdown(f"**ระดับความเสี่ยง:** `{info.get('risk_level', 'ปานกลาง')}`")
+        st.markdown(f"**คำอธิบายกลยุทธ์:** {info['desc']}")
         st.markdown("---")
         
         col_pro, col_con = st.columns(2)
         with col_pro:
-            st.markdown(f"<div style='background:rgba(16, 185, 129, 0.2); padding:14px; border-radius:12px; border:1px solid rgba(16, 185, 129, 0.5);'><h4 style='color:#34d399; margin:0;'>✅ ข้อดี (Pros)</h4>{info['pros']}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='background:rgba(16, 185, 129, 0.2); padding:14px; border-radius:12px; border:1px solid rgba(16, 185, 129, 0.5);'><h4 style='color:#34d399; margin:0;'>✅ ข้อดี (Pros)</h4>{info.get('pros', 'ทำกำไรตามระบบ')}</div>", unsafe_allow_html=True)
         with col_con:
-            st.markdown(f"<div style='background:rgba(239, 68, 68, 0.2); padding:14px; border-radius:12px; border:1px solid rgba(239, 68, 68, 0.5);'><h4 style='color:#f87171; margin:0;'>⚠️ ข้อเสีย / ความเสี่ยง (Cons)</h4>{info['cons']}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='background:rgba(239, 68, 68, 0.2); padding:14px; border-radius:12px; border:1px solid rgba(239, 68, 68, 0.5);'><h4 style='color:#f87171; margin:0;'>⚠️ ข้อเสีย / ความเสี่ยง (Cons)</h4>{info.get('cons', 'ต้องควบคุมความเสี่ยงอย่างเคร่งครัด')}</div>", unsafe_allow_html=True)
             
         st.markdown("---")
         col_c1, col_c2 = st.columns([1, 1])
@@ -481,10 +481,16 @@ with col_strat2:
 
 with col_strat3:
     st.markdown("<div style='margin-top:28px;'></div>", unsafe_allow_html=True)
+    active_sys = st.session_state.active_system if st.session_state.active_system in ["US_INDEX", "GOLD", "CRYPTO", "FOREX"] else "US_INDEX"
+    rec_map = {"US_INDEX": rec_us, "GOLD": rec_gold, "CRYPTO": rec_crypto, "FOREX": rec_forex}
+    active_rec = rec_map.get(active_sys, rec_us)
+    rec_key = active_rec.get('strategy_key', 'TREND_FOLLOWING')
+    rec_name = active_rec.get('strategy_name', 'Trend Following')
+    
     if st.button("⚡ ปรับใช้กลยุทธ์ AI แนะนำ", use_container_width=True):
         set_active_strategy(rec_key)
         st.session_state.current_active_strategy = rec_key
-        st.success(f"สลับไปใช้กลยุทธ์ตามที่ AI แนะนำ [{rec_info['name']}] เรียบร้อยแล้ว!")
+        st.success(f"สลับไปใช้กลยุทธ์ตามที่ AI แนะนำ [{rec_name}] เรียบร้อยแล้ว!")
         st.rerun()
 
 # ==================== BEGINNER-FRIENDLY VISUAL CUSTOM STRATEGY STUDIO ====================

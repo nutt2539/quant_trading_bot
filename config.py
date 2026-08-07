@@ -100,63 +100,103 @@ STRATEGY_CATALOG = {
         "level": "BEGINNER",
         "level_label": "🟢 ระดับเริ่มต้น (Beginner)",
         "name": "Grid Trading (การวางตาข่ายซื้อขาย)",
-        "desc": "วางคำสั่งซื้อ-ขายเป็นช่วงตาข่าย (Grid) ตามกรอบราคาเพื่อทำกำไรจากแกว่งตัวแคบ (Sideway)"
+        "icon": "🕸️",
+        "risk_level": "ต่ำ (Low Risk - Sideway Market)",
+        "desc": "วางคำสั่งซื้อ-ขายเป็นช่วงตาข่าย (Grid) ตามกรอบราคาเพื่อทำกำไรจากแกว่งตัวแคบ (Sideway)",
+        "pros": "ทำกำไรสม่ำเสมอในสภาวะตลาดไซด์เวย์ ไม่ต้องคาดเดาทิศทางตลาดสด",
+        "cons": "หากราคาเกิดเทรนด์หลุดกรอบตาข่ายลงแรง อาจติดดอยสะสมตำแหน่งหลายชั้น"
     },
     "TREND_FOLLOWING": {
         "level": "BEGINNER",
         "level_label": "🟢 ระดับเริ่มต้น (Beginner)",
         "name": "Simple Trend Following (กลยุทธ์ตามเทรนด์ด้วย EMA/RSI/MACD)",
-        "desc": "เกาะเทรนด์ใหญ่ด้วยสัญญาณ EMA Cross, RSI Momentum และ MACD Rebound"
+        "icon": "📈",
+        "risk_level": "ปานกลาง (Moderate Risk)",
+        "desc": "เกาะเทรนด์ใหญ่ด้วยสัญญาณ EMA Cross, RSI Momentum และ MACD Rebound",
+        "pros": "รันเทรนด์ได้กำไรคำโตเมื่อตลาดเป็นเทรนด์ชัดเจน ตัดขาดทุนตามวินัยรวดเร็ว",
+        "cons": "อาจเกิดสัญญาณหลอก (Whipsaw) ในช่วงตลาดแกว่งตัวผันผวนไม่มีทิศทาง"
     },
     "DCA_REBALANCE": {
         "level": "BEGINNER",
         "level_label": "🟢 ระดับเริ่มต้น (Beginner)",
         "name": "DCA Bot & Smart Rebalancing (ทยอยสะสมถัวเฉลี่ย)",
-        "desc": "ทยอยสะสมสินทรัพย์ตามเปอร์เซ็นต์ย่อตัวและปรับพอร์ตถัวเฉลี่ยอัตโนมัติ"
+        "icon": "💰",
+        "risk_level": "ต่ำมาก (Very Low Risk - Capital Saver)",
+        "desc": "ทยอยสะสมสินทรัพย์ตามเปอร์เซ็นต์ย่อตัวและปรับพอร์ตถัวเฉลี่ยอัตโนมัติ",
+        "pros": "ลดความเสี่ยงจากการเข้าซื้อผิดจังหวะ เหมาะสำหรับสะสมพอร์ตระยะยาว",
+        "cons": "ผลตอบแทนอาจไม่หวือหวาเท่ากลยุทธ์ตามเทรนด์แรงๆ ในระยะสั้น"
     },
     # 🟡 2.2 Intermediate Level (Statistics & ML)
     "MEAN_REVERSION": {
         "level": "INTERMEDIATE",
         "level_label": "🟡 ระดับปานกลาง (Intermediate)",
         "name": "Mean Reversion (การย้อนกลับสู่ค่าเฉลี่ย)",
-        "desc": "ใช้สถิติ Z-Score & Bollinger Bands คำนวณจุดหลุดเบี่ยงเบนเพื่อเทรดสวนทางกลับเข้าหาศูนย์กลาง"
+        "icon": "⚖️",
+        "risk_level": "ปานกลาง (Moderate Risk)",
+        "desc": "ใช้สถิติ Z-Score & Bollinger Bands คำนวณจุดหลุดเบี่ยงเบนเพื่อเทรดสวนทางกลับเข้าหาศูนย์กลาง",
+        "pros": "อัตราการชนะ (Win Rate) สูง มีจุดเข้าซื้อที่ชัดเจนตามสถิติเบี่ยงเบน",
+        "cons": "หากราคาทะลุแนวรับ/แนวต้านเปิดเทรนด์แรง อาจเข้าซื้อสวนเทรนด์ต่อเนื่อง"
     },
     "VOLATILITY_BREAKOUT": {
         "level": "INTERMEDIATE",
         "level_label": "🟡 ระดับปานกลาง (Intermediate)",
         "name": "Volatility Breakout & Momentum (การทะลุกรอบความผันผวน)",
-        "desc": "ตรวจจับกรอบแคบ (Squeeze) และยิงออเดอร์เมื่อเกิดแรงซื้อทะลุ Volume ผิดปกติ"
+        "icon": "💥",
+        "risk_level": "ปานกลาง-สูง (Med-High Risk)",
+        "desc": "ตรวจจับกรอบแคบ (Squeeze) และยิงออเดอร์เมื่อเกิดแรงซื้อทะลุ Volume ผิดปกติ",
+        "pros": "เข้าซื้อตอนต้นเทรนด์ได้อย่างรวดเร็ว ทำกำไรตามแรงระเบิดของราคาได้ดี",
+        "cons": "ต้องมีวินัย Stop Loss ที่เด็ดขาดเมื่อเกิดการ Breakout หลอก (False Breakout)"
     },
     "SUPERVISED_ML": {
         "level": "INTERMEDIATE",
         "level_label": "🟡 ระดับปานกลาง (Intermediate)",
         "name": "Supervised ML Classification (โมเดล Random Forest/XGBoost)",
-        "desc": "ใช้โมเดล Machine Learning จำแนกสภาวะตลาดและทายผลลัพธ์ทิศทางแท่งถัดไป"
+        "icon": "🤖",
+        "risk_level": "ปานกลาง (Quant Model Risk)",
+        "desc": "ใช้โมเดล Machine Learning จำแนกสภาวะตลาดและทายผลลัพธ์ทิศทางแท่งถัดไป",
+        "pros": "วิเคราะห์อินดิเคเตอร์หลายมิติพร้อมกันได้อย่างแม่นยำ ปรับตัวตามฟีเจอร์ใหม่",
+        "cons": "ต้องคอย Retrain โมเดลเป็นระยะเพื่อป้องกันปัญหา Model Overfitting"
     },
     # 🔴 2.3 Professional Level (Quant Funds & Deep AI)
     "STAT_ARBITRAGE": {
         "level": "PROFESSIONAL",
         "level_label": "🔴 ระดับมืออาชีพ (Professional Quant)",
         "name": "Statistical Arbitrage & Pairs Trading (สถิติอนุพันธ์คู่สินทรัพย์)",
-        "desc": "หาคู่สินทรัพย์ Cointegration เพื่อ Long ตัวถูก / Short ตัวแพง รอราคาดึงกลับสมดุล"
+        "icon": "📊",
+        "risk_level": "ปานกลาง-ต่ำ (Market Neutral)",
+        "desc": "หาคู่สินทรัพย์ Cointegration เพื่อ Long ตัวถูก / Short ตัวแพง รอราคาดึงกลับสมดุล",
+        "pros": "ไร้ความเสี่ยงจากทิศทางตลาดใหญ่ (Market Neutral) เน้นส่วนต่างราคา",
+        "cons": "กำไรต่อรอบอาจไม่สูงมาก ต้องใช้เลเวอเรจ หรือจัดการคู่สินทรัพย์อย่างใกล้ชิด"
     },
     "NLP_SENTIMENT": {
         "level": "PROFESSIONAL",
         "level_label": "🔴 ระดับมืออาชีพ (Professional Quant)",
         "name": "Sentiment Analysis & NLP Trading (ประมวลข่าวสาร Real-time)",
-        "desc": "ใช้ Gemini AI NLP อ่านข่าวเศรษฐกิจ งบการเงิน แถลงการณ์ Fed สั่งซื้อขายล่วงหน้าทันที"
+        "icon": "📰",
+        "risk_level": "สูง (Macro Sentiment Sensitive)",
+        "desc": "ใช้ Gemini AI NLP อ่านข่าวเศรษฐกิจ งบการเงิน แถลงการณ์ Fed สั่งซื้อขายล่วงหน้าทันที",
+        "pros": "ได้เปรียบด้านข้อมูลข่าวสาร ยิงออเดอร์ก่อนที่ราคาจะตอบรับข่าวใหญ่",
+        "cons": "ข่าวบางประเภทอาจมีข้อมูลขัดแย้งกัน ต้องมีตัวกรอง Sentiment ที่รัดกุม"
     },
     "REINFORCEMENT_LEARNING": {
         "level": "PROFESSIONAL",
         "level_label": "🔴 ระดับมืออาชีพ (Professional Quant)",
         "name": "Reinforcement Learning (RL Trading Agent)",
-        "desc": "เอเจนต์ AI เรียนรู้ผ่าน Reward System ลองเทรดจำลองเพื่อปรับตัวตามสภาวะตลาดสด"
+        "icon": "🧠",
+        "risk_level": "สูง (AI Dynamic Adaptability)",
+        "desc": "เอเจนต์ AI เรียนรู้ผ่าน Reward System ลองเทรดจำลองเพื่อปรับตัวตามสภาวะตลาดสด",
+        "pros": "สามารถค้นพบรูปแบบกลยุทธ์แปลกใหม่ที่ไม่เคยมีมนุษย์คนไหนคิดมาก่อน",
+        "cons": "ความซับซ้อนของเอเจนต์สูง ต้องควบคุมจริยธรรมและกรอบบริหารความเสี่ยงเคร่งครัด"
     },
     "ORDER_FLOW_HFT": {
         "level": "PROFESSIONAL",
         "level_label": "🔴 ระดับมืออาชีพ (Professional Quant)",
         "name": "High-Frequency Trading & Order Flow (วิเคราะห์ Order Book)",
-        "desc": "จำลองการวิเคราะห์ Order Book Imbalance / Spread Capture ความเร็วสูงระดับมิลลิวินาที"
+        "icon": "⚡",
+        "risk_level": "สูงมาก (High Frequency Micro Execution)",
+        "desc": "จำลองการวิเคราะห์ Order Book Imbalance / Spread Capture ความเร็วสูงระดับมิลลิวินาที",
+        "pros": "ก็อบปี้การเก็บกำไรช่องเล็กๆ สม่ำเสมอจากส่วนต่างราคา BID/ASK",
+        "cons": "ต้องคำนึงถึงค่าธรรมเนียมการเทรดและค่าความหน่วงของเครือข่าย (Latency)"
     }
 }
 
