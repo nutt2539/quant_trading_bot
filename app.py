@@ -517,62 +517,12 @@ with col_r4:
         st.success(f"สลับระบบ Forex ไปใช้ {rec_forex['strategy_name']} เรียบร้อย!")
         st.rerun()
 
-st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
-
-# Determine active asset system being configured
-active_sys = st.session_state.active_system if st.session_state.active_system in ["US_INDEX", "GOLD", "CRYPTO", "FOREX"] else "US_INDEX"
-
-sys_names_map = {
-    "US_INDEX": "🇺🇸 ดัชนีหุ้นสหรัฐฯ (US Index)",
-    "GOLD": "🥇 บอททองคำ (Gold)",
-    "CRYPTO": "🪙 บอท Crypto Spot",
-    "FOREX": "💱 บอท Forex 24/5"
-}
-
-target_active_strat = get_active_strategy(active_sys)
-
-col_strat1, col_strat2, col_strat3 = st.columns([2.2, 1.0, 1.2])
-
 strategy_options = {
     f"[{info['level_label']}] {info['name']}": key 
     for key, info in config.STRATEGY_CATALOG.items()
 }
 
-option_keys = list(strategy_options.values())
-curr_index = option_keys.index(target_active_strat) if target_active_strat in option_keys else 0
-
-with col_strat1:
-    selected_label = st.selectbox(
-        f"⚙️ ตั้งค่ากลยุทธ์เฉพาะสำหรับระบบ [{sys_names_map[active_sys]}]:",
-        options=list(strategy_options.keys()),
-        index=curr_index,
-        key=f"strategy_selector_dropdown_{active_sys}"
-    )
-    chosen_key = strategy_options[selected_label]
-    if chosen_key != target_active_strat:
-        set_active_strategy(chosen_key, asset_category=active_sys)
-        st.session_state.current_active_strategy = chosen_key
-        st.success(f"บันทึกกลยุทธ์ {chosen_key} สำหรับระบบ {active_sys} เรียบร้อยแล้ว!")
-        st.rerun()
-
-with col_strat2:
-    st.markdown("<div style='margin-top:28px;'></div>", unsafe_allow_html=True)
-    if st.button("🔍 รายละเอียดกลยุทธ์", use_container_width=True):
-        st.session_state.pending_strategy_modal = chosen_key
-        st.rerun()
-
-with col_strat3:
-    st.markdown("<div style='margin-top:28px;'></div>", unsafe_allow_html=True)
-    rec_map = {"US_INDEX": rec_us, "GOLD": rec_gold, "CRYPTO": rec_crypto, "FOREX": rec_forex}
-    active_rec = rec_map.get(active_sys, rec_us)
-    rec_key = active_rec.get('strategy_key', 'TREND_FOLLOWING')
-    rec_name = active_rec.get('strategy_name', 'Trend Following')
-    
-    if st.button(f"⚡ AI แนะนำ ({rec_name})", use_container_width=True):
-        set_active_strategy(rec_key, asset_category=active_sys)
-        st.session_state.current_active_strategy = rec_key
-        st.success(f"สลับระบบ {active_sys} ไปใช้กลยุทธ์ตามที่ AI แนะนำ [{rec_name}] เรียบร้อยแล้ว!")
-        st.rerun()
+chosen_key = st.session_state.get("current_active_strategy", "TREND_FOLLOWING")
 
 # ==================== BEGINNER-FRIENDLY VISUAL CUSTOM STRATEGY STUDIO ====================
 if chosen_key == "CUSTOM" or st.session_state.current_active_strategy == "CUSTOM":
@@ -1098,6 +1048,15 @@ if st.session_state.active_system == "UNIFIED":
             <div style="font-size:0.82rem; display:flex; justify-content:space-between; color:#ef4444;"><span>🛑 Cut-Loss สะสม:</span> <strong>-฿{us_index_p.get('cumulative_cut_loss_thb', 0.0):,.2f}</strong></div>
         </div>
         """, unsafe_allow_html=True)
+        
+        curr_us = get_active_strategy("US_INDEX")
+        curr_us_idx = list(strategy_options.values()).index(curr_us) if curr_us in strategy_options.values() else 0
+        sel_us = st.selectbox("⚙️ ปรับกลยุทธ์ US Index:", options=list(strategy_options.keys()), index=curr_us_idx, key="card_sel_us")
+        k_us = strategy_options[sel_us]
+        if k_us != curr_us:
+            set_active_strategy(k_us, "US_INDEX")
+            st.session_state.current_active_strategy = k_us
+            st.rerun()
 
     with col_sys2:
         st.markdown(f"""
@@ -1115,6 +1074,15 @@ if st.session_state.active_system == "UNIFIED":
             <div style="font-size:0.82rem; display:flex; justify-content:space-between; color:#ef4444;"><span>🛑 Cut-Loss สะสม:</span> <strong>-฿{gold_p.get('cumulative_cut_loss_thb', 0.0):,.2f}</strong></div>
         </div>
         """, unsafe_allow_html=True)
+        
+        curr_gold = get_active_strategy("GOLD")
+        curr_gold_idx = list(strategy_options.values()).index(curr_gold) if curr_gold in strategy_options.values() else 0
+        sel_gold = st.selectbox("⚙️ ปรับกลยุทธ์ Gold Bot:", options=list(strategy_options.keys()), index=curr_gold_idx, key="card_sel_gold")
+        k_gold = strategy_options[sel_gold]
+        if k_gold != curr_gold:
+            set_active_strategy(k_gold, "GOLD")
+            st.session_state.current_active_strategy = k_gold
+            st.rerun()
 
     with col_sys3:
         st.markdown(f"""
@@ -1132,6 +1100,15 @@ if st.session_state.active_system == "UNIFIED":
             <div style="font-size:0.82rem; display:flex; justify-content:space-between; color:#ef4444;"><span>🛑 Cut-Loss สะสม:</span> <strong>-฿{crypto_p.get('cumulative_cut_loss_thb', 0.0):,.2f}</strong></div>
         </div>
         """, unsafe_allow_html=True)
+        
+        curr_c = get_active_strategy("CRYPTO")
+        curr_c_idx = list(strategy_options.values()).index(curr_c) if curr_c in strategy_options.values() else 0
+        sel_c = st.selectbox("⚙️ ปรับกลยุทธ์ Crypto Bot:", options=list(strategy_options.keys()), index=curr_c_idx, key="card_sel_crypto")
+        k_c = strategy_options[sel_c]
+        if k_c != curr_c:
+            set_active_strategy(k_c, "CRYPTO")
+            st.session_state.current_active_strategy = k_c
+            st.rerun()
 
     with col_sys4:
         st.markdown(f"""
@@ -1149,6 +1126,15 @@ if st.session_state.active_system == "UNIFIED":
             <div style="font-size:0.82rem; display:flex; justify-content:space-between; color:#ef4444;"><span>🛑 Cut-Loss สะสม:</span> <strong>-฿{forex_p.get('cumulative_cut_loss_thb', 0.0):,.2f}</strong></div>
         </div>
         """, unsafe_allow_html=True)
+        
+        curr_fx = get_active_strategy("FOREX")
+        curr_fx_idx = list(strategy_options.values()).index(curr_fx) if curr_fx in strategy_options.values() else 0
+        sel_fx = st.selectbox("⚙️ ปรับกลยุทธ์ Forex Bot:", options=list(strategy_options.keys()), index=curr_fx_idx, key="card_sel_forex")
+        k_fx = strategy_options[sel_fx]
+        if k_fx != curr_fx:
+            set_active_strategy(k_fx, "FOREX")
+            st.session_state.current_active_strategy = k_fx
+            st.rerun()
         
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     all_pos = unified_pnl['all_active_positions']
@@ -1290,6 +1276,28 @@ else:
 
     st.markdown(f'<div class="hero-title">{sys_title}</div>', unsafe_allow_html=True)
     
+    curr_sys_strat = get_active_strategy(target_cat)
+    curr_sys_idx = list(strategy_options.values()).index(curr_sys_strat) if curr_sys_strat in strategy_options.values() else 0
+    c_v3_s1, c_v3_s2 = st.columns([3.5, 1.2])
+    with c_v3_s1:
+        sel_v3_label = st.selectbox(
+            f"⚙️ เลือกปรับกลยุทธ์ประจำระบบ [{target_cat}]:",
+            options=list(strategy_options.keys()),
+            index=curr_sys_idx,
+            key=f"view3_strat_selector_{target_cat}"
+        )
+        chosen_v3_k = strategy_options[sel_v3_label]
+        if chosen_v3_k != curr_sys_strat:
+            set_active_strategy(chosen_v3_k, target_cat)
+            st.session_state.current_active_strategy = chosen_v3_k
+            st.success(f"สลับกลยุทธ์ระบบ {target_cat} เป็น {config.STRATEGY_CATALOG[chosen_v3_k]['name']} เรียบร้อยแล้ว!")
+            st.rerun()
+    with c_v3_s2:
+        st.markdown("<div style='margin-top:28px;'></div>", unsafe_allow_html=True)
+        if st.button("🔍 ดูรายละเอียดกลยุทธ์", key=f"btn_modal_detail_{target_cat}", use_container_width=True):
+            st.session_state.pending_strategy_modal = chosen_v3_k
+            st.rerun()
+            
     @st.fragment
     def render_live_sys_header(sys_cat):
         now_dt = get_thai_now_naive()
