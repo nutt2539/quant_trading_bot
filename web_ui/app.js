@@ -12,6 +12,10 @@ const STATE = {
   strategies: [],
   positions: [],
   systemsData: {},
+  systemsChartData: [],
+  systemsChartPeriod: "3mo",
+  systemsChartMode: "PCT",
+  visibleSystems: { unified: true, us: true, gold: true, crypto: true, forex: true },
   harvesterData: {},
   aiPlan: null,
   robotEnabled: true,
@@ -39,11 +43,21 @@ const DOM = {
   btnPanicAll: document.getElementById("btn-panic-all"),
   toastContainer: document.getElementById("toast-container"),
 
-  // Systems Overview
+  // Systems Overview & Unified Chart
   systemsCardsGrid: document.getElementById("systems-cards-grid"),
   btnApplyAllAiStrats: document.getElementById("btn-apply-all-ai-strats"),
   masterHoldingsTbody: document.getElementById("master-holdings-tbody"),
   masterPositionsCount: document.getElementById("master-positions-count"),
+  unifiedSystemsCanvas: document.getElementById("unified-systems-chart"),
+  sysChartTooltip: document.getElementById("sys-chart-tooltip"),
+  sysChartModeBtns: document.getElementById("sys-chart-mode-btns"),
+  sysChartPeriodBtns: document.getElementById("sys-chart-period-btns"),
+  legendItems: document.querySelectorAll(".u-legend-item"),
+  ulUnifiedVal: document.getElementById("ul-unified-val"),
+  ulUsVal: document.getElementById("ul-us-val"),
+  ulGoldVal: document.getElementById("ul-gold-val"),
+  ulCryptoVal: document.getElementById("ul-crypto-val"),
+  ulForexVal: document.getElementById("ul-forex-val"),
 
   // Terminal & Chart
   chartSymbolTitle: document.getElementById("chart-symbol-title"),
@@ -113,6 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupNavigation();
   setupEventListeners();
   initCanvas();
+  initUnifiedCanvas();
   fetchInitialData();
   startRealtimePolling();
 });
@@ -130,6 +145,7 @@ function setupNavigation() {
       if (panel) panel.classList.add("active");
 
       // Redraw charts or trigger tab specific fetchers
+      if (targetId === "view-systems") { fetchSystemsChart(STATE.systemsChartPeriod); renderUnifiedSystemsChart(); }
       if (targetId === "view-terminal") renderChart();
       if (targetId === "view-harvester") { fetchHarvester(); renderHarvestChart(); }
       if (targetId === "view-ai-planner") fetchAiPlannerQueue();
@@ -140,6 +156,41 @@ function setupNavigation() {
 
 // ----------------- EVENT LISTENERS -----------------
 function setupEventListeners() {
+  // Unified Systems Chart Controls (Mode: PCT vs VAL)
+  if (DOM.sysChartModeBtns) {
+    DOM.sysChartModeBtns.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        DOM.sysChartModeBtns.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        STATE.systemsChartMode = btn.getAttribute("data-mode");
+        renderUnifiedSystemsChart();
+      });
+    });
+  }
+
+  // Unified Systems Chart Timeframes (1M, 3M, 6M, 1Y)
+  if (DOM.sysChartPeriodBtns) {
+    DOM.sysChartPeriodBtns.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        DOM.sysChartPeriodBtns.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        STATE.systemsChartPeriod = btn.getAttribute("data-period");
+        fetchSystemsChart(STATE.systemsChartPeriod);
+      });
+    });
+  }
+
+  // Unified Systems Legend Toggles
+  if (DOM.legendItems) {
+    DOM.legendItems.forEach(item => {
+      item.addEventListener("click", () => {
+        const asset = item.getAttribute("data-asset");
+        STATE.visibleSystems[asset] = !STATE.visibleSystems[asset];
+        item.classList.toggle("dimmed", !STATE.visibleSystems[asset]);
+        renderUnifiedSystemsChart();
+      });
+    });
+  }
   // Master Switch
   DOM.masterRobotToggle.addEventListener("change", async (e) => {
     const enabled = e.target.checked;
@@ -356,6 +407,7 @@ async function fetchInitialData() {
   await fetchTickers();
   await fetchStrategies();
   await fetchMarketChart(STATE.activeSymbol, STATE.activePeriod);
+  await fetchSystemsChart(STATE.systemsChartPeriod);
 }
 
 async function fetchStatus() {
@@ -1118,3 +1170,256 @@ function renderEquityChart(equityData) {
   });
   eqCtx.stroke();
 }
+
+// ----------------- UNIFIED 4-SYSTEMS PERFORMANCE CANVAS ENGINE -----------------
+let uCtx, uWidth, uHeight;
+let uHoverIndex = null;
+
+function initUnifiedCanvas() {
+  const canvas = DOM.unifiedSystemsCanvas;
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  uCtx = canvas.getContext("2d");
+  uCtx.scale(dpr, dpr);
+  uWidth = rect.width;
+  uHeight = rect.height;
+
+  canvas.addEventListener("mousemove", (e) => {
+    if (!STATE.systemsChartData || STATE.systemsChartData.length === 0) return;
+    const r = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - r.left;
+    const pad = { top: 25, right: 70, bottom: 25, left: 15 };
+    const cW = uWidth - pad.left - pad.right;
+    
+    let index = Math.round(((mouseX - pad.left) / cW) * (STATE.systemsChartData.length - 1));
+    index = Math.max(0, Math.min(STATE.systemsChartData.length - 1, index));
+    uHoverIndex = index;
+    renderUnifiedSystemsChart();
+
+    const d = STATE.systemsChartData[index];
+    const isVal = STATE.systemsChartMode === "VAL";
+    if (DOM.sysChartTooltip && d) {
+      DOM.sysChartTooltip.style.display = "block";
+      DOM.sysChartTooltip.style.left = `${Math.min(uWidth - 190, Math.max(10, mouseX - 80))}px`;
+      DOM.sysChartTooltip.style.top = "15px";
+      DOM.sysChartTooltip.innerHTML = `
+        <div style="font-weight:700; color:#f8fafc; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px; margin-bottom:4px;">
+          📅 ${d.date}
+        </div>
+        <div style="color:#00f090; font-weight:700;">🌐 Total: ${isVal ? '฿' + d.unified_val.toLocaleString('en-US', {minimumFractionDigits: 2}) : (d.unified_pct >= 0 ? '+' : '') + d.unified_pct.toFixed(2) + '%'}</div>
+        <div style="color:#00c8ff;">🇺🇸 US: ${d.us_pct >= 0 ? '+' : ''}${d.us_pct.toFixed(2)}%</div>
+        <div style="color:#ffb703;">🥇 Gold: ${d.gold_pct >= 0 ? '+' : ''}${d.gold_pct.toFixed(2)}%</div>
+        <div style="color:#9d4edd;">🪙 Crypto: ${d.crypto_pct >= 0 ? '+' : ''}${d.crypto_pct.toFixed(2)}%</div>
+        <div style="color:#ff3b69;">💱 Forex: ${d.forex_pct >= 0 ? '+' : ''}${d.forex_pct.toFixed(2)}%</div>
+      `;
+    }
+  });
+
+  canvas.addEventListener("mouseleave", () => {
+    uHoverIndex = null;
+    if (DOM.sysChartTooltip) DOM.sysChartTooltip.style.display = "none";
+    renderUnifiedSystemsChart();
+  });
+
+  window.addEventListener("resize", () => {
+    const r = canvas.getBoundingClientRect();
+    canvas.width = r.width * dpr;
+    canvas.height = r.height * dpr;
+    uCtx = canvas.getContext("2d");
+    uCtx.scale(dpr, dpr);
+    uWidth = r.width;
+    uHeight = r.height;
+    renderUnifiedSystemsChart();
+  });
+}
+
+async function fetchSystemsChart(period = "3mo") {
+  try {
+    const res = await fetch(`/api/systems-chart?period=${period}`);
+    const data = await res.json();
+    if (!data.success || !data.datapoints) return;
+
+    STATE.systemsChartData = data.datapoints;
+
+    if (data.summary) {
+      const s = data.summary;
+      if (DOM.ulUnifiedVal) {
+        DOM.ulUnifiedVal.textContent = `${s.unified_gain_pct >= 0 ? '+' : ''}${s.unified_gain_pct.toFixed(2)}% (฿${s.latest_portfolio_val_thb.toLocaleString('en-US', {minimumFractionDigits: 2})})`;
+        DOM.ulUnifiedVal.className = `ul-val mono ${s.unified_gain_pct >= 0 ? 'positive' : 'negative'}`;
+      }
+      if (DOM.ulUsVal) {
+        DOM.ulUsVal.textContent = `${s.us_gain_pct >= 0 ? '+' : ''}${s.us_gain_pct.toFixed(2)}%`;
+        DOM.ulUsVal.className = `ul-val mono ${s.us_gain_pct >= 0 ? 'positive' : 'negative'}`;
+      }
+      if (DOM.ulGoldVal) {
+        DOM.ulGoldVal.textContent = `${s.gold_gain_pct >= 0 ? '+' : ''}${s.gold_gain_pct.toFixed(2)}%`;
+        DOM.ulGoldVal.className = `ul-val mono ${s.gold_gain_pct >= 0 ? 'positive' : 'negative'}`;
+      }
+      if (DOM.ulCryptoVal) {
+        DOM.ulCryptoVal.textContent = `${s.crypto_gain_pct >= 0 ? '+' : ''}${s.crypto_gain_pct.toFixed(2)}%`;
+        DOM.ulCryptoVal.className = `ul-val mono ${s.crypto_gain_pct >= 0 ? 'positive' : 'negative'}`;
+      }
+      if (DOM.ulForexVal) {
+        DOM.ulForexVal.textContent = `${s.forex_gain_pct >= 0 ? '+' : ''}${s.forex_gain_pct.toFixed(2)}%`;
+        DOM.ulForexVal.className = `ul-val mono ${s.forex_gain_pct >= 0 ? 'positive' : 'negative'}`;
+      }
+    }
+
+    renderUnifiedSystemsChart();
+  } catch (err) {
+    console.error("Systems chart fetch error", err);
+  }
+}
+
+function renderUnifiedSystemsChart() {
+  const canvas = DOM.unifiedSystemsCanvas;
+  if (!canvas || !uCtx || !STATE.systemsChartData || STATE.systemsChartData.length === 0) return;
+
+  const data = STATE.systemsChartData;
+  const isVal = STATE.systemsChartMode === "VAL";
+
+  uCtx.clearRect(0, 0, uWidth, uHeight);
+
+  const pad = { top: 25, right: 70, bottom: 25, left: 15 };
+  const cW = uWidth - pad.left - pad.right;
+  const cH = uHeight - pad.top - pad.bottom;
+
+  let allVals = [];
+  data.forEach(d => {
+    if (isVal) {
+      if (STATE.visibleSystems.unified) allVals.push(d.unified_val);
+      if (STATE.visibleSystems.us) allVals.push(100000 * (1 + d.us_pct / 100));
+      if (STATE.visibleSystems.gold) allVals.push(90000 * (1 + d.gold_pct / 100));
+      if (STATE.visibleSystems.crypto) allVals.push(80000 * (1 + d.crypto_pct / 100));
+      if (STATE.visibleSystems.forex) allVals.push(30000 * (1 + d.forex_pct / 100));
+    } else {
+      if (STATE.visibleSystems.unified) allVals.push(d.unified_pct);
+      if (STATE.visibleSystems.us) allVals.push(d.us_pct);
+      if (STATE.visibleSystems.gold) allVals.push(d.gold_pct);
+      if (STATE.visibleSystems.crypto) allVals.push(d.crypto_pct);
+      if (STATE.visibleSystems.forex) allVals.push(d.forex_pct);
+    }
+  });
+
+  if (allVals.length === 0) allVals = [0, 10];
+  let minV = Math.min(...allVals);
+  let maxV = Math.max(...allVals);
+  const range = (maxV - minV) || 1;
+  minV -= range * 0.08;
+  maxV += range * 0.08;
+
+  const getY = (v) => pad.top + cH - ((v - minV) / (maxV - minV)) * cH;
+  const getX = (i) => pad.left + (i / (data.length - 1)) * cW;
+
+  // Grid Lines
+  uCtx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+  uCtx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (cH / 4) * i;
+    uCtx.beginPath();
+    uCtx.moveTo(pad.left, y);
+    uCtx.lineTo(uWidth - pad.right, y);
+    uCtx.stroke();
+
+    const valLabel = maxV - (i / 4) * (maxV - minV);
+    uCtx.fillStyle = "#64748b";
+    uCtx.font = "10px 'JetBrains Mono'";
+    const txt = isVal ? `฿${Math.round(valLabel).toLocaleString()}` : `${valLabel >= 0 ? '+' : ''}${valLabel.toFixed(1)}%`;
+    uCtx.fillText(txt, uWidth - pad.right + 8, y + 3);
+  }
+
+  // Zero Line
+  if (!isVal && minV < 0 && maxV > 0) {
+    const zeroY = getY(0);
+    uCtx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+    uCtx.setLineDash([4, 4]);
+    uCtx.beginPath();
+    uCtx.moveTo(pad.left, zeroY);
+    uCtx.lineTo(uWidth - pad.right, zeroY);
+    uCtx.stroke();
+    uCtx.setLineDash([]);
+  }
+
+  const drawLine = (valAccessor, strokeStyle, lineWidth, shadowColor, fillArea = false) => {
+    uCtx.strokeStyle = strokeStyle;
+    uCtx.lineWidth = lineWidth;
+    if (shadowColor) {
+      uCtx.shadowColor = shadowColor;
+      uCtx.shadowBlur = 10;
+    } else {
+      uCtx.shadowBlur = 0;
+    }
+
+    if (fillArea) {
+      const grad = uCtx.createLinearGradient(0, pad.top, 0, uHeight);
+      grad.addColorStop(0, "rgba(0, 240, 144, 0.25)");
+      grad.addColorStop(1, "rgba(0, 240, 144, 0.0)");
+      uCtx.beginPath();
+      uCtx.moveTo(getX(0), uHeight - pad.bottom);
+      data.forEach((d, i) => uCtx.lineTo(getX(i), getY(valAccessor(d))));
+      uCtx.lineTo(getX(data.length - 1), uHeight - pad.bottom);
+      uCtx.closePath();
+      uCtx.fillStyle = grad;
+      uCtx.fill();
+    }
+
+    uCtx.beginPath();
+    data.forEach((d, i) => {
+      const y = getY(valAccessor(d));
+      if (i === 0) uCtx.moveTo(getX(i), y);
+      else uCtx.lineTo(getX(i), y);
+    });
+    uCtx.stroke();
+    uCtx.shadowBlur = 0;
+  };
+
+  // Draw 4 Assets & Unified Line
+  if (STATE.visibleSystems.forex) {
+    drawLine(d => isVal ? 30000 * (1 + d.forex_pct / 100) : d.forex_pct, "#ff3b69", 1.8, null);
+  }
+  if (STATE.visibleSystems.crypto) {
+    drawLine(d => isVal ? 80000 * (1 + d.crypto_pct / 100) : d.crypto_pct, "#9d4edd", 1.8, null);
+  }
+  if (STATE.visibleSystems.gold) {
+    drawLine(d => isVal ? 90000 * (1 + d.gold_pct / 100) : d.gold_pct, "#ffb703", 1.8, null);
+  }
+  if (STATE.visibleSystems.us) {
+    drawLine(d => isVal ? 100000 * (1 + d.us_pct / 100) : d.us_pct, "#00c8ff", 1.8, null);
+  }
+  if (STATE.visibleSystems.unified) {
+    drawLine(d => isVal ? d.unified_val : d.unified_pct, "#00f090", 2.8, "rgba(0, 240, 144, 0.4)", true);
+  }
+
+  // Crosshair
+  if (uHoverIndex !== null && data[uHoverIndex]) {
+    const x = getX(uHoverIndex);
+    uCtx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    uCtx.lineWidth = 1;
+    uCtx.setLineDash([3, 3]);
+    uCtx.beginPath();
+    uCtx.moveTo(x, pad.top);
+    uCtx.lineTo(x, uHeight - pad.bottom);
+    uCtx.stroke();
+    uCtx.setLineDash([]);
+
+    const drawDot = (v, color) => {
+      const y = getY(v);
+      uCtx.fillStyle = color;
+      uCtx.beginPath();
+      uCtx.arc(x, y, 4, 0, Math.PI * 2);
+      uCtx.fill();
+    };
+
+    const cur = data[uHoverIndex];
+    if (STATE.visibleSystems.forex) drawDot(isVal ? 30000 * (1 + cur.forex_pct / 100) : cur.forex_pct, "#ff3b69");
+    if (STATE.visibleSystems.crypto) drawDot(isVal ? 80000 * (1 + cur.crypto_pct / 100) : cur.crypto_pct, "#9d4edd");
+    if (STATE.visibleSystems.gold) drawDot(isVal ? 90000 * (1 + cur.gold_pct / 100) : cur.gold_pct, "#ffb703");
+    if (STATE.visibleSystems.us) drawDot(isVal ? 100000 * (1 + cur.us_pct / 100) : cur.us_pct, "#00c8ff");
+    if (STATE.visibleSystems.unified) drawDot(isVal ? cur.unified_val : cur.unified_pct, "#00f090");
+  }
+}
+

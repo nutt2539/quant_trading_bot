@@ -224,6 +224,91 @@ def get_system_status():
             "win_rate_pct": 70.0
         }
 
+@app.get("/api/systems-chart")
+def get_systems_comparative_chart(
+    period: str = Query("3mo", description="Timeframe 1mo, 3mo, 6mo, 1y")
+):
+    """
+    Computes and aligns comparative multi-asset performance curves and total unified portfolio equity curve.
+    """
+    try:
+        # Fetch 4 representative assets
+        df_us = fetch_stock_data("SPY", period=period, interval="1d")
+        df_gold = fetch_stock_data("GC=F", period=period, interval="1d")
+        df_crypto = fetch_stock_data("BTC-USD", period=period, interval="1d")
+        df_forex = fetch_stock_data("EURUSD=X", period=period, interval="1d")
+
+        # Combine into aligned dataframe
+        dfs = []
+        if not df_us.empty: dfs.append(df_us[['Close']].rename(columns={'Close': 'US_INDEX'}))
+        if not df_gold.empty: dfs.append(df_gold[['Close']].rename(columns={'Close': 'GOLD'}))
+        if not df_crypto.empty: dfs.append(df_crypto[['Close']].rename(columns={'Close': 'CRYPTO'}))
+        if not df_forex.empty: dfs.append(df_forex[['Close']].rename(columns={'Close': 'FOREX'}))
+
+        if not dfs:
+            raise HTTPException(status_code=404, detail="No historical market data available")
+
+        combined = pd.concat(dfs, axis=1, join='outer').ffill().bfill().dropna()
+        if combined.empty or len(combined) < 2:
+            raise HTTPException(status_code=400, detail="Insufficient data points to build comparative chart")
+
+        # Base prices at t=0
+        base_us = combined['US_INDEX'].iloc[0] if 'US_INDEX' in combined else 1.0
+        base_gold = combined['GOLD'].iloc[0] if 'GOLD' in combined else 1.0
+        base_crypto = combined['CRYPTO'].iloc[0] if 'CRYPTO' in combined else 1.0
+        base_forex = combined['FOREX'].iloc[0] if 'FOREX' in combined else 1.0
+
+        datapoints = []
+        for idx, row in combined.iterrows():
+            date_str = idx.strftime('%Y-%m-%d') if hasattr(idx, 'strftime') else str(idx)
+            
+            p_us = float(row.get('US_INDEX', base_us))
+            p_gold = float(row.get('GOLD', base_gold))
+            p_crypto = float(row.get('CRYPTO', base_crypto))
+            p_forex = float(row.get('FOREX', base_forex))
+
+            us_pct = ((p_us - base_us) / base_us) * 100.0 if base_us > 0 else 0.0
+            gold_pct = ((p_gold - base_gold) / base_gold) * 100.0 if base_gold > 0 else 0.0
+            crypto_pct = ((p_crypto - base_crypto) / base_crypto) * 100.0 if base_crypto > 0 else 0.0
+            forex_pct = ((p_forex - base_forex) / base_forex) * 100.0 if base_forex > 0 else 0.0
+
+            # 4 Asset Allocations: US 100k, Gold 90k, Crypto 80k, Forex 30k -> Total 300k
+            us_val = config.US_INDEX_ALLOCATION_THB * (1 + us_pct / 100.0)
+            gold_val = config.GOLD_ALLOCATION_THB * (1 + gold_pct / 100.0)
+            crypto_val = config.CRYPTO_ALLOCATION_THB * (1 + crypto_pct / 100.0)
+            forex_val = config.FOREX_ALLOCATION_THB * (1 + forex_pct / 100.0)
+
+            total_val = us_val + gold_val + crypto_val + forex_val
+            unified_pct = ((total_val - config.TOTAL_CAPITAL_THB) / config.TOTAL_CAPITAL_THB) * 100.0
+
+            datapoints.append({
+                "date": date_str,
+                "unified_pct": round(unified_pct, 2),
+                "unified_val": round(total_val, 2),
+                "us_pct": round(us_pct, 2),
+                "gold_pct": round(gold_pct, 2),
+                "crypto_pct": round(crypto_pct, 2),
+                "forex_pct": round(forex_pct, 2)
+            })
+
+        latest = datapoints[-1] if datapoints else {}
+
+        return {
+            "success": True,
+            "period": period,
+            "datapoints": datapoints,
+            "summary": {
+                "latest_portfolio_val_thb": latest.get("unified_val", config.TOTAL_CAPITAL_THB),
+                "unified_gain_pct": latest.get("unified_pct", 0.0),
+                "us_gain_pct": latest.get("us_pct", 0.0),
+                "gold_gain_pct": latest.get("gold_pct", 0.0),
+                "crypto_gain_pct": latest.get("crypto_pct", 0.0),
+                "forex_gain_pct": latest.get("forex_pct", 0.0)
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/tickers")
 def get_watchlist_tickers():
     """Fetches real-time ticker prices & 24h changes across Crypto, Gold, US Index, Forex."""

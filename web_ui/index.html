@@ -135,6 +135,78 @@
           </div>
         </div>
 
+        <!-- FUTURISTIC UNIFIED 4-SYSTEMS PERFORMANCE CHART -->
+        <div class="unified-chart-card glass-panel" style="margin-bottom: 20px;">
+          <div class="unified-chart-header">
+            <div class="uchart-title-group">
+              <div class="uchart-badge">⚡ UNIFIED MULTI-ASSET PERFORMANCE & GROWTH MATRIX</div>
+              <h3>📈 กราฟเปรียบเทียบผลตอบแทนสะสม 4 สินทรัพย์ & พอร์ตโฟลิโอรวม (฿300,000)</h3>
+            </div>
+            
+            <div class="uchart-controls">
+              <div class="btn-group" id="sys-chart-mode-btns">
+                <button class="btn-sm active" data-mode="PCT">% ผลตอบแทน</button>
+                <button class="btn-sm" data-mode="VAL">มูลค่าพอร์ต (฿)</button>
+              </div>
+              <div class="btn-group" id="sys-chart-period-btns">
+                <button class="btn-sm" data-period="1mo">1M</button>
+                <button class="btn-sm active" data-period="3mo">3M</button>
+                <button class="btn-sm" data-period="6mo">6M</button>
+                <button class="btn-sm" data-period="1y">1Y</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- UNIFIED CANVAS WRAPPER -->
+          <div class="canvas-wrapper unified-canvas-wrapper" style="height: 320px;">
+            <canvas id="unified-systems-chart"></canvas>
+            <div class="chart-tooltip" id="sys-chart-tooltip"></div>
+          </div>
+
+          <!-- DYNAMIC MULTI-LINE LEGEND & TOGGLES -->
+          <div class="unified-legend-grid">
+            <div class="u-legend-item active" data-asset="unified">
+              <span class="dot-legend" style="background:#00f090; box-shadow: 0 0 8px #00f090;"></span>
+              <div class="ul-text">
+                <span class="ul-name">🌐 พอร์ตรวม 4 ระบบ (฿300k)</span>
+                <span class="ul-val mono positive" id="ul-unified-val">+0.00%</span>
+              </div>
+            </div>
+
+            <div class="u-legend-item active" data-asset="us">
+              <span class="dot-legend" style="background:#00c8ff;"></span>
+              <div class="ul-text">
+                <span class="ul-name">🇺🇸 ดัชนีหุ้นสหรัฐฯ (฿100k)</span>
+                <span class="ul-val mono positive" id="ul-us-val">+0.00%</span>
+              </div>
+            </div>
+
+            <div class="u-legend-item active" data-asset="gold">
+              <span class="dot-legend" style="background:#ffb703;"></span>
+              <div class="ul-text">
+                <span class="ul-name">🥇 บอททองคำ (฿90k)</span>
+                <span class="ul-val mono positive" id="ul-gold-val">+0.00%</span>
+              </div>
+            </div>
+
+            <div class="u-legend-item active" data-asset="crypto">
+              <span class="dot-legend" style="background:#9d4edd;"></span>
+              <div class="ul-text">
+                <span class="ul-name">🪙 บอท Crypto Spot (฿80k)</span>
+                <span class="ul-val mono positive" id="ul-crypto-val">+0.00%</span>
+              </div>
+            </div>
+
+            <div class="u-legend-item active" data-asset="forex">
+              <span class="dot-legend" style="background:#ff3b69;"></span>
+              <div class="ul-text">
+                <span class="ul-name">💱 บอท Forex (฿30k)</span>
+                <span class="ul-val mono" id="ul-forex-val">+0.00%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="systems-grid" id="systems-cards-grid">
           <!-- Dynamically populated 4 asset cards -->
         </div>
