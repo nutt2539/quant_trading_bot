@@ -202,7 +202,50 @@ def check_forex_market_status(now_dt):
     elif weekday == 0 and time_now < datetime.strptime("05:00", "%H:%M").time(): return "🔴 💱 Forex/ทองคำ: ปิดทำการ"
     else: return "🟢 💱 Forex/ทองคำ: เปิด 24/5"
 
-# ==================== MODERN ABSTRACT GRAPHIC SIDEBAR & THEME TOGGLE ====================
+st.sidebar.markdown("### 🖥️ เลือกระบบหน้าจอ (UI Engine)")
+ui_choice = st.sidebar.radio(
+    "เลือกเวอร์ชัน:",
+    ["⚡ QUANTUM PRO Web Terminal (โฉมใหม่)", "📊 Classic Multi-Asset Dashboard (หน้าเดิม)"],
+    index=0
+)
+
+if ui_choice == "⚡ QUANTUM PRO Web Terminal (โฉมใหม่)":
+    import streamlit.components.v1 as components
+    import threading
+    import os
+    
+    # Start background FastAPI server if needed
+    if "api_server_started" not in st.session_state:
+        st.session_state.api_server_started = True
+        def start_bg():
+            try:
+                import uvicorn
+                import api_server
+                uvicorn.run(api_server.app, host="0.0.0.0", port=8000, log_level="warning")
+            except Exception:
+                pass
+        threading.Thread(target=start_bg, daemon=True).start()
+
+    web_dir = os.path.join(os.path.dirname(__file__), "web_ui")
+    index_path = os.path.join(web_dir, "index.html")
+    css_path = os.path.join(web_dir, "styles.css")
+    js_path = os.path.join(web_dir, "app.js")
+
+    if os.path.exists(index_path) and os.path.exists(css_path) and os.path.exists(js_path):
+        with open(index_path, "r", encoding="utf-8") as f:
+            html_c = f.read()
+        with open(css_path, "r", encoding="utf-8") as f:
+            css_c = f.read()
+        with open(js_path, "r", encoding="utf-8") as f:
+            js_c = f.read()
+
+        full_doc = html_c.replace('<link rel="stylesheet" href="/static/styles.css">', f'<style>{css_c}</style>')
+        full_doc = full_doc.replace('<script src="/static/app.js"></script>', f'<script>{js_c}</script>')
+        
+        components.html(full_doc, height=1350, scrolling=True)
+        st.stop()
+
+st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚡ QUANT AI SYSTEM SELECTOR")
 st.sidebar.caption("คลิกเลือกเปิดดูระบบการเทรดที่ต้องการ (ทุนรวม ฿300,000):")
 
