@@ -465,17 +465,26 @@ function updateRobotStateUI(enabled) {
 
 function render4SystemsCards(systems) {
   DOM.systemsCardsGrid.innerHTML = "";
+  
+  const systemMeta = {
+    "US_INDEX": { icon: "🇺🇸", title: "US Index (฿100k)" },
+    "GOLD": { icon: "🥇", title: "Gold Bot (฿90k)" },
+    "CRYPTO": { icon: "🪙", title: "Crypto Bot (฿80k)" },
+    "FOREX": { icon: "💱", title: "Forex Bot (฿30k)" }
+  };
+
   for (const [key, sys] of Object.entries(systems)) {
     const card = document.createElement("div");
     card.className = "system-card";
 
+    const meta = systemMeta[key] || { icon: "⚡", title: sys.name };
     const pnlSign = sys.net_pnl_thb >= 0 ? '+' : '';
     const pnlClass = sys.net_pnl_thb >= 0 ? 'positive' : 'negative';
 
     card.innerHTML = `
       <div class="sys-card-header">
         <div class="sys-title-group">
-          <h3>${sys.name}</h3>
+          <h3>${meta.icon} ${meta.title}</h3>
           <span class="sys-alloc-badge">Alloc: ฿${sys.allocation_thb.toLocaleString()} (฿${sys.portfolio_val_thb.toLocaleString()})</span>
         </div>
         <span class="signal-tag ${sys.net_pnl_pct >= 0 ? 'buy' : 'sell'}">${pnlSign}${sys.net_pnl_pct.toFixed(2)}%</span>
@@ -483,24 +492,24 @@ function render4SystemsCards(systems) {
 
       <div class="sys-pnl-banner">
         <div>
-          <span class="metric-label">กำไร/ขาดทุนสุทธิ (Net P&L)</span>
+          <span class="metric-label">กำไรสุทธิ (P&L)</span>
           <div class="sys-pnl-val mono ${pnlClass}">${pnlSign}฿${sys.net_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
         </div>
         <div style="text-align: right;">
           <span class="metric-label">Win Rate</span>
-          <div class="mono" style="font-weight: 700;">${sys.win_rate_pct.toFixed(1)}%</div>
+          <div class="mono" style="font-weight: 700; font-size: 13px;">${sys.win_rate_pct.toFixed(1)}%</div>
         </div>
       </div>
 
       <div class="sys-stats-row">
-        <div class="stat-item"><span>สะสม Take Profit:</span> <strong class="positive">+฿${sys.cumulative_take_profit_thb.toLocaleString()}</strong></div>
-        <div class="stat-item"><span>สะสม Cut Loss:</span> <strong class="negative">-฿${sys.cumulative_cut_loss_thb.toLocaleString()}</strong></div>
-        <div class="stat-item"><span>จำนวนไม้ปิดแล้ว:</span> <strong>${sys.closed_trades_count} ไม้</strong></div>
-        <div class="stat-item"><span>กำลังถือครอง:</span> <strong>${sys.active_holdings_count} ไม้</strong></div>
+        <div class="stat-item"><span>สะสม TP:</span> <strong class="positive">+฿${sys.cumulative_take_profit_thb.toLocaleString()}</strong></div>
+        <div class="stat-item"><span>สะสม Cut:</span> <strong class="negative">-฿${sys.cumulative_cut_loss_thb.toLocaleString()}</strong></div>
+        <div class="stat-item"><span>ปิดแล้ว:</span> <strong>${sys.closed_trades_count} ไม้</strong></div>
+        <div class="stat-item"><span>ถือครอง:</span> <strong>${sys.active_holdings_count} ไม้</strong></div>
       </div>
 
       <div class="sys-strategy-selector">
-        <label>Active Strategy for ${key}:</label>
+        <label>Active Strategy (${key}):</label>
         <select class="cyber-select sys-strat-dropdown" data-system="${key}">
           <option value="TREND_FOLLOWING" ${sys.active_strategy === 'TREND_FOLLOWING' ? 'selected' : ''}>Trend Following (EMA/RSI)</option>
           <option value="GRID_TRADING" ${sys.active_strategy === 'GRID_TRADING' ? 'selected' : ''}>Grid Trading</option>
