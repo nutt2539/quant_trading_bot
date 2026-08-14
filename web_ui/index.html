@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANTUM PRO | Next-Gen Multi-Asset AI Trading Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="dark-theme">
+  <div class="app-layout">
+    <!-- TOP MASTER COMMAND HUD -->
+    <header class="master-hud">
+      <div class="brand-zone">
+        <div class="brand-logo">
+          <span class="logo-icon">⚡</span>
+          <div class="logo-text">
+            <h1>QUANTUM<span>PRO</span></h1>
+            <div class="bot-badge-live">
+              <span class="pulse-dot active" id="bot-pulse"></span>
+              <span id="bot-status-text">AI ENGINE: ONLINE (24/7)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PORTFOLIO METRICS HUD -->
+      <div class="portfolio-hud">
+        <div class="metric-card">
+          <span class="metric-label">PORTFOLIO NET WORTH</span>
+          <div class="metric-val mono" id="hud-net-worth">฿300,000.00</div>
+          <span class="metric-sub positive" id="hud-net-pnl">+0.00%</span>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">REALIZED P&L</span>
+          <div class="metric-val mono positive" id="hud-realized-pnl">+฿0.00</div>
+          <span class="metric-sub" id="hud-closed-trades">0 Closed Trades</span>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">💎 HARVEST VAULT</span>
+          <div class="metric-val mono accent-amber" id="hud-vault-locked">฿0.00</div>
+          <span class="metric-sub" id="hud-vault-sub">Locked Profit</span>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">OVERALL WIN RATE</span>
+          <div class="metric-val mono" id="hud-win-rate">68.5%</div>
+          <div class="win-rate-bar"><div class="win-fill" id="hud-win-bar" style="width: 68.5%;"></div></div>
+        </div>
+      </div>
+
+      <!-- MASTER CONTROLS -->
+      <div class="master-controls">
+        <div class="market-badges-compact" id="market-status-hud">
+          <span class="status-pill open" title="Crypto 24/7">🪙 CRYPTO 24/7</span>
+          <span class="status-pill" id="hud-market-us">🇺🇸 US MKT</span>
+          <span class="status-pill" id="hud-market-forex">💱 FOREX</span>
+        </div>
+        <div class="robot-switch-wrapper">
+          <span class="switch-label">ROBOT</span>
+          <label class="glow-switch">
+            <input type="checkbox" id="master-robot-toggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <button class="btn-panic" id="btn-panic-all" title="ฉุกเฉิน: ขายปิดทุกออเดอร์ทันที">
+          <span class="panic-icon">🚨</span>
+          <span class="panic-text">PANIC CLOSE</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- LIVE MARKET TICKER RIBBON -->
+    <section class="ticker-ribbon-container">
+      <div class="ticker-ribbon" id="ticker-ribbon">
+        <div class="ticker-skeleton">Loading Realtime Markets...</div>
+      </div>
+    </section>
+
+    <!-- MAIN VIEW CONTAINER WITH NAVIGATION TABS -->
+    <main class="main-terminal">
+      <!-- NAVIGATION TABS -->
+      <nav class="terminal-nav">
+        <button class="nav-tab active" data-view="view-systems">
+          <span class="tab-icon">🌐</span>
+          <span class="tab-text">4 Systems Overview</span>
+        </button>
+        <button class="nav-tab" data-view="view-terminal">
+          <span class="tab-icon">📈</span>
+          <span class="tab-text">Live Terminal & Multi-TF</span>
+        </button>
+        <button class="nav-tab" data-view="view-harvester">
+          <span class="tab-icon">💰</span>
+          <span class="tab-text">Daily Harvest & Vault</span>
+        </button>
+        <button class="nav-tab" data-view="view-ai-planner">
+          <span class="tab-icon">🧠</span>
+          <span class="tab-text">AI Pre-Market & News</span>
+        </button>
+        <button class="nav-tab" data-view="view-strategies">
+          <span class="tab-icon">🎨</span>
+          <span class="tab-text">Strategy Studio & 10 Engines</span>
+        </button>
+        <button class="nav-tab" data-view="view-backtest">
+          <span class="tab-icon">📊</span>
+          <span class="tab-text">Fast Backtester</span>
+        </button>
+        <button class="nav-tab" data-view="view-logs">
+          <span class="tab-icon">📋</span>
+          <span class="tab-text">Execution Logs</span>
+        </button>
+        <button class="nav-tab" data-view="view-settings">
+          <span class="tab-icon">🔑</span>
+          <span class="tab-text">Brokers & Alerts</span>
+        </button>
+      </nav>
+
+      <!-- ========================================== -->
+      <!-- VIEW 0: 4 SYSTEMS MASTER OVERVIEW -->
+      <!-- ========================================== -->
+      <div class="view-panel active" id="view-systems">
+        <div class="systems-overview-header">
+          <div>
+            <h2>🌐 ศูนย์กลางระบบการเทรด 4 สินทรัพย์ (ทุนรวม ฿300,000)</h2>
+            <p>แบ่งสัดส่วนการลงทุนกระจายความเสี่ยงอย่างสมดุล (US Index ฿100k, Gold ฿90k, Crypto ฿80k, Forex ฿30k)</p>
+          </div>
+          <div class="ai-quick-bulk-btn">
+            <button class="btn-neon" id="btn-apply-all-ai-strats">
+              <span>🤖 ⚡ ปรับกลยุทธ์ทั้ง 4 สินทรัพย์ตาม AI แนะนำ</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="systems-grid" id="systems-cards-grid">
+          <!-- Dynamically populated 4 asset cards -->
+        </div>
+
+        <!-- RECENT HOLDINGS QUICK TABLE -->
+        <div class="system-holdings-box glass-panel">
+          <div class="card-header">
+            <h3>💼 รายการสินทรัพย์ที่กำลังถือครองทั้งหมด (All Active Holdings)</h3>
+            <span class="counter-badge" id="master-positions-count">0 Positions</span>
+          </div>
+          <div class="holdings-table-wrapper">
+            <table class="cyber-table">
+              <thead>
+                <tr>
+                  <th>ASSET</th>
+                  <th>SYSTEM</th>
+                  <th>QTY / SHARES</th>
+                  <th>AVG PRICE</th>
+                  <th>CURRENT PRICE</th>
+                  <th>UNREALIZED P&L</th>
+                  <th>RETURN</th>
+                  <th>ACTION</th>
+                </tr>
+              </thead>
+              <tbody id="master-holdings-tbody">
+                <tr><td colspan="8" class="text-center">No active positions currently.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 1: LIVE TERMINAL & MULTI-TF -->
+      <!-- ========================================== -->
+      <div class="view-panel" id="view-terminal">
+        <div class="terminal-grid">
+          <!-- LEFT: CHART STATION -->
+          <div class="chart-station glass-panel">
+            <div class="chart-header">
+              <div class="selected-asset-info">
+                <h2 id="chart-symbol-title">BTC-USD (Bitcoin)</h2>
+                <div class="asset-price-badge">
+                  <span class="price mono" id="chart-latest-price">$0.00</span>
+                  <span class="signal-tag buy" id="chart-signal-tag">SIGNAL: BUY</span>
+                </div>
+              </div>
+              
+              <div class="chart-controls">
+                <div class="btn-group" id="chart-period-btns">
+                  <button class="btn-sm" data-period="1mo">1M</button>
+                  <button class="btn-sm active" data-period="3mo">3M</button>
+                  <button class="btn-sm" data-period="6mo">6M</button>
+                  <button class="btn-sm" data-period="1y">1Y</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- INTERACTIVE CANVAS CHART -->
+            <div class="canvas-wrapper">
+              <canvas id="trading-chart"></canvas>
+              <div class="chart-tooltip" id="chart-tooltip"></div>
+            </div>
+
+            <div class="chart-legend">
+              <span class="legend-item"><span class="dot-legend ema20"></span> EMA 20 (Fast)</span>
+              <span class="legend-item"><span class="dot-legend ema50"></span> EMA 50 (Slow)</span>
+              <span class="legend-item"><span class="dot-legend sig-buy"></span> AI Buy Signal</span>
+              <span class="legend-item"><span class="dot-legend sig-sell"></span> AI Sell Signal</span>
+            </div>
+
+            <!-- MULTI-TIMEFRAME CONFLUENCE MATRIX -->
+            <div class="mtf-matrix-box">
+              <div class="mtf-title">
+                <span>⏱️ MULTI-TIMEFRAME ALIGNMENT</span>
+                <span class="mtf-score mono" id="mtf-confluence-badge">CONFLUENCE: 85% BULLISH</span>
+              </div>
+              <div class="mtf-grid" id="mtf-grid-container">
+                <div class="mtf-cell"><span class="tf-name">15M</span><span class="tf-trend positive">🟢 BULLISH</span></div>
+                <div class="mtf-cell"><span class="tf-name">1H</span><span class="tf-trend positive">🟢 BULLISH</span></div>
+                <div class="mtf-cell"><span class="tf-name">4H</span><span class="tf-trend positive">🟢 BULLISH</span></div>
+                <div class="mtf-cell"><span class="tf-name">1D</span><span class="tf-trend neutral">⚪ SIDEWAY</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: ACTION DECK & ACTIVE POSITIONS -->
+          <div class="action-deck">
+            <!-- QUICK ORDER BOX -->
+            <div class="quick-order-card glass-panel">
+              <div class="card-header">
+                <h3>⚡ Quick Trade (Manual / Test)</h3>
+                <span class="badge-mode">PAPER MODE</span>
+              </div>
+              <div class="order-form">
+                <div class="form-row">
+                  <label>Asset Symbol</label>
+                  <select id="order-symbol-select" class="cyber-select">
+                    <option value="BTC-USD">BTC-USD (Bitcoin)</option>
+                    <option value="ETH-USD">ETH-USD (Ethereum)</option>
+                    <option value="SOL-USD">SOL-USD (Solana)</option>
+                    <option value="GC=F">GC=F (Gold Futures)</option>
+                    <option value="SPY">SPY (S&P 500 ETF)</option>
+                    <option value="QQQ">QQQ (Nasdaq 100)</option>
+                    <option value="NVDA">NVDA (Nvidia Corp)</option>
+                    <option value="AAPL">AAPL (Apple Inc)</option>
+                    <option value="EURUSD=X">EURUSD=X (EUR/USD)</option>
+                  </select>
+                </div>
+                <div class="form-row">
+                  <label>Units / Quantity</label>
+                  <div class="unit-stepper">
+                    <button type="button" class="btn-step" id="btn-step-minus">-</button>
+                    <input type="number" id="order-qty" class="cyber-input mono" value="0.1" step="0.05" min="0.01">
+                    <button type="button" class="btn-step" id="btn-step-plus">+</button>
+                  </div>
+                </div>
+                <div class="order-buttons">
+                  <button class="btn-order btn-buy" id="btn-quick-buy">
+                    <span>🟢 BUY LONG</span>
+                  </button>
+                  <button class="btn-order btn-sell" id="btn-quick-sell">
+                    <span>🔴 SELL SHORT</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ACTIVE POSITIONS CARD -->
+            <div class="positions-card glass-panel">
+              <div class="card-header">
+                <h3>💼 Active System Positions</h3>
+                <span class="counter-badge" id="positions-count">0 Open</span>
+              </div>
+              <div class="positions-list" id="positions-list">
+                <div class="empty-state">No open positions at this moment.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 2: DAILY HARVEST & PROFIT VAULT -->
+      <!-- ========================================== -->
+      <div class="view-panel" id="view-harvester">
+        <div class="harvester-layout">
+          <!-- MAIN HARVEST HUD -->
+          <div class="harvest-hero glass-panel">
+            <div class="harvest-hero-content">
+              <div class="harvest-badge">💰 DAILY PROFIT HARVESTER & LOCK VAULT</div>
+              <h2>ระบบล็อกกำไรรายวันเก็บเข้าตู้เซฟ (Daily Target ฿300)</h2>
+              <p>เมื่อบอททำกำไรได้ตามเป้าหมาย ระบบสามารถตัดกำไรส่วนเกินเก็บเข้าตู้เซฟทันที เพื่อรักษาเงินต้นและล็อกกำไรที่จับต้องได้จริง</p>
+              
+              <div class="harvest-status-row">
+                <div class="harvest-stat">
+                  <span class="h-label">กำไรที่พร้อมเก็บ (Unrealized Profit)</span>
+                  <div class="h-val mono positive" id="harvest-unrealized-val">+฿0.00</div>
+                  <span class="h-sub">เป้าหมายขั้นต่ำ ฿300.00</span>
+                </div>
+                <div class="harvest-stat">
+                  <span class="h-label">💎 ยอดเงินในตู้เซฟสะสม (Vault Balance)</span>
+                  <div class="h-val mono accent-amber" id="harvest-vault-val">฿0.00</div>
+                  <span class="h-sub">ล็อกกำไรปลอดภัย ไม่นำมาเสี่ยงต่อ</span>
+                </div>
+                <div class="harvest-action-box">
+                  <button class="btn-harvest-action" id="btn-trigger-harvest">
+                    <span>🎯 กดเก็บกำไรเข้าตู้เซฟทันที</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPARISON METRICS CARDS -->
+          <div class="harvest-metrics-grid">
+            <div class="h-metric-card glass-panel">
+              <span class="hm-label">เก็บกำไรวันนี้ (TODAY)</span>
+              <div class="hm-val mono positive" id="hm-today-thb">฿0.00</div>
+              <span class="hm-sub" id="hm-pct-vs-yesterday">+0.0% vs เมื่อวาน</span>
+            </div>
+            <div class="h-metric-card glass-panel">
+              <span class="hm-label">เก็บกำไรเมื่อวาน (YESTERDAY)</span>
+              <div class="hm-val mono" id="hm-yesterday-thb">฿0.00</div>
+              <span class="hm-sub">กำไรที่ล็อกไว้รอบก่อนหน้า</span>
+            </div>
+            <div class="h-metric-card glass-panel">
+              <span class="hm-label">ยอดเก็บกำไรรวมทั้งหมด</span>
+              <div class="hm-val mono accent-amber" id="hm-alltime-thb">฿0.00</div>
+              <span class="hm-sub">All-Time Locked Vault</span>
+            </div>
+            <div class="h-metric-card glass-panel">
+              <span class="hm-label">จำนวนวันที่กดเก็บกำไร</span>
+              <div class="hm-val mono" id="hm-days-count">0 วัน</div>
+              <span class="hm-sub">ความต่อเนื่องในการทำกำไร</span>
+            </div>
+          </div>
+
+          <!-- HARVEST HISTORY CHART -->
+          <div class="harvest-chart-card glass-panel">
+            <div class="card-header">
+              <h3>📈 ประวัติการเก็บกำไรรายวัน & ยอดสะสมในตู้เซฟ (Daily Harvest History)</h3>
+            </div>
+            <div class="canvas-wrapper harvest-canvas">
+              <canvas id="harvest-history-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 3: AI PRE-MARKET & INTELLIGENCE -->
+      <!-- ========================================== -->
+      <div class="view-panel" id="view-ai-planner">
+        <div class="ai-planner-layout">
+          <div class="ai-hero glass-panel">
+            <div class="ai-hero-header">
+              <div class="ai-hero-title">
+                <span class="ai-icon-large">🧠</span>
+                <div>
+                  <h2>24/7 Active AI Market Intelligence & Pre-Market Plan Queue</h2>
+                  <p>สมองกล AI สแกนข่าวกรองการเงินรอบโลก คำนวณความน่าจะเป็นที่จะชนะ และตั้งแผนเตรียมเข้าซื้อล่วงหน้า</p>
+                </div>
+              </div>
+              <button class="btn-cyber" id="btn-scan-ai-now">
+                <span>⚡ สแกนข่าวและวิเคราะห์ตลาดใหม่ทันที</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- AI CANDIDATE PLANS QUEUE -->
+          <div class="ai-plans-container" id="ai-plans-container">
+            <div class="loading-box">กำลังโหลดแผนการเข้าซื้อล่วงหน้าจากสมองกล AI...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 4: STRATEGY MATRIX & RISK STUDIO -->
+      <!-- ========================================== -->
+      <div class="view-panel" id="view-strategies">
+        <div class="strategies-studio-layout">
+          <!-- BEGINNER RISK STUDIO PRESETS -->
+          <div class="risk-studio-card glass-panel">
+            <div class="section-title">
+              <h2>🎨 Beginner Visual Strategy Studio (เลือกระดับความเสี่ยงใน 1 คลิก)</h2>
+              <p>ปรับรูปแบบการบริหารเงินทุน ขนาดไม้ Take Profit และ Stop Loss ตามสไตล์ของคุณ</p>
+            </div>
+            <div class="preset-modes-grid">
+              <div class="preset-mode-card" data-mode="SAFE">
+                <div class="pm-icon">🛡️</div>
+                <div class="pm-title">1. โหมดเน้นปลอดภัย (Safe)</div>
+                <div class="pm-desc">ซื้อไม้ละ 10% | TP +5% | Cut Loss -2%</div>
+                <button class="btn-preset-apply" data-mode="SAFE">เลือกโหมดนี้</button>
+              </div>
+
+              <div class="preset-mode-card active-preset" data-mode="BALANCED">
+                <div class="pm-icon">⚖️</div>
+                <div class="pm-title">2. โหมดสมดุล กลางๆ (Balanced)</div>
+                <div class="pm-desc">ซื้อไม้ละ 20% | TP +8% | Cut Loss -3.5%</div>
+                <button class="btn-preset-apply" data-mode="BALANCED">เลือกโหมดนี้</button>
+              </div>
+
+              <div class="preset-mode-card" data-mode="AGGRESSIVE">
+                <div class="pm-icon">🚀</div>
+                <div class="pm-title">3. โหมดสายซิ่ง (Aggressive)</div>
+                <div class="pm-desc">ซื้อไม้ละ 35% | TP +15% | Cut Loss -5%</div>
+                <button class="btn-preset-apply" data-mode="AGGRESSIVE">เลือกโหมดนี้</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 10 QUANT ENGINES MATRIX -->
+          <div class="strategy-catalog-section">
+            <div class="section-title">
+              <h2>🧠 10 คลังกลยุทธ์ Quant & AI Engine Catalog</h2>
+              <p>เลือกเปลี่ยนกลยุทธ์หลักของบอทได้ในคลิกเดียว</p>
+            </div>
+            <div class="strategy-grid" id="strategy-grid">
+              <!-- Dynamically populated from API -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 5: FAST BACKTESTER -->
+      <!-- ========================================== -->
+      <div class="view-panel" id="view-backtest">
+        <div class="backtest-layout">
+          <div class="backtest-controls-bar glass-panel">
+            <div class="control-field">
+              <label>Asset Symbol</label>
+              <select id="bt-symbol" class="cyber-select">
+                <option value="BTC-USD">BTC-USD (Bitcoin)</option>
+                <option value="ETH-USD">ETH-USD (Ethereum)</option>
+                <option value="SOL-USD">SOL-USD (Solana)</option>
+                <option value="GC=F">GC=F (Gold Futures)</option>
+                <option value="SPY">SPY (S&P 500 ETF)</option>
+                <option value="QQQ">QQQ (Nasdaq 100)</option>
+                <option value="NVDA">NVDA (Nvidia)</option>
+                <option value="EURUSD=X">EURUSD=X (Forex)</option>
+              </select>
+            </div>
+
+            <div class="control-field">
+              <label>Strategy</label>
+              <select id="bt-strategy" class="cyber-select">
+                <option value="TREND_FOLLOWING">Trend Following (EMA + RSI)</option>
+                <option value="GRID_TRADING">Grid Trading Engine</option>
+                <option value="MEAN_REVERSION">Mean Reversion (Bollinger)</option>
+                <option value="VOLATILITY_BREAKOUT">Volatility Breakout</option>
+                <option value="DCA_REBALANCE">DCA Smart Rebalance</option>
+              </select>
+            </div>
+
+            <div class="control-field">
+              <label>Period</label>
+              <select id="bt-period" class="cyber-select">
+                <option value="6mo">6 Months</option>
+                <option value="1y" selected>1 Year</option>
+                <option value="2y">2 Years</option>
+                <option value="3y">3 Years</option>
+              </select>
+            </div>
+
+            <div class="control-field">
+              <label>Take Profit / Stop Loss</label>
+              <div class="tpsl-inputs">
+                <input type="number" id="bt-tp" class="cyber-input mono" value="8.0" placeholder="TP %">
+                <input type="number" id="bt-sl" class="cyber-input mono" value="-3.5" placeholder="SL %">
+              </div>
+            </div>
+
+            <div class="control-field btn-align">
+              <button class="btn-neon" id="btn-run-backtest">
+                <span>🚀 RUN BACKTEST</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- BACKTEST RESULTS CONTAINER -->
+          <div class="backtest-results-grid">
+            <div class="bt-metric-card glass-panel">
+              <span class="bt-label">WIN RATE</span>
+              <div class="bt-val mono" id="bt-winrate">--%</div>
+              <span class="bt-sub" id="bt-trades-count">-- Trades</span>
+            </div>
+            <div class="bt-metric-card glass-panel">
+              <span class="bt-label">NET PROFIT</span>
+              <div class="bt-val mono positive" id="bt-netprofit">--</div>
+              <span class="bt-sub" id="bt-return-pct">--% Return</span>
+            </div>
+            <div class="bt-metric-card glass-panel">
+              <span class="bt-label">PROFIT FACTOR</span>
+              <div class="bt-val mono" id="bt-profitfactor">--</div>
+              <span class="bt-sub">Gross Win / Loss</span>
+            </div>
+            <div class="bt-metric-card glass-panel">
+              <span class="bt-label">MAX DRAWDOWN</span>
+              <div class="bt-val mono negative" id="bt-maxdd">--%</div>
+              <span class="bt-sub">Peak to Valley</span>
+            </div>
+          </div>
+
+          <!-- EQUITY CURVE CHART -->
+          <div class="equity-chart-card glass-panel">
+            <div class="card-header">
+              <h3>📈 Equity Growth Curve (พอร์ตเติบโตสะสม)</h3>
+            </div>
+            <div class="canvas-wrapper backtest-canvas">
+              <canvas id="equity-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 6: EXECUTION LOGS -->
+      <!-- ========================================== -->
+      <div class="view-panel" id="view-logs">
+        <div class="logs-layout glass-panel">
+          <div class="card-header">
+            <h3>📋 Real-Time Execution & Order Activity Logs</h3>
+            <button class="btn-sm" id="btn-refresh-logs">🔄 Refresh Logs</button>
+          </div>
+          <div class="logs-table-wrapper">
+            <table class="cyber-table">
+              <thead>
+                <tr>
+                  <th>TIME</th>
+                  <th>ACTION</th>
+                  <th>SYMBOL</th>
+                  <th>QTY</th>
+                  <th>PRICE</th>
+                  <th>VALUE (THB)</th>
+                  <th>REASON / AI SUMMARY</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody id="logs-tbody">
+                <tr><td colspan="8" class="text-center">Loading trade logs...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 7: BROKERS & ALERTS SETTINGS -->
+      <!-- ========================================== -->
+      <div class="view-panel" id="view-settings">
+        <div class="settings-layout">
+          <!-- BROKER API KEYS -->
+          <div class="settings-card glass-panel">
+            <h3>🔑 Broker API Credentials (เชื่อมต่อพอร์ตจริง)</h3>
+            <p>กรอก API Key สำหรับการส่งคำสั่งอัตโนมัติ (ระบบเข้ารหัสและเก็บรักษาปลอดภัยในเครื่อง)</p>
+
+            <div class="setting-group">
+              <label>Alpaca API Key (US Stock / Paper Trading)</label>
+              <input type="text" id="cfg-alpaca-key" class="cyber-input" placeholder="PK...">
+            </div>
+
+            <div class="setting-group">
+              <label>Alpaca Secret Key</label>
+              <input type="password" id="cfg-alpaca-secret" class="cyber-input" placeholder="••••••••••••••••••••••••••••••••">
+            </div>
+
+            <div class="setting-group">
+              <label>Settrade Open API App ID (หุ้นไทย SET / TFEX)</label>
+              <input type="text" id="cfg-settrade-id" class="cyber-input" placeholder="App ID...">
+            </div>
+
+            <div class="setting-group">
+              <label>Settrade App Secret</label>
+              <input type="password" id="cfg-settrade-secret" class="cyber-input" placeholder="••••••••••••••••">
+            </div>
+
+            <div class="setting-group">
+              <label>Binance / Bitkub API Key (Crypto)</label>
+              <input type="text" id="cfg-crypto-key" class="cyber-input" placeholder="Crypto API Key...">
+            </div>
+
+            <div class="setting-group">
+              <button class="btn-cyber" id="btn-save-broker-keys">💾 บันทึกข้อมูล Broker API Keys</button>
+            </div>
+          </div>
+
+          <!-- NOTIFICATIONS & WEBHOOKS -->
+          <div class="settings-card glass-panel">
+            <h3>📱 Instant Notifications (แจ้งเตือนมือถือ 24/7)</h3>
+            <p>รับสัญญาณการซื้อขาย สรุปกำไรรายวัน และการแจ้งเตือนฉุกเฉินผ่าน Telegram และ Discord</p>
+
+            <div class="setting-group">
+              <label>Telegram Bot Token</label>
+              <input type="text" id="cfg-tg-token" class="cyber-input" placeholder="123456789:ABCdefGhIJKlmNoPQRstuVWXyz">
+            </div>
+
+            <div class="setting-group">
+              <label>Telegram Chat ID</label>
+              <input type="text" id="cfg-tg-chat" class="cyber-input" placeholder="987654321">
+            </div>
+
+            <div class="setting-group">
+              <button class="btn-sm" id="btn-test-tg" style="width:fit-content;">🧪 ทดสอบส่ง Telegram</button>
+            </div>
+
+            <div class="setting-group" style="margin-top: 12px;">
+              <label>Discord Webhook URL</label>
+              <input type="text" id="cfg-discord-url" class="cyber-input" placeholder="https://discord.com/api/webhooks/...">
+            </div>
+
+            <div class="setting-group">
+              <button class="btn-sm" id="btn-test-discord" style="width:fit-content;">🧪 ทดสอบส่ง Discord</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- APPLICATION JAVASCRIPT -->
+  <script src="/static/app.js"></script>
+</body>
+</html>
