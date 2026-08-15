@@ -406,6 +406,73 @@
               </div>
             </div>
           </div>
+
+          <!-- AI AUTO-SCALPER LEVERAGE MULTIPLIER & RISK CONTROL DECK -->
+          <div class="scalp-ai-config-strip glass-panel" id="scalp-ai-config-strip">
+            <div class="ai-config-top-row">
+              <div class="ai-config-title-group">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="ai-config-badge">⚙️ AI LEVERAGE & AUTO RISK CONTROL</span>
+                  <h4>🤖 ตั้งค่าจำนวนเท่า Leverage สำหรับ AI Auto-Scalper</h4>
+                </div>
+                <p class="ai-config-desc">กำหนดจำนวนเท่า (Leverage Multiplier) ที่ให้ AI ออกออเดอร์ Short / Long อัตโนมัติในแต่ละหมวดสินทรัพย์</p>
+              </div>
+              <div class="ai-config-live-pills">
+                <span class="ai-lev-indicator crypto mono" id="ai-crypto-lev-indicator">🪙 Crypto AI: 5X</span>
+                <span class="ai-lev-indicator forex mono" id="ai-forex-lev-indicator">💱 Forex AI: 10X</span>
+              </div>
+            </div>
+
+            <div class="ai-config-controls-grid">
+              <!-- Crypto AI Leverage -->
+              <div class="ai-lev-setting-card">
+                <div class="ai-lev-header">
+                  <span class="ai-lev-title">🪙 AI Crypto Leverage Multiplier:</span>
+                  <span class="ai-lev-badge mono font-bold" id="lbl-ai-crypto-lev">5X</span>
+                </div>
+                <div class="ai-lev-btn-group" id="ai-crypto-lev-btns">
+                  <button class="btn-lev-opt" data-lev="1">1X</button>
+                  <button class="btn-lev-opt" data-lev="2">2X</button>
+                  <button class="btn-lev-opt" data-lev="3">3X</button>
+                  <button class="btn-lev-opt active" data-lev="5">5X</button>
+                  <button class="btn-lev-opt" data-lev="10">10X</button>
+                  <button class="btn-lev-opt" data-lev="20">20X</button>
+                  <button class="btn-lev-opt" data-lev="50">50X</button>
+                  <button class="btn-lev-opt" data-lev="100">100X</button>
+                </div>
+              </div>
+
+              <!-- Forex AI Leverage -->
+              <div class="ai-lev-setting-card">
+                <div class="ai-lev-header">
+                  <span class="ai-lev-title">💱 AI Forex Leverage Multiplier:</span>
+                  <span class="ai-lev-badge mono font-bold" id="lbl-ai-forex-lev">10X</span>
+                </div>
+                <div class="ai-lev-btn-group" id="ai-forex-lev-btns">
+                  <button class="btn-lev-opt" data-lev="1">1X</button>
+                  <button class="btn-lev-opt" data-lev="5">5X</button>
+                  <button class="btn-lev-opt active" data-lev="10">10X</button>
+                  <button class="btn-lev-opt" data-lev="20">20X</button>
+                  <button class="btn-lev-opt" data-lev="50">50X</button>
+                  <button class="btn-lev-opt" data-lev="100">100X</button>
+                </div>
+              </div>
+
+              <!-- AI Margin Per Ticket -->
+              <div class="ai-lev-setting-card">
+                <div class="ai-lev-header">
+                  <span class="ai-lev-title">💰 AI Margin per Ticket:</span>
+                  <span class="ai-lev-badge mono font-bold" id="lbl-ai-margin">฿2,000</span>
+                </div>
+                <div class="ai-lev-btn-group" id="ai-margin-btns">
+                  <button class="btn-lev-opt" data-margin="1000">฿1,000</button>
+                  <button class="btn-lev-opt active" data-margin="2000">฿2,000</button>
+                  <button class="btn-lev-opt" data-margin="3000">฿3,000</button>
+                  <button class="btn-lev-opt" data-margin="5000">฿5,000</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- SCALPING WORKSPACE -->
@@ -503,6 +570,8 @@
                     <button class="lev-pill active" data-lev="5">5X</button>
                     <button class="lev-pill" data-lev="10">10X</button>
                     <button class="lev-pill" data-lev="20">20X</button>
+                    <button class="lev-pill" data-lev="50">50X</button>
+                    <button class="lev-pill" data-lev="100">100X</button>
                   </div>
                 </div>
 

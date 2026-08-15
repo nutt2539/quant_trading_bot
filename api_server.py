@@ -176,6 +176,16 @@ class ScalperCloseRequest(BaseModel):
 class ScalperToggleRequest(BaseModel):
     enabled: bool
 
+class ScalperSettingsRequest(BaseModel):
+    ai_crypto_leverage: Optional[float] = None
+    ai_forex_leverage: Optional[float] = None
+    ai_margin_per_ticket_thb: Optional[float] = None
+    crypto_auto_enabled: Optional[bool] = None
+    forex_auto_enabled: Optional[bool] = None
+    auto_scalp_enabled: Optional[bool] = None
+    daily_target_profit_limit: Optional[float] = None
+    daily_max_loss_limit: Optional[float] = None
+
 class SystemResetRequest(BaseModel):
     scope: Optional[str] = "ALL"
 
@@ -926,6 +936,23 @@ def reset_daily_target_endpoint():
     """Manually resets the daily profit/loss counter and resumes active auto-scalping."""
     try:
         return scalper_engine.reset_daily_target_engine()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/scalper/settings")
+def update_scalper_settings_endpoint(req: ScalperSettingsRequest):
+    """Updates AI Auto-Scalper configuration including leverage multiplier (1x-100x)."""
+    try:
+        return scalper_engine.update_scalper_settings(
+            ai_crypto_leverage=req.ai_crypto_leverage,
+            ai_forex_leverage=req.ai_forex_leverage,
+            ai_margin_per_ticket_thb=req.ai_margin_per_ticket_thb,
+            crypto_auto_enabled=req.crypto_auto_enabled,
+            forex_auto_enabled=req.forex_auto_enabled,
+            auto_scalp_enabled=req.auto_scalp_enabled,
+            daily_target_profit_limit=req.daily_target_profit_limit,
+            daily_max_loss_limit=req.daily_max_loss_limit
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

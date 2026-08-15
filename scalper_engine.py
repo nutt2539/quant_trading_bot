@@ -93,6 +93,9 @@ def load_scalper_state() -> Dict[str, Any]:
                 state.setdefault("daily_target_status", "ACTIVE")
                 state.setdefault("daily_halt_reason", "")
                 state.setdefault("auto_scalp_halted_by_guard", False)
+                state.setdefault("ai_crypto_leverage", 5.0)
+                state.setdefault("ai_forex_leverage", 10.0)
+                state.setdefault("ai_margin_per_ticket_thb", 2000.0)
                 return check_and_update_daily_cycle(state)
         except Exception:
             pass
@@ -106,6 +109,9 @@ def load_scalper_state() -> Dict[str, Any]:
         "auto_scalp_enabled": True,
         "crypto_auto_enabled": True,
         "forex_auto_enabled": True,
+        "ai_crypto_leverage": 5.0,
+        "ai_forex_leverage": 10.0,
+        "ai_margin_per_ticket_thb": 2000.0,
         "current_trading_date": today_str,
         "daily_realized_pnl_thb": 0.0,
         "daily_trades_count": 0,
@@ -130,6 +136,41 @@ def save_scalper_state(state: Dict[str, Any]):
             json.dump(state, f, indent=2, ensure_ascii=False)
     except Exception as e:
         print(f"Error saving scalper state: {e}")
+
+def update_scalper_settings(
+    ai_crypto_leverage: Optional[float] = None,
+    ai_forex_leverage: Optional[float] = None,
+    ai_margin_per_ticket_thb: Optional[float] = None,
+    crypto_auto_enabled: Optional[bool] = None,
+    forex_auto_enabled: Optional[bool] = None,
+    auto_scalp_enabled: Optional[bool] = None,
+    daily_target_profit_limit: Optional[float] = None,
+    daily_max_loss_limit: Optional[float] = None
+) -> Dict[str, Any]:
+    """Updates Scalper Pro AI parameters including leverage multipliers (1x-100x)."""
+    state = load_scalper_state()
+    if ai_crypto_leverage is not None:
+        state["ai_crypto_leverage"] = max(1.0, min(100.0, float(ai_crypto_leverage)))
+    if ai_forex_leverage is not None:
+        state["ai_forex_leverage"] = max(1.0, min(100.0, float(ai_forex_leverage)))
+    if ai_margin_per_ticket_thb is not None:
+        state["ai_margin_per_ticket_thb"] = max(500.0, float(ai_margin_per_ticket_thb))
+    if crypto_auto_enabled is not None:
+        state["crypto_auto_enabled"] = bool(crypto_auto_enabled)
+    if forex_auto_enabled is not None:
+        state["forex_auto_enabled"] = bool(forex_auto_enabled)
+    if auto_scalp_enabled is not None:
+        state["auto_scalp_enabled"] = bool(auto_scalp_enabled)
+    if daily_target_profit_limit is not None:
+        state["daily_target_profit_limit"] = float(daily_target_profit_limit)
+    if daily_max_loss_limit is not None:
+        state["daily_max_loss_limit"] = float(daily_max_loss_limit)
+    save_scalper_state(state)
+    return {
+        "success": True,
+        "message": f"AI Scalper parameters updated (Crypto Lev: {state.get('ai_crypto_leverage', 5):.0f}X, Forex Lev: {state.get('ai_forex_leverage', 10):.0f}X)",
+        "dashboard": get_scalper_dashboard()
+    }
 
 def reset_daily_target_engine() -> Dict[str, Any]:
     """Manually resets the daily profit/loss counter and resumes active auto-scalping."""
@@ -160,6 +201,9 @@ def reset_scalper_engine() -> Dict[str, Any]:
         "auto_scalp_enabled": True,
         "crypto_auto_enabled": True,
         "forex_auto_enabled": True,
+        "ai_crypto_leverage": 5.0,
+        "ai_forex_leverage": 10.0,
+        "ai_margin_per_ticket_thb": 2000.0,
         "current_trading_date": today_str,
         "daily_realized_pnl_thb": 0.0,
         "daily_trades_count": 0,
@@ -378,7 +422,7 @@ def open_position(
         return {"success": False, "message": "Unable to fetch live ticker price"}
 
     # Calculate TP and SL prices
-    leverage = max(1.0, min(20.0, float(leverage)))
+    leverage = max(1.0, min(100.0, float(leverage)))
     tp_price = 0.0
     sl_price = 0.0
 
@@ -742,11 +786,14 @@ def run_auto_scalper_cycle() -> Dict[str, Any]:
 
         # Check available balance in bucket
         balance = state["crypto_balance"] if asset_class == "CRYPTO" else state["forex_balance"]
-        suggested_margin = min(max(1000.0, balance * 0.2), sig.get("suggested_margin_thb", 2000.0))
+        base_margin = float(state.get("ai_margin_per_ticket_thb", 2000.0))
+        suggested_margin = min(max(500.0, balance * 0.25), base_margin)
         
-        if balance >= 1000.0 and suggested_margin >= 500.0 and confidence >= 80:
+        if balance >= 500.0 and suggested_margin >= 500.0 and confidence >= 80:
             side = sig["side"]
-            leverage = sig.get("suggested_leverage", 5.0 if asset_class == "CRYPTO" else 10.0)
+            crypto_lev = float(state.get("ai_crypto_leverage", 5.0))
+            forex_lev = float(state.get("ai_forex_leverage", 10.0))
+            leverage = crypto_lev if asset_class == "CRYPTO" else forex_lev
             tp_pct = sig.get("tp_pct", 1.2 if asset_class == "CRYPTO" else 0.6)
             sl_pct = sig.get("sl_pct", 0.6 if asset_class == "CRYPTO" else 0.3)
             reason = sig.get("reason", "AI Momentum Scalp")
@@ -897,6 +944,13 @@ def get_scalper_dashboard() -> Dict[str, Any]:
             "auto_scalp_halted_by_guard": state.get("auto_scalp_halted_by_guard", False)
         },
         "auto_scalp_enabled": state.get("auto_scalp_enabled", True),
+        "ai_settings": {
+            "ai_crypto_leverage": float(state.get("ai_crypto_leverage", 5.0)),
+            "ai_forex_leverage": float(state.get("ai_forex_leverage", 10.0)),
+            "ai_margin_per_ticket_thb": float(state.get("ai_margin_per_ticket_thb", 2000.0)),
+            "crypto_auto_enabled": state.get("crypto_auto_enabled", True),
+            "forex_auto_enabled": state.get("forex_auto_enabled", True)
+        },
         "open_positions": open_pos,
         "closed_positions": state.get("closed_positions", [])[:40],
         "active_tickets_count": len(open_pos)

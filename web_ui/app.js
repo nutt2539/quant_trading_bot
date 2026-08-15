@@ -23,6 +23,9 @@ const STATE = {
     activeSide: "LONG",
     leverage: 5,
     margin: 2000,
+    aiCryptoLeverage: 5,
+    aiForexLeverage: 10,
+    aiMarginPerTicket: 2000,
     tpPct: 1.5,
     slPct: 0.8,
     chartData: [],
@@ -148,6 +151,14 @@ const DOM = {
   scalpTfBtns: document.getElementById("scalp-tf-btns"),
   scalpHeldTicketsStrip: document.getElementById("scalp-held-tickets-strip"),
   scalpHeldChipsWrap: document.getElementById("scalp-held-chips-wrap"),
+  aiCryptoLevBtns: document.getElementById("ai-crypto-lev-btns"),
+  aiForexLevBtns: document.getElementById("ai-forex-lev-btns"),
+  aiMarginBtns: document.getElementById("ai-margin-btns"),
+  lblAiCryptoLev: document.getElementById("lbl-ai-crypto-lev"),
+  lblAiForexLev: document.getElementById("lbl-ai-forex-lev"),
+  lblAiMargin: document.getElementById("lbl-ai-margin"),
+  aiCryptoLevIndicator: document.getElementById("ai-crypto-lev-indicator"),
+  aiForexLevIndicator: document.getElementById("ai-forex-lev-indicator"),
   scalpRadarCard: document.getElementById("scalp-radar-card"),
   radarHeaderBar: document.getElementById("radar-header-bar"),
   btnToggleRadarCollapse: document.getElementById("btn-toggle-radar-collapse"),
@@ -2547,6 +2558,100 @@ function setupScalperEventListeners() {
       if (DOM.deckCollapseText) DOM.deckCollapseText.textContent = "Expand";
     }
   } catch (e) {}
+
+  setupAiScalperSettingsListeners();
+}
+
+function updateAiScalperSettingsUI() {
+  if (DOM.lblAiCryptoLev) DOM.lblAiCryptoLev.textContent = `${STATE.scalper.aiCryptoLeverage}X`;
+  if (DOM.lblAiForexLev) DOM.lblAiForexLev.textContent = `${STATE.scalper.aiForexLeverage}X`;
+  if (DOM.lblAiMargin) DOM.lblAiMargin.textContent = `฿${STATE.scalper.aiMarginPerTicket.toLocaleString()}`;
+  if (DOM.aiCryptoLevIndicator) DOM.aiCryptoLevIndicator.textContent = `🪙 Crypto AI: ${STATE.scalper.aiCryptoLeverage}X`;
+  if (DOM.aiForexLevIndicator) DOM.aiForexLevIndicator.textContent = `💱 Forex AI: ${STATE.scalper.aiForexLeverage}X`;
+
+  if (DOM.aiCryptoLevBtns) {
+    DOM.aiCryptoLevBtns.querySelectorAll("button").forEach(btn => {
+      btn.classList.toggle("active", parseFloat(btn.dataset.lev) === STATE.scalper.aiCryptoLeverage);
+    });
+  }
+  if (DOM.aiForexLevBtns) {
+    DOM.aiForexLevBtns.querySelectorAll("button").forEach(btn => {
+      btn.classList.toggle("active", parseFloat(btn.dataset.lev) === STATE.scalper.aiForexLeverage);
+    });
+  }
+  if (DOM.aiMarginBtns) {
+    DOM.aiMarginBtns.querySelectorAll("button").forEach(btn => {
+      btn.classList.toggle("active", parseFloat(btn.dataset.margin) === STATE.scalper.aiMarginPerTicket);
+    });
+  }
+}
+
+function setupAiScalperSettingsListeners() {
+  if (DOM.aiCryptoLevBtns) {
+    DOM.aiCryptoLevBtns.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const lev = parseFloat(btn.dataset.lev);
+        if (!lev) return;
+        STATE.scalper.aiCryptoLeverage = lev;
+        updateAiScalperSettingsUI();
+        try {
+          const res = await fetch("/api/scalper/settings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ai_crypto_leverage: lev })
+          });
+          const data = await res.json();
+          showToast(`⚡ ตั้งค่า AI Crypto Leverage เป็น ${lev}X สำเร็จ!`, "success");
+        } catch (err) {
+          showToast("Error updating AI leverage: " + err, "error");
+        }
+      });
+    });
+  }
+
+  if (DOM.aiForexLevBtns) {
+    DOM.aiForexLevBtns.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const lev = parseFloat(btn.dataset.lev);
+        if (!lev) return;
+        STATE.scalper.aiForexLeverage = lev;
+        updateAiScalperSettingsUI();
+        try {
+          const res = await fetch("/api/scalper/settings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ai_forex_leverage: lev })
+          });
+          const data = await res.json();
+          showToast(`💱 ตั้งค่า AI Forex Leverage เป็น ${lev}X สำเร็จ!`, "success");
+        } catch (err) {
+          showToast("Error updating AI leverage: " + err, "error");
+        }
+      });
+    });
+  }
+
+  if (DOM.aiMarginBtns) {
+    DOM.aiMarginBtns.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const margin = parseFloat(btn.dataset.margin);
+        if (!margin) return;
+        STATE.scalper.aiMarginPerTicket = margin;
+        updateAiScalperSettingsUI();
+        try {
+          const res = await fetch("/api/scalper/settings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ai_margin_per_ticket_thb: margin })
+          });
+          const data = await res.json();
+          showToast(`💰 ตั้งค่า AI Margin ต่อไม้เป็น ฿${margin.toLocaleString()} สำเร็จ!`, "success");
+        } catch (err) {
+          showToast("Error updating AI margin: " + err, "error");
+        }
+      });
+    });
+  }
 }
 
 const SCALPER_CRYPTO_LIST = [
@@ -2803,6 +2908,14 @@ async function fetchScalperStatus() {
           DOM.guardDesc.innerHTML = `Active 24H setup timing. Daily Target: <strong style="color:var(--accent-emerald);">+฿1,500.00</strong> (Auto-Pause to lock profit) | Max Loss: <strong style="color:var(--accent-coral);">-฿750.00</strong> (Circuit breaker halt).`;
         }
       }
+    }
+
+    // AI Auto-Scalper Settings (Leverage & Margin)
+    if (data.ai_settings) {
+      STATE.scalper.aiCryptoLeverage = data.ai_settings.ai_crypto_leverage || 5;
+      STATE.scalper.aiForexLeverage = data.ai_settings.ai_forex_leverage || 10;
+      STATE.scalper.aiMarginPerTicket = data.ai_settings.ai_margin_per_ticket_thb || 2000;
+      updateAiScalperSettingsUI();
     }
 
     renderScalperPositions(data.open_positions);
