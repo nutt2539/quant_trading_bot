@@ -1,5 +1,6 @@
 {
   "total_trades": 0,
   "win_trades": 0,
-  "robot_enabled": true
+  "robot_enabled": false,
+  "ai_autotrader_enabled": false
 }

@@ -15,16 +15,15 @@ STATUS_FILE = "autotrader_status.json"
 def get_robot_status() -> bool:
     """
     Returns True if AI Robot Auto-Trading is ENABLED (ON), False if DISABLED (OFF).
-    Default is True.
     """
     if os.path.exists(STATUS_FILE):
         try:
             with open(STATUS_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                return data.get("ai_autotrader_enabled", True)
+                return bool(data.get("ai_autotrader_enabled", data.get("robot_enabled", False)))
         except Exception:
-            return True
-    return True
+            return False
+    return False
 
 def set_robot_status(enabled: bool) -> tuple:
     """

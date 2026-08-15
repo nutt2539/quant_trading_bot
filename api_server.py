@@ -205,9 +205,10 @@ def reset_system_data(req: Optional[SystemResetRequest] = None):
             with open("autotrade_logs.json", "w", encoding="utf-8") as f:
                 json.dump([], f, ensure_ascii=False, indent=2)
                 
-            if os.path.exists("autotrader_status.json"):
-                with open("autotrader_status.json", "w", encoding="utf-8") as f:
-                    json.dump({"total_trades": 0, "win_trades": 0, "robot_enabled": True}, f, indent=2)
+            with open("autotrader_status.json", "w", encoding="utf-8") as f:
+                json.dump({"total_trades": 0, "win_trades": 0, "robot_enabled": False, "ai_autotrader_enabled": False}, f, indent=2)
+
+            config.ROBOT_ENABLED = False
 
             # Clear price cache in pnl_tracker
             try:

@@ -101,12 +101,13 @@ def load_scalper_state() -> Dict[str, Any]:
             pass
 
     # Initialize default state
+    # Initialize default state (PAUSED until user explicitly clicks Start)
     initial_state = {
         "crypto_capital_initial": DEFAULT_CRYPTO_CAPITAL,
         "forex_capital_initial": DEFAULT_FOREX_CAPITAL,
         "crypto_balance": DEFAULT_CRYPTO_CAPITAL,
         "forex_balance": DEFAULT_FOREX_CAPITAL,
-        "auto_scalp_enabled": True,
+        "auto_scalp_enabled": False,
         "crypto_auto_enabled": True,
         "forex_auto_enabled": True,
         "ai_crypto_leverage": 5.0,
@@ -173,7 +174,7 @@ def update_scalper_settings(
     }
 
 def reset_daily_target_engine() -> Dict[str, Any]:
-    """Manually resets the daily profit/loss counter and resumes active auto-scalping."""
+    """Manually resets the daily profit/loss counter and resets status to standby."""
     state = load_scalper_state()
     today_str = get_thai_now_naive().strftime("%Y-%m-%d")
     state["current_trading_date"] = today_str
@@ -181,24 +182,24 @@ def reset_daily_target_engine() -> Dict[str, Any]:
     state["daily_trades_count"] = 0
     state["daily_target_status"] = "ACTIVE"
     state["daily_halt_reason"] = ""
-    state["auto_scalp_enabled"] = True
+    state["auto_scalp_enabled"] = False
     state["auto_scalp_halted_by_guard"] = False
     save_scalper_state(state)
     return {
         "success": True,
-        "message": f"Daily Scalper Target reset to 0.00 THB. Goal: +฿{DAILY_TARGET_PROFIT_DEFAULT:,.2f} | Risk Guard: ฿{DAILY_MAX_LOSS_DEFAULT:,.2f}. 24/7 Auto-trading active!",
+        "message": f"Daily Scalper Target reset to 0.00 THB. Goal: +฿{DAILY_TARGET_PROFIT_DEFAULT:,.2f} | Risk Guard: ฿{DAILY_MAX_LOSS_DEFAULT:,.2f}. System in Standby (Click Start to resume).",
         "dashboard": get_scalper_dashboard()
     }
 
 def reset_scalper_engine() -> Dict[str, Any]:
-    """Resets Scalper engine state to initial ฿20,000 Crypto and ฿20,000 Forex."""
+    """Resets Scalper engine state to initial ฿20,000 Crypto and ฿20,000 Forex in PAUSED state."""
     today_str = get_thai_now_naive().strftime("%Y-%m-%d")
     initial_state = {
         "crypto_capital_initial": DEFAULT_CRYPTO_CAPITAL,
         "forex_capital_initial": DEFAULT_FOREX_CAPITAL,
         "crypto_balance": DEFAULT_CRYPTO_CAPITAL,
         "forex_balance": DEFAULT_FOREX_CAPITAL,
-        "auto_scalp_enabled": True,
+        "auto_scalp_enabled": False,
         "crypto_auto_enabled": True,
         "forex_auto_enabled": True,
         "ai_crypto_leverage": 5.0,
@@ -955,12 +956,6 @@ def get_scalper_dashboard() -> Dict[str, Any]:
         "closed_positions": state.get("closed_positions", [])[:40],
         "active_tickets_count": len(open_pos)
     }
-
-# Auto seed default initial tickets if brand new state
-if not os.path.exists(STATE_FILE):
-    load_scalper_state()
-    open_position("BTC-USD", "LONG", 2500.0, 5.0, 1.8, 0.9, notes="Initial AI Scalp Seed")
-    open_position("EURUSD=X", "SHORT", 2000.0, 10.0, 0.8, 0.4, notes="Initial Forex Scalp Seed")
 
 # Automatically initialize scalper background daemon
 init_scalper_background_daemon(10)
