@@ -2204,3 +2204,200 @@ canvas { width: 100%; height: 100%; display: block; }
   .modal-sys-tabs { overflow-x: auto; max-width: 100%; }
 }
 
+/* ==========================================================================
+   DAILY TARGET (+฿1500) & RISK SHIELD (-฿750) STATUS STRIP
+   ========================================================================== */
+.scalp-daily-guard-strip {
+  margin-top: 14px;
+  background: rgba(4, 9, 22, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.scalp-daily-guard-strip::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #00f090 0%, #00c8ff 50%, #ffb703 100%);
+}
+
+.guard-main-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 320px;
+}
+
+.guard-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: rgba(0, 240, 144, 0.12);
+  border: 1px solid rgba(0, 240, 144, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.guard-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.guard-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.guard-status-badge {
+  font-size: 10px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+}
+
+.guard-status-badge.active {
+  background: rgba(0, 240, 144, 0.15);
+  color: var(--accent-emerald);
+  border-color: rgba(0, 240, 144, 0.35);
+}
+
+.guard-status-badge.target-reached {
+  background: rgba(255, 183, 3, 0.2);
+  color: var(--accent-gold);
+  border-color: rgba(255, 183, 3, 0.5);
+  box-shadow: 0 0 10px rgba(255, 183, 3, 0.3);
+  animation: pulse-border 2s infinite ease-in-out;
+}
+
+.guard-status-badge.max-loss-hit {
+  background: rgba(255, 59, 105, 0.2);
+  color: var(--accent-coral);
+  border-color: rgba(255, 59, 105, 0.5);
+  box-shadow: 0 0 10px rgba(255, 59, 105, 0.3);
+  animation: pulse-border 2s infinite ease-in-out;
+}
+
+.guard-date-pill {
+  font-size: 10px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.guard-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.guard-meters-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 2 1 450px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.guard-meter-box {
+  min-width: 170px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 170px;
+}
+
+.guard-meter-box .meter-labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.guard-meter-box .meter-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.guard-meter-box .meter-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.guard-meter-box .meter-bar-fill.profit {
+  background: linear-gradient(90deg, #00f090, #00c8ff);
+  box-shadow: 0 0 8px rgba(0, 240, 144, 0.5);
+}
+
+.guard-meter-box .meter-bar-fill.risk {
+  background: linear-gradient(90deg, #ffb703, #ff3b69);
+  box-shadow: 0 0 8px rgba(255, 59, 105, 0.5);
+}
+
+.guard-meter-box .meter-sub {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.btn-reset-daily-target {
+  padding: 7px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-reset-daily-target:hover {
+  background: rgba(0, 240, 144, 0.15);
+  border-color: var(--accent-emerald);
+  color: var(--accent-emerald);
+  box-shadow: 0 0 10px rgba(0, 240, 144, 0.3);
+}
+
+@media (max-width: 768px) {
+  .guard-meters-group { justify-content: stretch; width: 100%; }
+  .guard-meter-box { width: 100%; min-width: 100%; }
+}
+
+

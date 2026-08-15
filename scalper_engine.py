@@ -21,6 +21,12 @@ STATE_FILE = os.path.join(os.path.dirname(__file__), "scalper_state.json")
 DEFAULT_CRYPTO_CAPITAL = 20000.0
 DEFAULT_FOREX_CAPITAL = 20000.0
 
+# 1 Day (24-Hour Cycle) Target Guard Rules:
+# - Stop trading when daily profit reaches >= +฿1,500
+# - Stop trading when daily loss accumulates <= -฿750
+DAILY_TARGET_PROFIT_DEFAULT = 1500.0
+DAILY_MAX_LOSS_DEFAULT = -750.0
+
 CRYPTO_SYMBOLS = {
     "BTC-USD": {"name": "Bitcoin", "icon": "🪙", "asset_class": "CRYPTO", "lot_step": 0.001},
     "ETH-USD": {"name": "Ethereum", "icon": "💎", "asset_class": "CRYPTO", "lot_step": 0.01},
@@ -33,11 +39,42 @@ FOREX_SYMBOLS = {
     "USDJPY=X": {"name": "USD/JPY", "icon": "💴", "asset_class": "FOREX", "lot_step": 0.01}
 }
 
+def check_and_update_daily_cycle(state: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Ensures daily profit/loss target tracking resets automatically at 00:00 ICT every day.
+    """
+    today_str = get_thai_now_naive().strftime("%Y-%m-%d")
+    recorded_date = state.get("current_trading_date", "")
+
+    if recorded_date != today_str:
+        state["current_trading_date"] = today_str
+        state["daily_realized_pnl_thb"] = 0.0
+        state["daily_trades_count"] = 0
+        state["daily_target_status"] = "ACTIVE"
+        state["daily_halt_reason"] = ""
+        # Auto re-enable auto scalper if it was halted on previous day due to daily target/loss
+        if state.get("auto_scalp_halted_by_guard", False):
+            state["auto_scalp_enabled"] = True
+            state["auto_scalp_halted_by_guard"] = False
+        save_scalper_state(state)
+
+    return state
+
 def load_scalper_state() -> Dict[str, Any]:
+    today_str = get_thai_now_naive().strftime("%Y-%m-%d")
     if os.path.exists(STATE_FILE):
         try:
             with open(STATE_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
+                state = json.load(f)
+                state.setdefault("current_trading_date", today_str)
+                state.setdefault("daily_realized_pnl_thb", 0.0)
+                state.setdefault("daily_trades_count", 0)
+                state.setdefault("daily_target_profit_limit", DAILY_TARGET_PROFIT_DEFAULT)
+                state.setdefault("daily_max_loss_limit", DAILY_MAX_LOSS_DEFAULT)
+                state.setdefault("daily_target_status", "ACTIVE")
+                state.setdefault("daily_halt_reason", "")
+                state.setdefault("auto_scalp_halted_by_guard", False)
+                return check_and_update_daily_cycle(state)
         except Exception:
             pass
 
@@ -50,6 +87,14 @@ def load_scalper_state() -> Dict[str, Any]:
         "auto_scalp_enabled": True,
         "crypto_auto_enabled": True,
         "forex_auto_enabled": True,
+        "current_trading_date": today_str,
+        "daily_realized_pnl_thb": 0.0,
+        "daily_trades_count": 0,
+        "daily_target_profit_limit": DAILY_TARGET_PROFIT_DEFAULT,
+        "daily_max_loss_limit": DAILY_MAX_LOSS_DEFAULT,
+        "daily_target_status": "ACTIVE",
+        "daily_halt_reason": "",
+        "auto_scalp_halted_by_guard": False,
         "open_positions": [],
         "closed_positions": [],
         "total_realized_pnl_thb": 0.0,
@@ -67,8 +112,27 @@ def save_scalper_state(state: Dict[str, Any]):
     except Exception as e:
         print(f"Error saving scalper state: {e}")
 
+def reset_daily_target_engine() -> Dict[str, Any]:
+    """Manually resets the daily profit/loss counter and resumes active auto-scalping."""
+    state = load_scalper_state()
+    today_str = get_thai_now_naive().strftime("%Y-%m-%d")
+    state["current_trading_date"] = today_str
+    state["daily_realized_pnl_thb"] = 0.0
+    state["daily_trades_count"] = 0
+    state["daily_target_status"] = "ACTIVE"
+    state["daily_halt_reason"] = ""
+    state["auto_scalp_enabled"] = True
+    state["auto_scalp_halted_by_guard"] = False
+    save_scalper_state(state)
+    return {
+        "success": True,
+        "message": f"Daily Scalper Target reset to 0.00 THB. Goal: +฿{DAILY_TARGET_PROFIT_DEFAULT:,.2f} | Risk Guard: ฿{DAILY_MAX_LOSS_DEFAULT:,.2f}. 24/7 Auto-trading active!",
+        "dashboard": get_scalper_dashboard()
+    }
+
 def reset_scalper_engine() -> Dict[str, Any]:
     """Resets Scalper engine state to initial ฿20,000 Crypto and ฿20,000 Forex."""
+    today_str = get_thai_now_naive().strftime("%Y-%m-%d")
     initial_state = {
         "crypto_capital_initial": DEFAULT_CRYPTO_CAPITAL,
         "forex_capital_initial": DEFAULT_FOREX_CAPITAL,
@@ -77,6 +141,14 @@ def reset_scalper_engine() -> Dict[str, Any]:
         "auto_scalp_enabled": True,
         "crypto_auto_enabled": True,
         "forex_auto_enabled": True,
+        "current_trading_date": today_str,
+        "daily_realized_pnl_thb": 0.0,
+        "daily_trades_count": 0,
+        "daily_target_profit_limit": DAILY_TARGET_PROFIT_DEFAULT,
+        "daily_max_loss_limit": DAILY_MAX_LOSS_DEFAULT,
+        "daily_target_status": "ACTIVE",
+        "daily_halt_reason": "",
+        "auto_scalp_halted_by_guard": False,
         "open_positions": [],
         "closed_positions": [],
         "total_realized_pnl_thb": 0.0,
@@ -206,6 +278,8 @@ def update_open_positions() -> Dict[str, Any]:
                 state["forex_balance"] = round(state["forex_balance"] + pos["margin_thb"] + pnl_thb, 2)
 
             state["total_realized_pnl_thb"] = round(state["total_realized_pnl_thb"] + pnl_thb, 2)
+            state["daily_realized_pnl_thb"] = round(state.get("daily_realized_pnl_thb", 0.0) + pnl_thb, 2)
+            state["daily_trades_count"] = state.get("daily_trades_count", 0) + 1
             if pnl_thb >= 0:
                 state["win_count"] += 1
             else:
@@ -225,6 +299,7 @@ def update_open_positions() -> Dict[str, Any]:
                     f"Symbol: {pos.get('symbol')} | Lev: {pos.get('leverage'):.0f}X\n"
                     f"Entry: ${pos.get('entry_price'):,.2f} ➔ Exit: ${curr_price:,.2f}\n"
                     f"Realized P&L: {sign}฿{pnl_thb:,.2f} ({sign}{pnl_pct:.2f}%)\n"
+                    f"Today Total P&L: ฿{state['daily_realized_pnl_thb']:,.2f} (Target: +฿{DAILY_TARGET_PROFIT_DEFAULT:,.2f} / Max Loss: ฿{DAILY_MAX_LOSS_DEFAULT:,.2f})\n"
                     f"Reason: Automated {reason} Trigger"
                 )
                 send_instant_notification(alert_msg)
@@ -366,6 +441,8 @@ def close_position(ticket_id: str, close_pct: float = 100.0) -> Dict[str, Any]:
         state["forex_balance"] = round(state["forex_balance"] + pos["margin_thb"] + pnl_thb, 2)
 
     state["total_realized_pnl_thb"] = round(state["total_realized_pnl_thb"] + pnl_thb, 2)
+    state["daily_realized_pnl_thb"] = round(state.get("daily_realized_pnl_thb", 0.0) + pnl_thb, 2)
+    state["daily_trades_count"] = state.get("daily_trades_count", 0) + 1
     if pnl_thb >= 0:
         state["win_count"] += 1
     else:
@@ -418,6 +495,8 @@ def close_all_positions() -> Dict[str, Any]:
 
         state.setdefault("closed_positions", []).insert(0, pos)
 
+    state["daily_realized_pnl_thb"] = round(state.get("daily_realized_pnl_thb", 0.0) + total_closed_pnl, 2)
+    state["daily_trades_count"] = state.get("daily_trades_count", 0) + closed_count
     state["open_positions"] = []
     save_scalper_state(state)
 
@@ -533,15 +612,83 @@ def generate_scalper_signals() -> List[Dict[str, Any]]:
 def run_auto_scalper_cycle() -> Dict[str, Any]:
     """
     Autonomous Execution Engine for Scalper Pro:
-    1. Ticks and updates floating PnL for all active tickets.
-    2. Auto-closes tickets when TP or SL target prices are hit.
-    3. Scans real-time 1m/5m technical signals.
-    4. Automatically opens Short or Long tickets when high-confidence signals emerge.
-    5. Sends instant notifications via Telegram/Discord.
+    1. Resets and synchronizes 24-hour daily profit/loss cycle (00:00 ICT).
+    2. Ticks and updates floating PnL for all active tickets.
+    3. Auto-closes tickets when TP or SL target prices are hit.
+    4. Evaluates Daily Profit Target (+฿1,500) and Daily Max Loss Guard (-฿750):
+       - If daily profit >= +฿1,500 ➔ Pauses auto-trading for the day to lock in profits.
+       - If daily loss <= -฿750 ➔ Halts auto-trading for the day for capital protection.
+    5. Scans real-time 1m/5m momentum signals and automatically opens Short/Long tickets.
+    6. Sends instant notifications via Telegram/Discord.
     """
     # 1. Update existing tickets and evaluate TP/SL
     dash = update_open_positions()
     state = load_scalper_state()
+    state = check_and_update_daily_cycle(state)
+
+    daily_pnl = state.get("daily_realized_pnl_thb", 0.0)
+    target_profit = state.get("daily_target_profit_limit", DAILY_TARGET_PROFIT_DEFAULT)
+    max_loss = state.get("daily_max_loss_limit", DAILY_MAX_LOSS_DEFAULT)
+
+    # 2. Check if Daily Profit Target Reached (+฿1,500)
+    if daily_pnl >= target_profit:
+        if state.get("daily_target_status") != "TARGET_PROFIT_REACHED":
+            state["daily_target_status"] = "TARGET_PROFIT_REACHED"
+            state["auto_scalp_enabled"] = False
+            state["auto_scalp_halted_by_guard"] = True
+            state["daily_halt_reason"] = f"🏆 Daily Profit Target Reached (+฿{daily_pnl:,.2f} / Goal: +฿{target_profit:,.2f}). Auto-trading paused to secure daily profit."
+            save_scalper_state(state)
+            
+            try:
+                from execution_engine import send_instant_notification
+                msg = (
+                    f"🏆 [DAILY PROFIT TARGET LOCKED - AUTO SCALPER]\n"
+                    f"Date: {state.get('current_trading_date')}\n"
+                    f"Daily Realized P&L: +฿{daily_pnl:,.2f} (Target: +฿{target_profit:,.2f})\n"
+                    f"Trades Closed Today: {state.get('daily_trades_count', 0)}\n"
+                    f"Status: Auto-Trading Paused for today to lock in gains!"
+                )
+                send_instant_notification(msg)
+            except Exception:
+                pass
+
+        return {
+            "success": True,
+            "auto_scalp_enabled": False,
+            "daily_target_status": "TARGET_PROFIT_REACHED",
+            "message": state.get("daily_halt_reason"),
+            "dashboard": get_scalper_dashboard()
+        }
+
+    # 3. Check if Daily Max Loss Limit Hit (-฿750)
+    if daily_pnl <= max_loss:
+        if state.get("daily_target_status") != "MAX_LOSS_CIRCUIT_BREAKER":
+            state["daily_target_status"] = "MAX_LOSS_CIRCUIT_BREAKER"
+            state["auto_scalp_enabled"] = False
+            state["auto_scalp_halted_by_guard"] = True
+            state["daily_halt_reason"] = f"🛑 Daily Max Loss Threshold Hit (฿{daily_pnl:,.2f} / Limit: ฿{max_loss:,.2f}). Auto-trading halted for risk protection."
+            save_scalper_state(state)
+            
+            try:
+                from execution_engine import send_instant_notification
+                msg = (
+                    f"🛑 [DAILY RISK SHIELD - CIRCUIT BREAKER TRIGGERED]\n"
+                    f"Date: {state.get('current_trading_date')}\n"
+                    f"Daily Realized P&L: ฿{daily_pnl:,.2f} (Max Loss Limit: ฿{max_loss:,.2f})\n"
+                    f"Trades Closed Today: {state.get('daily_trades_count', 0)}\n"
+                    f"Status: Auto-Trading Halted for today for capital protection."
+                )
+                send_instant_notification(msg)
+            except Exception:
+                pass
+
+        return {
+            "success": True,
+            "auto_scalp_enabled": False,
+            "daily_target_status": "MAX_LOSS_CIRCUIT_BREAKER",
+            "message": state.get("daily_halt_reason"),
+            "dashboard": get_scalper_dashboard()
+        }
 
     if not state.get("auto_scalp_enabled", True):
         return {"success": True, "auto_scalp_enabled": False, "message": "Auto-Scalper is currently paused by user."}
@@ -549,7 +696,7 @@ def run_auto_scalper_cycle() -> Dict[str, Any]:
     open_pos = state.get("open_positions", [])
     open_symbols = set(p["symbol"] for p in open_pos)
 
-    # 2. Generate live AI scalper signals
+    # 4. Generate live AI scalper signals
     signals = generate_scalper_signals()
     auto_orders_placed = []
 
@@ -610,6 +757,7 @@ def run_auto_scalper_cycle() -> Dict[str, Any]:
                         f"Margin: ฿{suggested_margin:,.2f} | Entry: ${ticket.get('entry_price'):,.2f}\n"
                         f"TP Target: ${ticket.get('tp_price'):,.2f} (+{tp_pct:.1f}%)\n"
                         f"SL Target: ${ticket.get('sl_price'):,.2f} (-{sl_pct:.1f}%)\n"
+                        f"Daily P&L Progress: ฿{state.get('daily_realized_pnl_thb', 0.0):,.2f} / +฿{target_profit:,.2f}\n"
                         f"Reason: {reason}"
                     )
                     send_instant_notification(msg)
@@ -619,17 +767,18 @@ def run_auto_scalper_cycle() -> Dict[str, Any]:
     return {
         "success": True,
         "auto_scalp_enabled": True,
+        "daily_target_status": state.get("daily_target_status", "ACTIVE"),
         "auto_orders_placed": auto_orders_placed,
         "active_open_tickets": len(state.get("open_positions", [])),
         "dashboard": get_scalper_dashboard()
     }
 
-def _scalper_daemon_worker(interval_seconds: int = 12):
+def _scalper_daemon_worker(interval_seconds: int = 10):
     """
     Dedicated background worker thread for 24/7 Scalper Pro auto-ticking and trade execution.
     """
     import time
-    time.sleep(3)
+    time.sleep(2)
     print("⚡ [SCALPER PRO DAEMON] 24/7 High-Frequency Scalping Daemon Started...", flush=True)
     while True:
         try:
@@ -638,7 +787,7 @@ def _scalper_daemon_worker(interval_seconds: int = 12):
             print(f"[SCALPER DAEMON ERROR] {e}", flush=True)
         time.sleep(interval_seconds)
 
-def init_scalper_background_daemon(interval_seconds: int = 12):
+def init_scalper_background_daemon(interval_seconds: int = 10):
     """
     Starts background daemon thread for scalper engine.
     """
@@ -650,9 +799,10 @@ def init_scalper_background_daemon(interval_seconds: int = 12):
 
 def get_scalper_dashboard() -> Dict[str, Any]:
     """
-    Returns full Scalper Pro dashboard data.
+    Returns full Scalper Pro dashboard data with Daily Target & Risk Shield metrics.
     """
     state = load_scalper_state()
+    state = check_and_update_daily_cycle(state)
     open_pos = state.get("open_positions", [])
     
     # Calculate live portfolio valuations
@@ -669,6 +819,20 @@ def get_scalper_dashboard() -> Dict[str, Any]:
 
     total_closed = state.get("win_count", 0) + state.get("loss_count", 0)
     win_rate = (state.get("win_count", 0) / total_closed * 100.0) if total_closed > 0 else 0.0
+
+    daily_pnl = state.get("daily_realized_pnl_thb", 0.0)
+    target_profit = state.get("daily_target_profit_limit", DAILY_TARGET_PROFIT_DEFAULT)
+    max_loss = state.get("daily_max_loss_limit", DAILY_MAX_LOSS_DEFAULT)
+
+    # Progress % towards +฿1,500 target
+    progress_pct = 0.0
+    if daily_pnl > 0 and target_profit > 0:
+        progress_pct = min(100.0, round((daily_pnl / target_profit) * 100.0, 1))
+
+    # Loss % towards -฿750 risk limit
+    loss_risk_pct = 0.0
+    if daily_pnl < 0 and max_loss < 0:
+        loss_risk_pct = min(100.0, round((abs(daily_pnl) / abs(max_loss)) * 100.0, 1))
 
     return {
         "success": True,
@@ -698,9 +862,21 @@ def get_scalper_dashboard() -> Dict[str, Any]:
                 "active_tickets": len([p for p in open_pos if p["asset_class"] == "FOREX"])
             }
         },
+        "daily_target_guard": {
+            "current_date": state.get("current_trading_date", get_thai_now_naive().strftime("%Y-%m-%d")),
+            "daily_realized_pnl_thb": round(daily_pnl, 2),
+            "target_profit_limit_thb": float(target_profit),
+            "max_loss_limit_thb": float(max_loss),
+            "target_progress_pct": progress_pct,
+            "loss_risk_pct": loss_risk_pct,
+            "daily_trades_count": state.get("daily_trades_count", 0),
+            "daily_target_status": state.get("daily_target_status", "ACTIVE"),
+            "daily_halt_reason": state.get("daily_halt_reason", ""),
+            "auto_scalp_halted_by_guard": state.get("auto_scalp_halted_by_guard", False)
+        },
         "auto_scalp_enabled": state.get("auto_scalp_enabled", True),
         "open_positions": open_pos,
-        "closed_positions": state.get("closed_positions", [])[:30],
+        "closed_positions": state.get("closed_positions", [])[:40],
         "active_tickets_count": len(open_pos)
     }
 
@@ -711,4 +887,4 @@ if not os.path.exists(STATE_FILE):
     open_position("EURUSD=X", "SHORT", 2000.0, 10.0, 0.8, 0.4, notes="Initial Forex Scalp Seed")
 
 # Automatically initialize scalper background daemon
-init_scalper_background_daemon(12)
+init_scalper_background_daemon(10)

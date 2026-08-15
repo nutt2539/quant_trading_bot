@@ -163,6 +163,20 @@ const DOM = {
   scalpOpenCountBadge: document.getElementById("scalp-open-count-badge"),
   scalpHistoryTbody: document.getElementById("scalp-history-tbody"),
 
+  // Daily Target & Risk Guard Elements
+  guardDailyStrip: document.getElementById("scalp-daily-guard-strip"),
+  guardIconBox: document.getElementById("guard-icon-box"),
+  guardStatusBadge: document.getElementById("guard-status-badge"),
+  guardDatePill: document.getElementById("guard-date-pill"),
+  guardDesc: document.getElementById("guard-desc"),
+  guardDailyPnl: document.getElementById("guard-daily-pnl"),
+  guardProfitBar: document.getElementById("guard-profit-bar"),
+  guardProfitSub: document.getElementById("guard-profit-sub"),
+  guardRiskPnl: document.getElementById("guard-risk-pnl"),
+  guardRiskBar: document.getElementById("guard-risk-bar"),
+  guardRiskSub: document.getElementById("guard-risk-sub"),
+  btnResetDailyTarget: document.getElementById("btn-reset-daily-target"),
+
   // Terminal & Chart
   chartSymbolTitle: document.getElementById("chart-symbol-title"),
   chartLatestPrice: document.getElementById("chart-latest-price"),
@@ -2392,6 +2406,21 @@ function setupScalperEventListeners() {
       });
     });
   }
+
+  // 13. Reset Daily Target & Risk Shield
+  if (DOM.btnResetDailyTarget) {
+    DOM.btnResetDailyTarget.addEventListener("click", async () => {
+      if (!confirm("Reset Today's Scalper Target counter to ฿0.00 and resume 24/7 auto-trading?")) return;
+      try {
+        const res = await fetch("/api/scalper/reset-daily-target", { method: "POST" });
+        const data = await res.json();
+        showToast(data.message, "success");
+        fetchScalperStatus();
+      } catch (err) {
+        showToast("Reset daily target failed: " + err, "error");
+      }
+    });
+  }
 }
 
 function getScalpAvailableBalance(assetClass) {
@@ -2543,6 +2572,58 @@ async function fetchScalperStatus() {
     if (DOM.scalpOpenCountBadge) DOM.scalpOpenCountBadge.textContent = `${data.active_tickets_count} Active Tickets`;
     if (DOM.scalpAutoToggle && document.activeElement !== DOM.scalpAutoToggle) {
       DOM.scalpAutoToggle.checked = !!data.auto_scalp_enabled;
+    }
+
+    // 24H Daily Target & Risk Shield Status Strip
+    if (data.daily_target_guard) {
+      const g = data.daily_target_guard;
+      if (DOM.guardDatePill) DOM.guardDatePill.textContent = g.current_date;
+
+      const pnlSign = g.daily_realized_pnl_thb >= 0 ? '+' : '';
+      const pnlClass = g.daily_realized_pnl_thb >= 0 ? 'positive' : 'negative';
+
+      if (DOM.guardDailyPnl) {
+        DOM.guardDailyPnl.textContent = `${pnlSign}฿${g.daily_realized_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })} / +฿${g.target_profit_limit_thb.toLocaleString()}`;
+        DOM.guardDailyPnl.className = `mono ${pnlClass}`;
+      }
+
+      if (DOM.guardProfitBar) {
+        DOM.guardProfitBar.style.width = `${Math.min(100, Math.max(0, g.target_progress_pct))}%`;
+      }
+      if (DOM.guardProfitSub) {
+        DOM.guardProfitSub.textContent = `${g.target_progress_pct.toFixed(1)}% of +฿${g.target_profit_limit_thb.toLocaleString()} Goal`;
+      }
+
+      if (DOM.guardRiskPnl) {
+        DOM.guardRiskPnl.textContent = `${g.daily_realized_pnl_thb < 0 ? '-' : ''}฿${Math.abs(g.daily_realized_pnl_thb).toLocaleString('en-US', { minimumFractionDigits: 2 })} / ฿${g.max_loss_limit_thb.toLocaleString()}`;
+        DOM.guardRiskPnl.className = `mono ${g.daily_realized_pnl_thb < 0 ? 'negative' : ''}`;
+      }
+      if (DOM.guardRiskBar) {
+        DOM.guardRiskBar.style.width = `${Math.min(100, Math.max(0, g.loss_risk_pct))}%`;
+      }
+      if (DOM.guardRiskSub) {
+        DOM.guardRiskSub.textContent = `${g.loss_risk_pct.toFixed(1)}% of ฿${g.max_loss_limit_thb.toLocaleString()} Max Loss`;
+      }
+
+      // Status Badge & Description
+      if (DOM.guardStatusBadge && DOM.guardDesc && DOM.guardIconBox) {
+        if (g.daily_target_status === "TARGET_PROFIT_REACHED") {
+          DOM.guardIconBox.textContent = "🏆";
+          DOM.guardStatusBadge.textContent = "🏆 DAILY PROFIT TARGET HIT (+฿1,500)";
+          DOM.guardStatusBadge.className = "guard-status-badge target-reached";
+          DOM.guardDesc.innerHTML = `<span style="color:var(--accent-gold); font-weight:700;">${g.daily_halt_reason || "Daily profit target of +฿1,500.00 reached! Auto-trading safely paused to lock profit."}</span>`;
+        } else if (g.daily_target_status === "MAX_LOSS_CIRCUIT_BREAKER") {
+          DOM.guardIconBox.textContent = "🛑";
+          DOM.guardStatusBadge.textContent = "🛑 MAX LOSS CIRCUIT BREAKER (-฿750)";
+          DOM.guardStatusBadge.className = "guard-status-badge max-loss-hit";
+          DOM.guardDesc.innerHTML = `<span style="color:var(--accent-coral); font-weight:700;">${g.daily_halt_reason || "Daily loss threshold of -฿750.00 hit! Auto-trading halted for capital protection."}</span>`;
+        } else {
+          DOM.guardIconBox.textContent = "🛡️";
+          DOM.guardStatusBadge.textContent = "🟢 ACTIVE (24/7)";
+          DOM.guardStatusBadge.className = "guard-status-badge active";
+          DOM.guardDesc.innerHTML = `Active 24H setup timing. Daily Target: <strong style="color:var(--accent-emerald);">+฿1,500.00</strong> (Auto-Pause to lock profit) | Max Loss: <strong style="color:var(--accent-coral);">-฿750.00</strong> (Circuit breaker halt).`;
+        }
+      }
     }
 
     renderScalperPositions(data.open_positions);

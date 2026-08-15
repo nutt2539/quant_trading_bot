@@ -899,6 +899,14 @@ def get_scalper_signals_endpoint():
     except Exception as e:
         return {"success": False, "error": str(e), "signals": []}
 
+@app.post("/api/scalper/reset-daily-target")
+def reset_daily_target_endpoint():
+    """Manually resets the daily profit/loss counter and resumes active auto-scalping."""
+    try:
+        return scalper_engine.reset_daily_target_engine()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ----------------- STATIC FRONTEND -----------------
 
 web_dir = os.path.join(os.path.dirname(__file__), "web_ui")

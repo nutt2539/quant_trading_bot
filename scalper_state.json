@@ -16,7 +16,7 @@
       "side": "LONG",
       "order_type": "MARKET",
       "entry_price": 75.5,
-      "current_price": 75.45999908447266,
+      "current_price": 75.46,
       "margin_thb": 2000.0,
       "leverage": 5.0,
       "tp_pct": 1.2,
@@ -37,7 +37,7 @@
       "side": "LONG",
       "order_type": "MARKET",
       "entry_price": 1882.08,
-      "current_price": 1881.25,
+      "current_price": 1880.11,
       "margin_thb": 2000.0,
       "leverage": 5.0,
       "tp_pct": 1.2,
@@ -45,8 +45,8 @@
       "tp_price": 1904.665,
       "sl_price": 1870.7875,
       "open_time": "2026-08-16 02:07:07",
-      "floating_pnl_thb": -4.41,
-      "floating_pnl_pct": -0.22,
+      "floating_pnl_thb": -10.47,
+      "floating_pnl_pct": -0.52,
       "notes": "🤖 AI Auto-Scalp (Bollinger Lower Band Mean-Reversion Bounce)"
     },
     {
@@ -58,7 +58,7 @@
       "side": "LONG",
       "order_type": "MARKET",
       "entry_price": 62960.52,
-      "current_price": 63000.18,
+      "current_price": 63033.04,
       "margin_thb": 2000.0,
       "leverage": 5.0,
       "tp_pct": 1.2,
@@ -66,8 +66,8 @@
       "tp_price": 63716.0462,
       "sl_price": 62582.7569,
       "open_time": "2026-08-16 02:06:28",
-      "floating_pnl_thb": 6.3,
-      "floating_pnl_pct": 0.31,
+      "floating_pnl_thb": 11.52,
+      "floating_pnl_pct": 0.58,
       "notes": "🤖 AI Auto-Scalp (Bollinger Lower Band Mean-Reversion Bounce)"
     }
   ],
@@ -154,5 +154,13 @@
   "total_realized_pnl_thb": 19019.34,
   "win_count": 3,
   "loss_count": 0,
-  "last_scan_time": ""
+  "last_scan_time": "",
+  "current_trading_date": "2026-08-16",
+  "daily_realized_pnl_thb": 0.0,
+  "daily_trades_count": 0,
+  "daily_target_profit_limit": 1500.0,
+  "daily_max_loss_limit": -750.0,
+  "daily_target_status": "ACTIVE",
+  "daily_halt_reason": "",
+  "auto_scalp_halted_by_guard": false
 }

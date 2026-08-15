@@ -353,6 +353,55 @@
               </div>
             </div>
           </div>
+
+          <!-- DAILY PROFIT TARGET (+฿1500) & RISK SHIELD (-฿750) STATUS STRIP -->
+          <div class="scalp-daily-guard-strip" id="scalp-daily-guard-strip">
+            <div class="guard-main-info">
+              <div class="guard-icon-box" id="guard-icon-box">🛡️</div>
+              <div>
+                <div class="guard-title-row">
+                  <span class="guard-title">🎯 24H DAILY TARGET & RISK SHIELD</span>
+                  <span class="guard-status-badge active" id="guard-status-badge">🟢 ACTIVE (24/7)</span>
+                  <span class="guard-date-pill mono" id="guard-date-pill">2026-08-16</span>
+                </div>
+                <div class="guard-desc" id="guard-desc">
+                  Active 24H setup timing. Daily Target: <strong style="color:var(--accent-emerald);">+฿1,500.00</strong> (Auto-Pause to lock profit) | Max Loss: <strong style="color:var(--accent-coral);">-฿750.00</strong> (Circuit breaker halt).
+                </div>
+              </div>
+            </div>
+
+            <div class="guard-meters-group">
+              <!-- Target Profit Progress -->
+              <div class="guard-meter-box">
+                <div class="meter-labels">
+                  <span>Daily Profit Goal</span>
+                  <strong class="mono positive" id="guard-daily-pnl">+฿0.00 / +฿1,500.00</strong>
+                </div>
+                <div class="meter-bar-track">
+                  <div class="meter-bar-fill profit" id="guard-profit-bar" style="width: 0%;"></div>
+                </div>
+                <div class="meter-sub mono" id="guard-profit-sub">0.0% of +฿1,500.00 Goal</div>
+              </div>
+
+              <!-- Max Loss Risk Meter -->
+              <div class="guard-meter-box">
+                <div class="meter-labels">
+                  <span>Risk Shield Limit</span>
+                  <strong class="mono" id="guard-risk-pnl">฿0.00 / -฿750.00</strong>
+                </div>
+                <div class="meter-bar-track">
+                  <div class="meter-bar-fill risk" id="guard-risk-bar" style="width: 0%;"></div>
+                </div>
+                <div class="meter-sub mono" id="guard-risk-sub">0.0% of -฿750.00 Max Loss</div>
+              </div>
+
+              <div class="guard-actions">
+                <button class="btn-reset-daily-target" id="btn-reset-daily-target" title="Reset Today's Target and Resume Auto-Trading">
+                  <span>🔄 Reset Target</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- SCALPING WORKSPACE -->
