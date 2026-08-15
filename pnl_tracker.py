@@ -21,10 +21,14 @@ BASE_ASSET_PRICES = {
     "SPY": 545.20, "QQQ": 475.40, "DIA": 405.10, "NVDA": 128.50, "AAPL": 224.80, "MSFT": 448.10, "TSLA": 218.40, "AMZN": 182.30,
     # Gold & Commodities
     "GC=F": 2482.50, "GLD": 228.60, "IAU": 47.30, "XAUUSD=X": 2482.50,
-    # Crypto
-    "BTC-USD": 63450.0, "ETH-USD": 2715.0, "SOL-USD": 148.50, "BNB-USD": 585.0, "DOGE-USD": 0.112, "XRP-USD": 0.585, "ADA-USD": 0.355, "AVAX-USD": 24.20,
-    # Forex
-    "EURUSD=X": 1.0935, "GBPUSD=X": 1.2865, "USDJPY=X": 147.20, "AUDUSD=X": 0.6680, "USDTHB=X": 35.10
+    # Crypto (Top High-Volume Short/Long Favorites)
+    "BTC-USD": 63450.0, "ETH-USD": 2715.0, "SOL-USD": 148.50, "BNB-USD": 585.0, "DOGE-USD": 0.112,
+    "XRP-USD": 0.585, "ADA-USD": 0.355, "AVAX-USD": 24.20, "LINK-USD": 11.80, "NEAR-USD": 4.65,
+    "SUI-USD": 0.92, "PEPE-USD": 0.0000085,
+    # Forex & High-Vol Crosses
+    "EURUSD=X": 1.0935, "GBPUSD=X": 1.2865, "USDJPY=X": 147.20, "GBPJPY=X": 189.40, "EURJPY=X": 161.10,
+    "AUDUSD=X": 0.6680, "USDCAD=X": 1.3680, "USDCHF=X": 0.8650, "NZDUSD=X": 0.6020, "EURGBP=X": 0.8540,
+    "USDTHB=X": 35.10
 }
 
 def get_asset_category(symbol: str) -> str:
@@ -33,7 +37,7 @@ def get_asset_category(symbol: str) -> str:
     """
     if symbol in config.GOLD_WATCHLIST or symbol in ["GC=F", "XAUUSD=X", "GLD", "IAU"]:
         return "GOLD"
-    elif symbol in config.CRYPTO_WATCHLIST or symbol.endswith("-USD") or symbol in ["BTC", "ETH", "SOL", "BNB", "ADA", "XRP", "AVAX", "LINK"]:
+    elif symbol in config.CRYPTO_WATCHLIST or symbol.endswith("-USD") or symbol in ["BTC", "ETH", "SOL", "BNB", "ADA", "XRP", "AVAX", "LINK", "NEAR", "SUI", "PEPE", "DOGE"]:
         return "CRYPTO"
     elif symbol in config.FOREX_WATCHLIST or (symbol.endswith("=X") and symbol not in ["GC=F", "XAUUSD=X"]):
         return "FOREX"
@@ -95,9 +99,8 @@ def fetch_cached_ticker_price(sym: str) -> float:
         base_p = _LIVE_PRICE_CACHE[sym]["price"]
         # Add micro live tick variation (+/- 0.05%) only when market is actively open
         seed = int(now) + abs(hash(sym)) % 1000
-        np.random.seed(seed)
-        jitter = base_p * np.random.uniform(-0.0006, 0.0006)
-        return round(base_p + jitter, 4 if base_p < 10 else 2)
+        dec = 8 if base_p < 0.01 else (4 if base_p < 10 else 2)
+        return round(base_p + jitter, dec)
 
     # Attempt fetch via yfinance
     try:
@@ -115,7 +118,8 @@ def fetch_cached_ticker_price(sym: str) -> float:
     seed = int(now) + abs(hash(sym)) % 1000
     np.random.seed(seed)
     jitter = base_p * np.random.uniform(-0.0009, 0.0009)
-    calc_p = round(base_p + jitter, 4 if base_p < 10 else 2)
+    dec = 8 if base_p < 0.01 else (4 if base_p < 10 else 2)
+    calc_p = round(base_p + jitter, dec)
     _LIVE_PRICE_CACHE[sym] = {"price": base_p, "time": now}
     return calc_p
 

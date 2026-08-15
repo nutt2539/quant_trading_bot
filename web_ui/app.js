@@ -2447,6 +2447,35 @@ function setupScalperEventListeners() {
   }
 }
 
+const SCALPER_CRYPTO_LIST = [
+  { sym: "BTC-USD", short: "BTC", name: "Bitcoin", icon: "🪙", tag: "KING LIQUIDITY" },
+  { sym: "ETH-USD", short: "ETH", name: "Ethereum", icon: "💎", tag: "HIGH VOLUME" },
+  { sym: "SOL-USD", short: "SOL", name: "Solana", icon: "⚡", tag: "HIGH VOLATILITY" },
+  { sym: "BNB-USD", short: "BNB", name: "BNB", icon: "🟡", tag: "MAJOR ECOSYSTEM" },
+  { sym: "XRP-USD", short: "XRP", name: "XRP (Ripple)", icon: "🌊", tag: "BREAKOUT SCALP" },
+  { sym: "DOGE-USD", short: "DOGE", name: "Dogecoin", icon: "🐕", tag: "MEME MOMENTUM" },
+  { sym: "ADA-USD", short: "ADA", name: "Cardano", icon: "🔷", tag: "L1 LIQUIDITY" },
+  { sym: "AVAX-USD", short: "AVAX", name: "Avalanche", icon: "🔺", tag: "FAST SWINGS" },
+  { sym: "LINK-USD", short: "LINK", name: "Chainlink", icon: "🔗", tag: "ORACLE LEADER" },
+  { sym: "NEAR-USD", short: "NEAR", name: "NEAR Protocol", icon: "🌌", tag: "AI / L1 TREND" },
+  { sym: "SUI-USD", short: "SUI", name: "Sui", icon: "💧", tag: "HIGH VELOCITY" },
+  { sym: "PEPE-USD", short: "PEPE", name: "Pepe", icon: "🐸", tag: "MEME VOLATILITY" }
+];
+
+const SCALPER_FOREX_LIST = [
+  { sym: "EURUSD=X", short: "EUR/USD", name: "EUR/USD (Euro / Dollar)", icon: "💶", tag: "#1 GLOBAL FX" },
+  { sym: "GBPUSD=X", short: "GBP/USD", name: "GBP/USD (Cable)", icon: "💷", tag: "VOLATILE POUND" },
+  { sym: "USDJPY=X", short: "USD/JPY", name: "USD/JPY (Ninja)", icon: "💴", tag: "TREND MOMENTUM" },
+  { sym: "GBPJPY=X", short: "GBP/JPY", name: "GBP/JPY (Guppy / Dragon)", icon: "🐉", tag: "#1 VOLATILITY PAIR" },
+  { sym: "EURJPY=X", short: "EUR/JPY", name: "EUR/JPY", icon: "🌸", tag: "YEN CROSS" },
+  { sym: "AUDUSD=X", short: "AUD/USD", name: "AUD/USD (Aussie)", icon: "🦘", tag: "COMMODITY FX" },
+  { sym: "USDCAD=X", short: "USD/CAD", name: "USD/CAD (Loonie)", icon: "🍁", tag: "OIL CORRELATED" },
+  { sym: "USDCHF=X", short: "USD/CHF", name: "USD/CHF (Swissy)", icon: "🇨🇭", tag: "SAFE HAVEN" },
+  { sym: "NZDUSD=X", short: "NZD/USD", name: "NZD/USD (Kiwi)", icon: "🥝", tag: "HIGH-BETA" },
+  { sym: "EURGBP=X", short: "EUR/GBP", name: "EUR/GBP (Chunnel)", icon: "🏰", tag: "RANGE SCALP" },
+  { sym: "GC=F", short: "GOLD (XAU)", name: "Gold / XAU/USD (Futures)", icon: "👑", tag: "#1 COMMODITY SCALP" }
+];
+
 function getScalpAvailableBalance(assetClass) {
   if (!STATE.scalper.status || !STATE.scalper.status.capital_summary) return 20000.0;
   const key = assetClass.toLowerCase();
@@ -2459,25 +2488,36 @@ function switchScalpAssetClass(assetClass, specificSymbol = null) {
   if (DOM.tabScalpCrypto) DOM.tabScalpCrypto.classList.toggle("active", assetClass === "CRYPTO");
   if (DOM.tabScalpForex) DOM.tabScalpForex.classList.toggle("active", assetClass === "FOREX");
 
+  const list = assetClass === "CRYPTO" ? SCALPER_CRYPTO_LIST : SCALPER_FOREX_LIST;
+  const defaultSym = assetClass === "CRYPTO" ? "BTC-USD" : "EURUSD=X";
+  STATE.scalper.activeSymbol = specificSymbol || defaultSym;
+
   // Re-populate symbol selectbox
   if (DOM.scalpOrderSymbol) {
-    DOM.scalpOrderSymbol.innerHTML = "";
-    if (assetClass === "CRYPTO") {
-      DOM.scalpOrderSymbol.innerHTML = `
-        <option value="BTC-USD">🪙 BTC-USD (Bitcoin)</option>
-        <option value="ETH-USD">💎 ETH-USD (Ethereum)</option>
-        <option value="SOL-USD">⚡ SOL-USD (Solana)</option>
-      `;
-      STATE.scalper.activeSymbol = specificSymbol || "BTC-USD";
-    } else {
-      DOM.scalpOrderSymbol.innerHTML = `
-        <option value="EURUSD=X">💶 EUR/USD (Euro / US Dollar)</option>
-        <option value="GBPUSD=X">💷 GBP/USD (British Pound)</option>
-        <option value="USDJPY=X">💴 USD/JPY (US Dollar / Yen)</option>
-      `;
-      STATE.scalper.activeSymbol = specificSymbol || "EURUSD=X";
-    }
+    DOM.scalpOrderSymbol.innerHTML = list.map(item => `
+      <option value="${item.sym}">${item.icon} ${item.name} [${item.tag}]</option>
+    `).join("");
     DOM.scalpOrderSymbol.value = STATE.scalper.activeSymbol;
+  }
+
+  // Render dynamic quick select pills for all available favorites
+  if (DOM.scalpSymbolBtns) {
+    DOM.scalpSymbolBtns.innerHTML = list.map(item => `
+      <button class="btn-sm ${item.sym === STATE.scalper.activeSymbol ? 'active' : ''}" data-sym="${item.sym}" title="${item.name} (${item.tag})">
+        ${item.icon} ${item.short}
+      </button>
+    `).join("");
+
+    DOM.scalpSymbolBtns.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const sym = btn.getAttribute("data-sym");
+        STATE.scalper.activeSymbol = sym;
+        if (DOM.scalpOrderSymbol) DOM.scalpOrderSymbol.value = sym;
+        updateScalpSymbolButtons(sym);
+        fetchScalperChart(sym, STATE.scalper.activeTf);
+        updateScalpOrderFormCalculations();
+      });
+    });
   }
 
   updateScalpSymbolButtons(STATE.scalper.activeSymbol);
@@ -2752,11 +2792,8 @@ async function fetchScalperChart(symbol, tf = "5m") {
     STATE.scalper.chartData = data.candles;
     
     if (DOM.scalpChartTitle) {
-      const symInfo = symbol.includes("BTC") ? "🪙 BTC-USD (Bitcoin)" :
-                      symbol.includes("ETH") ? "💎 ETH-USD (Ethereum)" :
-                      symbol.includes("SOL") ? "⚡ SOL-USD (Solana)" :
-                      symbol.includes("EUR") ? "💶 EUR/USD (Forex)" :
-                      symbol.includes("GBP") ? "💷 GBP/USD (Forex)" : "💴 USD/JPY (Forex)";
+      const foundItem = [...SCALPER_CRYPTO_LIST, ...SCALPER_FOREX_LIST].find(x => x.sym === symbol);
+      const symInfo = foundItem ? `${foundItem.icon} ${foundItem.name}` : symbol;
       DOM.scalpChartTitle.textContent = `${symInfo} — ${tf.toUpperCase()} Scalp Station`;
     }
 

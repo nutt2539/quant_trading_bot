@@ -1517,6 +1517,24 @@ canvas { width: 100%; height: 100%; display: block; }
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+#scalp-symbol-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 100%;
+}
+
+#scalp-symbol-btns button {
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  border-radius: 4px;
+  white-space: nowrap;
 }
 
 .scalp-radar-card {
