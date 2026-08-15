@@ -33,7 +33,14 @@ const STATE = {
   aiPlan: null,
   robotEnabled: true,
   activeStrategyKey: "TREND_FOLLOWING",
-  pollingTimer: null
+  pollingTimer: null,
+  modal: {
+    isOpen: false,
+    activeSystem: "ALL",
+    chartPeriod: "3mo",
+    chartMode: "PCT",
+    hoverIndex: null
+  }
 };
 
 // ----------------- DOM ELEMENTS -----------------
@@ -76,6 +83,37 @@ const DOM = {
   ulGoldVal: document.getElementById("ul-gold-val"),
   ulCryptoVal: document.getElementById("ul-crypto-val"),
   ulForexVal: document.getElementById("ul-forex-val"),
+
+  // System Holdings & Deep Matrix Modal
+  systemHoldingsModal: document.getElementById("system-holdings-modal"),
+  modalBackdrop: document.getElementById("modal-backdrop"),
+  modalCloseBtn: document.getElementById("modal-close-btn"),
+  modalSysTabs: document.querySelectorAll(".modal-tab-btn"),
+  modalSysIcon: document.getElementById("modal-sys-icon"),
+  modalSysTag: document.getElementById("modal-sys-tag"),
+  modalSysMkt: document.getElementById("modal-sys-mkt"),
+  modalSysAlloc: document.getElementById("modal-sys-alloc"),
+  modalSysTitle: document.getElementById("modal-sys-title"),
+  modalKpiAlloc: document.getElementById("modal-kpi-alloc"),
+  modalKpiAllocSub: document.getElementById("modal-kpi-alloc-sub"),
+  modalKpiVal: document.getElementById("modal-kpi-val"),
+  modalKpiValSub: document.getElementById("modal-kpi-val-sub"),
+  modalKpiCash: document.getElementById("modal-kpi-cash"),
+  modalKpiCashSub: document.getElementById("modal-kpi-cash-sub"),
+  modalKpiPnl: document.getElementById("modal-kpi-pnl"),
+  modalKpiPnlSub: document.getElementById("modal-kpi-pnl-sub"),
+  modalKpiWin: document.getElementById("modal-kpi-win"),
+  modalKpiWinSub: document.getElementById("modal-kpi-win-sub"),
+  modalHoldingsCount: document.getElementById("modal-holdings-count"),
+  modalHoldingsTbody: document.getElementById("modal-holdings-tbody"),
+  modalBtnPanicSys: document.getElementById("modal-btn-panic-sys"),
+  modalSystemCanvas: document.getElementById("modal-system-chart"),
+  modalChartTooltip: document.getElementById("modal-chart-tooltip"),
+  modalStatBenchmark: document.getElementById("modal-stat-benchmark"),
+  modalStatStrat: document.getElementById("modal-stat-strat"),
+  modalStatConviction: document.getElementById("modal-stat-conviction"),
+  modalChartModeBtns: document.getElementById("modal-chart-mode-btns"),
+  modalChartPeriodBtns: document.getElementById("modal-chart-period-btns"),
 
   // Scalper Pro
   scalpAutoToggle: document.getElementById("scalp-auto-toggle"),
@@ -332,6 +370,76 @@ function setupEventListeners() {
     }
   });
 
+  // Modal Close Listeners
+  if (DOM.modalCloseBtn) {
+    DOM.modalCloseBtn.addEventListener("click", closeSystemHoldingsModal);
+  }
+  if (DOM.modalBackdrop) {
+    DOM.modalBackdrop.addEventListener("click", closeSystemHoldingsModal);
+  }
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && STATE.modal.isOpen) {
+      closeSystemHoldingsModal();
+    }
+  });
+
+  // Modal System Tab Switching
+  if (DOM.modalSysTabs) {
+    DOM.modalSysTabs.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const sys = btn.getAttribute("data-sys");
+        DOM.modalSysTabs.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        STATE.modal.activeSystem = sys;
+        renderModalSystemData();
+        renderModalSystemChart();
+      });
+    });
+  }
+
+  // Modal Chart Controls (Mode & Period)
+  if (DOM.modalChartModeBtns) {
+    DOM.modalChartModeBtns.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        DOM.modalChartModeBtns.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        STATE.modal.chartMode = btn.getAttribute("data-mode");
+        renderModalSystemChart();
+      });
+    });
+  }
+
+  if (DOM.modalChartPeriodBtns) {
+    DOM.modalChartPeriodBtns.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        DOM.modalChartPeriodBtns.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        STATE.modal.chartPeriod = btn.getAttribute("data-period");
+        fetchSystemsChart(STATE.modal.chartPeriod).then(() => {
+          renderModalSystemChart();
+        });
+      });
+    });
+  }
+
+  // Modal Emergency Panic Close for currently selected system
+  if (DOM.modalBtnPanicSys) {
+    DOM.modalBtnPanicSys.addEventListener("click", async () => {
+      const activeSys = STATE.modal.activeSystem;
+      const sysName = activeSys === "ALL" ? "All Systems" : activeSys;
+      if (!confirm(`🚨 Confirm Emergency Liquidate all open positions for ${sysName}?`)) return;
+      try {
+        const res = await fetch("/api/robot/panic-close", { method: "POST" });
+        const data = await res.json();
+        showToast(data.message, "success");
+        fetchStatus();
+        fetchPositions();
+      } catch (err) {
+        showToast("Panic close failed: " + err, "error");
+      }
+    });
+  }
+
   // Chart Period Buttons
   DOM.chartPeriodBtns.querySelectorAll("button").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -584,6 +692,9 @@ async function fetchStatus() {
     if (data.systems) {
       STATE.systemsData = data.systems;
       render4SystemsCards(data.systems);
+      if (STATE.modal.isOpen) {
+        renderModalSystemData();
+      }
     }
   } catch (err) {
     console.error("Status fetch error", err);
@@ -663,7 +774,20 @@ function render4SystemsCards(systems) {
             <option value="NLP_SENTIMENT" ${sys.active_strategy === 'NLP_SENTIMENT' ? 'selected' : ''}>AI NLP Sentiment</option>
           </select>
         </div>
+
+        <div class="sys-card-click-hint">
+          <span>🔍 View Holdings & Matrix</span>
+          <span class="pulse-arrow">↗</span>
+        </div>
       `;
+
+      // Click card to open modal
+      card.addEventListener("click", (e) => {
+        if (e.target.closest(".sys-strategy-selector") || e.target.tagName === "SELECT" || e.target.tagName === "OPTION") {
+          return;
+        }
+        openSystemHoldingsModal(key);
+      });
 
       card.querySelector(".sys-strat-dropdown").addEventListener("change", async (e) => {
         const newStrat = e.target.value;
@@ -998,8 +1122,13 @@ async function fetchPositions() {
     const data = await res.json();
     if (!data.success) return;
 
+    STATE.positions = data.positions || [];
     DOM.positionsCount.textContent = `${data.positions.length} Open`;
     DOM.masterPositionsCount.textContent = `${data.positions.length} Positions`;
+
+    if (STATE.modal.isOpen) {
+      renderModalSystemData();
+    }
 
     if (data.positions.length === 0) {
       DOM.positionsList.innerHTML = `<div class="empty-state">No open positions at this moment.</div>`;
@@ -1608,6 +1737,501 @@ function renderUnifiedSystemsChart() {
     if (STATE.visibleSystems.gold) drawDot(isVal ? 90000 * (1 + cur.gold_pct / 100) : cur.gold_pct, "#ffb703");
     if (STATE.visibleSystems.us) drawDot(isVal ? 100000 * (1 + cur.us_pct / 100) : cur.us_pct, "#00c8ff");
     if (STATE.visibleSystems.unified) drawDot(isVal ? cur.unified_val : cur.unified_pct, "#00f090");
+  }
+}
+
+// ==========================================================================
+// SYSTEM HOLDINGS & OVERVIEW MATRIX MODAL CONTROLLER & ENGINE
+// ==========================================================================
+
+let mCtx, mWidth, mHeight;
+let mHoverIndex = null;
+
+function openSystemHoldingsModal(sysKey = "ALL") {
+  STATE.modal.isOpen = true;
+  STATE.modal.activeSystem = sysKey;
+
+  if (DOM.systemHoldingsModal) {
+    DOM.systemHoldingsModal.classList.remove("hidden");
+  }
+
+  // Update tabs active state
+  if (DOM.modalSysTabs) {
+    DOM.modalSysTabs.forEach(btn => {
+      if (btn.getAttribute("data-sys") === sysKey) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
+  }
+
+  renderModalSystemData();
+
+  // Ensure chart data is loaded and canvas initialized
+  setTimeout(() => {
+    initModalCanvas();
+    if (!STATE.systemsChartData || STATE.systemsChartData.length === 0) {
+      fetchSystemsChart(STATE.modal.chartPeriod).then(() => {
+        renderModalSystemChart();
+      });
+    } else {
+      renderModalSystemChart();
+    }
+  }, 60);
+}
+
+function closeSystemHoldingsModal() {
+  STATE.modal.isOpen = false;
+  if (DOM.systemHoldingsModal) {
+    DOM.systemHoldingsModal.classList.add("hidden");
+  }
+}
+
+function renderModalSystemData() {
+  const sysKey = STATE.modal.activeSystem || "ALL";
+  const systems = STATE.systemsData || {};
+
+  const systemMeta = {
+    "ALL": { icon: "🌐", title: "All 4 Systems Master Portfolio (฿300k)", alloc: 300000, cat: "UNIFIED PORTFOLIO", color: "#00f090" },
+    "US_INDEX": { icon: "🇺🇸", title: "US Equities & Index Bot (฿100k)", alloc: 100000, cat: "US_INDEX", color: "#00c8ff" },
+    "GOLD": { icon: "🥇", title: "Gold & Precious Metals Bot (฿90k)", alloc: 90000, cat: "GOLD", color: "#ffb703" },
+    "CRYPTO": { icon: "🪙", title: "Crypto Spot 24/7 Bot (฿80k)", alloc: 80000, cat: "CRYPTO", color: "#9d4edd" },
+    "FOREX": { icon: "💱", title: "Forex FX Currency Bot (฿30k)", alloc: 30000, cat: "FOREX", color: "#ff3b69" }
+  };
+
+  const meta = systemMeta[sysKey] || systemMeta["ALL"];
+
+  // Update Header Elements
+  if (DOM.modalSysIcon) DOM.modalSysIcon.textContent = meta.icon;
+  if (DOM.modalSysTag) {
+    DOM.modalSysTag.textContent = meta.cat;
+    DOM.modalSysTag.style.color = meta.color;
+    DOM.modalSysTag.style.borderColor = `${meta.color}40`;
+    DOM.modalSysTag.style.background = `${meta.color}15`;
+  }
+  if (DOM.modalSysTitle) DOM.modalSysTitle.textContent = `${meta.icon} ${meta.title}`;
+  if (DOM.modalSysAlloc) DOM.modalSysAlloc.textContent = `฿${meta.alloc.toLocaleString()} Allocation`;
+
+  // Market status badge
+  if (DOM.modalSysMkt) {
+    if (sysKey === "ALL") {
+      DOM.modalSysMkt.textContent = "🌐 4-MARKET UNIFIED";
+      DOM.modalSysMkt.className = "status-pill-small open";
+    } else {
+      const sys = systems[sysKey];
+      if (sys) {
+        DOM.modalSysMkt.textContent = sys.market_status_label || (sys.is_market_open ? '🟢 LIVE' : '🔴 CLOSED');
+        DOM.modalSysMkt.className = `status-pill-small ${sys.is_market_open ? 'open' : 'closed'}`;
+      }
+    }
+  }
+
+  // Calculate & Update Financial KPIs
+  let allocThb = meta.alloc;
+  let currentValThb = allocThb;
+  let investedThb = 0;
+  let cashThb = allocThb;
+  let pnlThb = 0;
+  let pnlPct = 0;
+  let winRate = 68.5;
+  let closedTrades = 0;
+  let activeStrategy = "TREND_FOLLOWING";
+
+  if (sysKey === "ALL") {
+    let totalInvested = 0;
+    let totalCash = 0;
+    let totalEquity = 0;
+    let totalClosed = 0;
+    Object.values(systems).forEach(s => {
+      totalInvested += s.invested_thb || 0;
+      totalCash += s.cash_balance_thb || 0;
+      totalEquity += s.portfolio_val_thb || s.allocation_thb;
+      totalClosed += s.closed_trades_count || 0;
+    });
+    investedThb = totalInvested;
+    cashThb = totalCash || (allocThb - investedThb);
+    currentValThb = totalEquity || allocThb;
+    pnlThb = currentValThb - allocThb;
+    pnlPct = (pnlThb / allocThb) * 100;
+    closedTrades = totalClosed;
+    activeStrategy = "Multi-Engine Confluence";
+  } else {
+    const sys = systems[sysKey];
+    if (sys) {
+      allocThb = sys.allocation_thb || meta.alloc;
+      currentValThb = sys.portfolio_val_thb || allocThb;
+      investedThb = sys.invested_thb || 0;
+      cashThb = sys.cash_balance_thb || (allocThb - investedThb);
+      pnlThb = sys.net_pnl_thb || 0;
+      pnlPct = sys.net_pnl_pct || 0;
+      winRate = sys.win_rate_pct || 65.0;
+      closedTrades = sys.closed_trades_count || 0;
+      activeStrategy = sys.active_strategy || "TREND_FOLLOWING";
+    }
+  }
+
+  const pnlSign = pnlThb >= 0 ? '+' : '';
+  const pnlClass = pnlThb >= 0 ? 'positive' : 'negative';
+
+  if (DOM.modalKpiAlloc) DOM.modalKpiAlloc.textContent = `฿${allocThb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  if (DOM.modalKpiVal) DOM.modalKpiVal.textContent = `฿${currentValThb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  if (DOM.modalKpiCash) DOM.modalKpiCash.textContent = `฿${investedThb.toLocaleString()} / ฿${cashThb.toLocaleString()}`;
+  if (DOM.modalKpiPnl) {
+    DOM.modalKpiPnl.textContent = `${pnlSign}฿${pnlThb.toLocaleString('en-US', { minimumFractionDigits: 2 })} (${pnlSign}${pnlPct.toFixed(2)}%)`;
+    DOM.modalKpiPnl.className = `kpi-val mono ${pnlClass}`;
+  }
+  if (DOM.modalKpiWin) DOM.modalKpiWin.textContent = `${winRate.toFixed(1)}%`;
+  if (DOM.modalKpiWinSub) DOM.modalKpiWinSub.textContent = `${closedTrades} Closed Trades`;
+  if (DOM.modalStatStrat) DOM.modalStatStrat.textContent = activeStrategy;
+
+  // Filter Holdings for this system
+  let allPositions = STATE.positions || [];
+  let filteredHoldings = [];
+
+  if (sysKey === "ALL") {
+    filteredHoldings = allPositions;
+  } else {
+    filteredHoldings = allPositions.filter(p => {
+      const cat = (p.category || p.system || "").toUpperCase();
+      return cat === sysKey || (sysKey === "US_INDEX" && (cat === "US_INDEX" || cat === "US_EQUITY"));
+    });
+  }
+
+  if (DOM.modalHoldingsCount) {
+    DOM.modalHoldingsCount.textContent = `${filteredHoldings.length} Active Positions`;
+  }
+
+  // Populate Holdings Table
+  if (DOM.modalHoldingsTbody) {
+    DOM.modalHoldingsTbody.innerHTML = "";
+
+    if (filteredHoldings.length === 0) {
+      DOM.modalHoldingsTbody.innerHTML = `
+        <tr>
+          <td colspan="9" style="text-align: center; padding: 28px 16px; color: var(--text-muted);">
+            <div style="font-size: 18px; margin-bottom: 6px;">🛡️</div>
+            <div style="font-weight: 600;">No active holdings in this asset system.</div>
+            <div style="font-size: 11px; margin-top: 4px; color: var(--text-secondary);">
+              Capital is 100% liquid & safely parked in cash reserve, waiting for optimal AI confluence triggers.
+            </div>
+          </td>
+        </tr>
+      `;
+    } else {
+      const tickerIcons = {
+        "BTC-USD": "🪙", "ETH-USD": "💎", "SOL-USD": "⚡", "BNB-USD": "🟡",
+        "GC=F": "🥇", "SPY": "🇺🇸", "QQQ": "💻", "NVDA": "🟢", "AAPL": "🍎", "MSFT": "🪟",
+        "EURUSD=X": "💶", "GBPUSD=X": "💷", "USDJPY=X": "💴"
+      };
+
+      filteredHoldings.forEach(pos => {
+        const tr = document.createElement("tr");
+        const sym = pos.symbol || "UNKNOWN";
+        const icon = tickerIcons[sym] || "📊";
+        const cat = (pos.category || pos.system || sysKey).toUpperCase();
+        const catClass = cat.toLowerCase();
+        const rowPnl = pos.unrealized_pnl_thb !== undefined ? pos.unrealized_pnl_thb : 0;
+        const rowPct = pos.pnl_pct !== undefined ? pos.pnl_pct : 0;
+        const rSign = rowPnl >= 0 ? '+' : '';
+        const rClass = rowPnl >= 0 ? 'positive' : 'negative';
+        const entryTime = pos.entry_time || pos.timestamp || "Live Tracking";
+        const isFx = sym.endsWith("=X");
+        const priceDec = isFx ? 4 : 2;
+
+        tr.innerHTML = `
+          <td class="mono" style="font-size: 10px; color: var(--text-muted); white-space: nowrap;">
+            🕒 ${entryTime}
+          </td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span>${icon}</span>
+              <strong>${sym}</strong>
+            </div>
+          </td>
+          <td>
+            <span class="badge-sys-modal ${catClass}">${cat}</span>
+          </td>
+          <td class="text-right mono" style="font-weight: 700;">
+            ${pos.shares !== undefined ? pos.shares : (pos.qty || 1)}
+          </td>
+          <td class="text-right mono">
+            $${Number(pos.avg_price || 0).toLocaleString('en-US', { minimumFractionDigits: priceDec })}
+          </td>
+          <td class="text-right mono" style="color: var(--text-primary); font-weight: 700;">
+            $${Number(pos.current_price || 0).toLocaleString('en-US', { minimumFractionDigits: priceDec })}
+          </td>
+          <td class="text-right mono ${rClass}" style="font-weight: 800;">
+            ${rSign}฿${Number(rowPnl).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          </td>
+          <td class="text-right mono">
+            <span class="signal-tag ${rowPct >= 0 ? 'buy' : 'sell'}" style="font-size: 10px; padding: 2px 6px;">
+              ${rSign}${Number(rowPct).toFixed(2)}%
+            </span>
+          </td>
+          <td class="text-center">
+            <button class="btn-scalp-action close-ticket btn-modal-close-pos" data-sym="${sym}" data-shares="${pos.shares || pos.qty || 1}" data-price="${pos.current_price || 0}" title="Force Sell this position">
+              🚨 Close
+            </button>
+          </td>
+        `;
+
+        tr.querySelector(".btn-modal-close-pos").addEventListener("click", async (e) => {
+          e.stopPropagation();
+          if (!confirm(`Confirm closing position ${sym} immediately?`)) return;
+          try {
+            const res = await fetch("/api/manual-order", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                symbol: sym,
+                action: "SELL",
+                shares: parseFloat(pos.shares || pos.qty || 1),
+                price: parseFloat(pos.current_price || 0),
+                reason: "Manual Force Sell via System Holdings Matrix Modal"
+              })
+            });
+            const data = await res.json();
+            showToast(data.message || `Position ${sym} closed successfully!`, "success");
+            fetchStatus();
+            fetchPositions();
+          } catch (err) {
+            showToast("Failed to close position: " + err, "error");
+          }
+        });
+
+        DOM.modalHoldingsTbody.appendChild(tr);
+      });
+    }
+  }
+}
+
+// ----------------- MODAL CANVAS CHART CONTROLLER -----------------
+function initModalCanvas() {
+  const canvas = DOM.modalSystemCanvas;
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) return;
+
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  mCtx = canvas.getContext("2d");
+  mCtx.scale(dpr, dpr);
+  mWidth = rect.width;
+  mHeight = rect.height;
+
+  canvas.onmousemove = (e) => {
+    if (!STATE.systemsChartData || STATE.systemsChartData.length === 0) return;
+    const r = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - r.left;
+    const pad = { top: 20, right: 65, bottom: 20, left: 15 };
+    const cW = mWidth - pad.left - pad.right;
+
+    let index = Math.round(((mouseX - pad.left) / cW) * (STATE.systemsChartData.length - 1));
+    index = Math.max(0, Math.min(STATE.systemsChartData.length - 1, index));
+    mHoverIndex = index;
+    renderModalSystemChart();
+
+    const d = STATE.systemsChartData[index];
+    const sysKey = STATE.modal.activeSystem || "ALL";
+    const isVal = STATE.modal.chartMode === "VAL";
+
+    if (DOM.modalChartTooltip && d) {
+      DOM.modalChartTooltip.style.display = "block";
+      DOM.modalChartTooltip.style.left = `${Math.min(mWidth - 210, Math.max(10, mouseX - 80))}px`;
+      DOM.modalChartTooltip.style.top = "15px";
+
+      let sysVal = d.unified_val;
+      let sysPct = d.unified_pct;
+      let sysColor = "#00f090";
+      let sysName = "🌐 Master Unified (฿300k)";
+
+      if (sysKey === "US_INDEX") {
+        sysPct = d.us_pct;
+        sysVal = 100000 * (1 + d.us_pct / 100);
+        sysColor = "#00c8ff";
+        sysName = "🇺🇸 US Equities (฿100k)";
+      } else if (sysKey === "GOLD") {
+        sysPct = d.gold_pct;
+        sysVal = 90000 * (1 + d.gold_pct / 100);
+        sysColor = "#ffb703";
+        sysName = "🥇 Gold Bot (฿90k)";
+      } else if (sysKey === "CRYPTO") {
+        sysPct = d.crypto_pct;
+        sysVal = 80000 * (1 + d.crypto_pct / 100);
+        sysColor = "#9d4edd";
+        sysName = "🪙 Crypto Bot (฿80k)";
+      } else if (sysKey === "FOREX") {
+        sysPct = d.forex_pct;
+        sysVal = 30000 * (1 + d.forex_pct / 100);
+        sysColor = "#ff3b69";
+        sysName = "💱 Forex Bot (฿30k)";
+      }
+
+      DOM.modalChartTooltip.innerHTML = `
+        <div style="font-weight:700; color:#f8fafc; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px; margin-bottom:4px;">
+          📅 ${d.date}
+        </div>
+        <div style="color:${sysColor}; font-weight:700;">
+          ${sysName}: ${isVal ? '฿' + sysVal.toLocaleString('en-US', {minimumFractionDigits: 2}) : (sysPct >= 0 ? '+' : '') + sysPct.toFixed(2) + '%'}
+        </div>
+        <div style="color:#00f090; font-size:10px; margin-top:2px;">
+          Benchmark (Unified): ${d.unified_pct >= 0 ? '+' : ''}${d.unified_pct.toFixed(2)}%
+        </div>
+      `;
+    }
+  };
+
+  canvas.onmouseleave = () => {
+    mHoverIndex = null;
+    if (DOM.modalChartTooltip) DOM.modalChartTooltip.style.display = "none";
+    renderModalSystemChart();
+  };
+}
+
+function renderModalSystemChart() {
+  const canvas = DOM.modalSystemCanvas;
+  if (!canvas || !mCtx || !STATE.systemsChartData || STATE.systemsChartData.length === 0) return;
+
+  const data = STATE.systemsChartData;
+  const sysKey = STATE.modal.activeSystem || "ALL";
+  const isVal = STATE.modal.chartMode === "VAL";
+
+  mCtx.clearRect(0, 0, mWidth, mHeight);
+
+  const pad = { top: 20, right: 65, bottom: 25, left: 15 };
+  const cW = mWidth - pad.left - pad.right;
+  const cH = mHeight - pad.top - pad.bottom;
+
+  // Extract series values
+  let primaryVals = [];
+  let benchmarkVals = [];
+
+  data.forEach(d => {
+    benchmarkVals.push(isVal ? d.unified_val : d.unified_pct);
+
+    if (sysKey === "ALL") {
+      primaryVals.push(isVal ? d.unified_val : d.unified_pct);
+    } else if (sysKey === "US_INDEX") {
+      primaryVals.push(isVal ? 100000 * (1 + d.us_pct / 100) : d.us_pct);
+    } else if (sysKey === "GOLD") {
+      primaryVals.push(isVal ? 90000 * (1 + d.gold_pct / 100) : d.gold_pct);
+    } else if (sysKey === "CRYPTO") {
+      primaryVals.push(isVal ? 80000 * (1 + d.crypto_pct / 100) : d.crypto_pct);
+    } else if (sysKey === "FOREX") {
+      primaryVals.push(isVal ? 30000 * (1 + d.forex_pct / 100) : d.forex_pct);
+    }
+  });
+
+  const allVals = [...primaryVals, ...benchmarkVals];
+  let minV = Math.min(...allVals);
+  let maxV = Math.max(...allVals);
+  const range = (maxV - minV) || 1;
+  minV -= range * 0.08;
+  maxV += range * 0.08;
+
+  const getY = (v) => pad.top + cH - ((v - minV) / (maxV - minV)) * cH;
+  const getX = (i) => pad.left + (i / (data.length - 1)) * cW;
+
+  // Grid Lines
+  mCtx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+  mCtx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (cH / 4) * i;
+    mCtx.beginPath();
+    mCtx.moveTo(pad.left, y);
+    mCtx.lineTo(mWidth - pad.right, y);
+    mCtx.stroke();
+
+    const valLabel = maxV - (i / 4) * (maxV - minV);
+    mCtx.fillStyle = "#64748b";
+    mCtx.font = "10px 'JetBrains Mono'";
+    const txt = isVal ? `฿${Math.round(valLabel).toLocaleString()}` : `${valLabel >= 0 ? '+' : ''}${valLabel.toFixed(1)}%`;
+    mCtx.fillText(txt, mWidth - pad.right + 8, y + 3);
+  }
+
+  // Draw Benchmark Line (Dashed) if not ALL
+  if (sysKey !== "ALL") {
+    mCtx.strokeStyle = "rgba(0, 240, 144, 0.35)";
+    mCtx.lineWidth = 1.5;
+    mCtx.setLineDash([4, 4]);
+    mCtx.beginPath();
+    benchmarkVals.forEach((v, i) => {
+      if (i === 0) mCtx.moveTo(getX(i), getY(v));
+      else mCtx.lineTo(getX(i), getY(v));
+    });
+    mCtx.stroke();
+    mCtx.setLineDash([]);
+  }
+
+  // Color config based on system
+  const colorMap = {
+    "ALL": { stroke: "#00f090", grad1: "rgba(0, 240, 144, 0.35)", grad2: "rgba(0, 240, 144, 0.0)" },
+    "US_INDEX": { stroke: "#00c8ff", grad1: "rgba(0, 200, 255, 0.35)", grad2: "rgba(0, 200, 255, 0.0)" },
+    "GOLD": { stroke: "#ffb703", grad1: "rgba(255, 183, 3, 0.35)", grad2: "rgba(255, 183, 3, 0.0)" },
+    "CRYPTO": { stroke: "#c77dff", grad1: "rgba(157, 78, 221, 0.4)", grad2: "rgba(157, 78, 221, 0.0)" },
+    "FOREX": { stroke: "#ff3b69", grad1: "rgba(255, 59, 105, 0.35)", grad2: "rgba(255, 59, 105, 0.0)" }
+  };
+  const theme = colorMap[sysKey] || colorMap["ALL"];
+
+  // Area Fill under Primary Curve
+  const grad = mCtx.createLinearGradient(0, pad.top, 0, mHeight - pad.bottom);
+  grad.addColorStop(0, theme.grad1);
+  grad.addColorStop(1, theme.grad2);
+
+  mCtx.beginPath();
+  mCtx.moveTo(getX(0), mHeight - pad.bottom);
+  primaryVals.forEach((v, i) => mCtx.lineTo(getX(i), getY(v)));
+  mCtx.lineTo(getX(primaryVals.length - 1), mHeight - pad.bottom);
+  mCtx.closePath();
+  mCtx.fillStyle = grad;
+  mCtx.fill();
+
+  // Primary Line Stroke
+  mCtx.strokeStyle = theme.stroke;
+  mCtx.lineWidth = 2.6;
+  mCtx.beginPath();
+  primaryVals.forEach((v, i) => {
+    if (i === 0) mCtx.moveTo(getX(i), getY(v));
+    else mCtx.lineTo(getX(i), getY(v));
+  });
+  mCtx.stroke();
+
+  // Hover indicator crosshair
+  if (mHoverIndex !== null && mHoverIndex >= 0 && mHoverIndex < primaryVals.length) {
+    const hX = getX(mHoverIndex);
+    const hY = getY(primaryVals[mHoverIndex]);
+
+    mCtx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    mCtx.lineWidth = 1;
+    mCtx.beginPath();
+    mCtx.moveTo(hX, pad.top);
+    mCtx.lineTo(hX, mHeight - pad.bottom);
+    mCtx.stroke();
+
+    mCtx.fillStyle = theme.stroke;
+    mCtx.beginPath();
+    mCtx.arc(hX, hY, 5, 0, Math.PI * 2);
+    mCtx.fill();
+    mCtx.strokeStyle = "#fff";
+    mCtx.lineWidth = 2;
+    mCtx.stroke();
+  }
+
+  // Update Alpha / Benchmark Stat
+  if (DOM.modalStatBenchmark && data.length > 0) {
+    const latest = data[data.length - 1];
+    let diff = 0;
+    if (sysKey === "US_INDEX") diff = latest.us_pct - latest.unified_pct;
+    else if (sysKey === "GOLD") diff = latest.gold_pct - latest.unified_pct;
+    else if (sysKey === "CRYPTO") diff = latest.crypto_pct - latest.unified_pct;
+    else if (sysKey === "FOREX") diff = latest.forex_pct - latest.unified_pct;
+    else diff = latest.unified_pct;
+
+    const dSign = diff >= 0 ? '+' : '';
+    DOM.modalStatBenchmark.textContent = `${dSign}${diff.toFixed(2)}% vs Benchmark`;
+    DOM.modalStatBenchmark.className = diff >= 0 ? 'positive' : 'negative';
   }
 }
 

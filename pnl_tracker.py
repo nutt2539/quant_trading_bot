@@ -171,19 +171,21 @@ def get_system_pnl(target_category: str = "US_INDEX", initial_capital: float = N
                     log_date = today_dt
 
                 if action == 'BUY':
-                    buy_records[symbol] = (price, log_date, shares)
+                    buy_records[symbol] = (price, log_date, shares, ts_str)
                     active_paper_positions[symbol] = {
                         "symbol": symbol,
                         "qty": shares,
-                        "avg_entry_price": price
+                        "avg_entry_price": price,
+                        "entry_time": ts_str
                     }
                 elif action == 'SELL':
                     is_manual_harvest = ("Harvest" in str(log.get('reason', '')) or "Manual" in str(log.get('reason', '')) or log.get('harvested_pnl_thb') is not None)
                     
                     entry_p = price
                     entry_shares = shares
+                    entry_ts = ts_str
                     if symbol in buy_records:
-                        entry_p, entry_date, entry_shares = buy_records.pop(symbol)
+                        entry_p, entry_date, entry_shares, entry_ts = buy_records.pop(symbol)
                         if symbol in active_paper_positions:
                             del active_paper_positions[symbol]
                         
@@ -240,14 +242,25 @@ def get_system_pnl(target_category: str = "US_INDEX", initial_capital: float = N
                 
                 active_positions_detail.append({
                     'ชื่อสินทรัพย์': sym,
+                    'symbol': sym,
                     'จำนวนหน่วย': qty,
+                    'shares': qty,
                     'ต้นทุน/หน่วย': f"${avg_cost:,.2f}",
+                    'avg_price': avg_cost,
                     'ราคาตลาด (Realtime)': f"${mkt_price:,.2f}",
+                    'current_price': mkt_price,
                     'เงินลงทุนรวม (บาท)': f"฿{cost_thb:,.2f}",
+                    'cost_thb': cost_thb,
                     'มูลค่าปัจจุบัน (บาท)': f"฿{curr_val_thb:,.2f}",
+                    'current_val_thb': curr_val_thb,
                     'กำไร/ขาดทุน (%)': f"{pnl_sign}{pnl_pct:.2f}%",
+                    'pnl_pct': pnl_pct,
                     'กำไร/ขาดทุน (บาท)': f"{pnl_sign}฿{unrealized_p:,.2f}",
-                    'is_profit': unrealized_p >= 0
+                    'unrealized_pnl_thb': unrealized_p,
+                    'is_profit': unrealized_p >= 0,
+                    'category': target_category,
+                    'system': target_category,
+                    'entry_time': get_thai_str()
                 })
         except Exception as e:
             print(f"Error fetching Live Broker positions for {target_category}: {e}")
@@ -255,6 +268,7 @@ def get_system_pnl(target_category: str = "US_INDEX", initial_capital: float = N
         for sym, pos in active_paper_positions.items():
             qty = pos['qty']
             entry_p = pos['avg_entry_price']
+            entry_time = pos.get('entry_time', get_thai_str())
             fx_rate = 35.0 if not sym.endswith(".BK") else 1.0
             
             fetched_p = fetch_cached_ticker_price(sym)
@@ -274,14 +288,25 @@ def get_system_pnl(target_category: str = "US_INDEX", initial_capital: float = N
             
             active_positions_detail.append({
                 'ชื่อสินทรัพย์': sym,
+                'symbol': sym,
                 'จำนวนหน่วย': qty,
+                'shares': qty,
                 'ต้นทุน/หน่วย': entry_price_str,
+                'avg_price': entry_p,
                 'ราคาตลาด (Realtime)': curr_price_str,
+                'current_price': mkt_price,
                 'เงินลงทุนรวม (บาท)': f"฿{pos_cost_thb:,.2f}",
+                'cost_thb': pos_cost_thb,
                 'มูลค่าปัจจุบัน (บาท)': f"฿{pos_current_val_thb:,.2f}",
+                'current_val_thb': pos_current_val_thb,
                 'กำไร/ขาดทุน (%)': f"{pos_pnl_sign}{pos_pnl_pct:.2f}%",
+                'pnl_pct': pos_pnl_pct,
                 'กำไร/ขาดทุน (บาท)': f"{pos_pnl_sign}฿{pos_pnl_thb:,.2f}",
-                'is_profit': pos_pnl_thb >= 0
+                'unrealized_pnl_thb': pos_pnl_thb,
+                'is_profit': pos_pnl_thb >= 0,
+                'category': target_category,
+                'system': target_category,
+                'entry_time': entry_time
             })
         
     # 3. Calculate Total Harvested Profit Vault (FAIL-SAFE MULTI-SOURCE LOCK)
@@ -444,12 +469,16 @@ def get_unified_portfolio_pnl() -> dict:
         
         active_pos_list.append({
             "symbol": sym,
-            "shares": pos_d.get('จำนวนหน่วย', 1),
+            "shares": pos_d.get('shares', pos_d.get('จำนวนหน่วย', 1)),
             "avg_price": avg_p,
             "current_price": curr_p,
             "unrealized_pnl_thb": unreal_pnl,
             "pnl_pct": pnl_p,
-            "category": get_asset_category(sym)
+            "category": pos_d.get('category', get_asset_category(sym)),
+            "system": pos_d.get('system', get_asset_category(sym)),
+            "entry_time": pos_d.get('entry_time', get_thai_str()),
+            "cost_thb": pos_d.get('cost_thb', round(avg_p * pos_d.get('shares', 1) * 35.0, 2)),
+            "current_val_thb": pos_d.get('current_val_thb', round(curr_p * pos_d.get('shares', 1) * 35.0, 2))
         })
 
     return {
@@ -463,6 +492,7 @@ def get_unified_portfolio_pnl() -> dict:
         'total_realized_pnl_thb': round(total_tp_thb - total_cl_thb, 2),
         'total_pnl_pct': round(total_pnl_pct, 2),
         'total_take_profit_thb': round(total_tp_thb, 2),
+        'active_positions': active_pos_list,
         'total_cut_loss_thb': round(total_cl_thb, 2),
         'us_index_pnl': us_index_pnl,
         'gold_pnl': gold_pnl,

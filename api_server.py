@@ -264,6 +264,7 @@ def get_system_status():
                 "win_rate_pct": round(sys_data.get("win_rate_pct", sys_data.get("win_rate", 65.0)), 1),
                 "closed_trades_count": sys_data.get("closed_trades_count", sys_data.get("closed_trades", 0)),
                 "active_holdings_count": len(sys_data.get("active_positions_detail", [])),
+                "active_positions": sys_data.get("active_positions_detail", []),
                 "active_strategy": get_active_strategy(sys_key)
             }
 

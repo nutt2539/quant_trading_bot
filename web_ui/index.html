@@ -1058,6 +1058,156 @@
     </main>
   </div>
 
+  <!-- ========================================== -->
+  <!-- SYSTEM HOLDINGS & OVERVIEW MATRIX MODAL -->
+  <!-- ========================================== -->
+  <div class="modal-overlay hidden" id="system-holdings-modal" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+    <div class="modal-container glass-panel modal-xl">
+      <!-- MODAL HEADER -->
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge" id="modal-sys-icon">🌐</div>
+          <div>
+            <div class="modal-badge-row">
+              <span class="modal-cat-tag" id="modal-sys-tag">CRYPTO BOT</span>
+              <span class="status-pill-small open" id="modal-sys-mkt">🟢 24/7 LIVE</span>
+              <span class="modal-alloc-tag mono" id="modal-sys-alloc">฿80,000 Allocation</span>
+            </div>
+            <h2 id="modal-sys-title">🪙 Crypto Bot Holdings & Performance Matrix</h2>
+          </div>
+        </div>
+
+        <!-- QUICK SYSTEM TABS INSIDE MODAL -->
+        <div class="modal-sys-tabs" id="modal-sys-tabs">
+          <button class="modal-tab-btn" data-sys="ALL"><span>🌐 ALL (฿300k)</span></button>
+          <button class="modal-tab-btn" data-sys="US_INDEX"><span>🇺🇸 US Index (฿100k)</span></button>
+          <button class="modal-tab-btn" data-sys="GOLD"><span>🥇 Gold Bot (฿90k)</span></button>
+          <button class="modal-tab-btn active" data-sys="CRYPTO"><span>🪙 Crypto Bot (฿80k)</span></button>
+          <button class="modal-tab-btn" data-sys="FOREX"><span>💱 Forex Bot (฿30k)</span></button>
+        </div>
+
+        <button class="modal-close-btn" id="modal-close-btn" title="Close Modal (Esc)">✕</button>
+      </div>
+
+      <!-- MODAL BODY -->
+      <div class="modal-body custom-scroll">
+        <!-- SYSTEM FINANCIAL KPI STRIP -->
+        <div class="modal-kpi-grid">
+          <div class="modal-kpi-card">
+            <span class="kpi-label">ALLOCATED CAPITAL</span>
+            <div class="kpi-val mono" id="modal-kpi-alloc">฿80,000.00</div>
+            <span class="kpi-sub" id="modal-kpi-alloc-sub">Base Target Fund</span>
+          </div>
+
+          <div class="modal-kpi-card">
+            <span class="kpi-label">TOTAL EQUITY VALUE</span>
+            <div class="kpi-val mono" id="modal-kpi-val">฿79,927.46</div>
+            <span class="kpi-sub" id="modal-kpi-val-sub">Current Portfolio Value</span>
+          </div>
+
+          <div class="modal-kpi-card">
+            <span class="kpi-label">INVESTED / CASH</span>
+            <div class="kpi-val mono" id="modal-kpi-cash">฿0 / ฿80,000</div>
+            <span class="kpi-sub" id="modal-kpi-cash-sub">Active Margin in Use</span>
+          </div>
+
+          <div class="modal-kpi-card">
+            <span class="kpi-label">UNREALIZED P&L</span>
+            <div class="kpi-val mono negative" id="modal-kpi-pnl">-฿72.54 (-0.09%)</div>
+            <span class="kpi-sub" id="modal-kpi-pnl-sub">Floating Profit / Loss</span>
+          </div>
+
+          <div class="modal-kpi-card">
+            <span class="kpi-label">WIN RATE & CLOSED</span>
+            <div class="kpi-val mono accent-emerald" id="modal-kpi-win">68.5%</div>
+            <span class="kpi-sub" id="modal-kpi-win-sub">0 Closed Trades</span>
+          </div>
+        </div>
+
+        <!-- ACTIVE HOLDINGS BREAKDOWN TABLE -->
+        <div class="modal-section-box">
+          <div class="modal-section-header">
+            <div class="section-title-wrap">
+              <h3>📋 Active Portfolio Holdings Breakdown</h3>
+              <span class="count-pill mono" id="modal-holdings-count">0 Open Positions</span>
+            </div>
+            <div class="modal-actions-wrap">
+              <button class="btn-sm btn-panic-small" id="modal-btn-panic-sys" title="Liquidate all holdings for this system">
+                <span>🚨 Emergency Close System Positions</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive modal-table-wrap">
+            <table class="cyber-table modal-table">
+              <thead>
+                <tr>
+                  <th>DATE & TIME</th>
+                  <th>ASSET</th>
+                  <th>SYSTEM</th>
+                  <th class="text-right">QTY / SHARES</th>
+                  <th class="text-right">AVG PRICE</th>
+                  <th class="text-right">CURRENT PRICE</th>
+                  <th class="text-right">UNREALIZED P&L</th>
+                  <th class="text-right">RETURN</th>
+                  <th class="text-center">ACTION</th>
+                </tr>
+              </thead>
+              <tbody id="modal-holdings-tbody">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- FUTURISTIC BOTTOM OVERVIEW CHART -->
+        <div class="modal-section-box modal-chart-box">
+          <div class="modal-section-header">
+            <div class="section-title-wrap">
+              <div class="uchart-badge">⚡ SYSTEM PERFORMANCE & OVERVIEW MATRIX</div>
+              <h3>📈 Deep Historical Performance & Cumulative Equity Growth</h3>
+            </div>
+            <div class="modal-chart-controls">
+              <div class="btn-group" id="modal-chart-mode-btns">
+                <button class="btn-sm active" data-mode="PCT">% Return</button>
+                <button class="btn-sm" data-mode="VAL">Portfolio Value (฿)</button>
+              </div>
+              <div class="btn-group" id="modal-chart-period-btns">
+                <button class="btn-sm" data-period="1mo">1M</button>
+                <button class="btn-sm active" data-period="3mo">3M</button>
+                <button class="btn-sm" data-period="6mo">6M</button>
+                <button class="btn-sm" data-period="1y">1Y</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- CANVAS WRAPPER -->
+          <div class="canvas-wrapper modal-canvas-wrapper" style="height: 280px;">
+            <canvas id="modal-system-chart"></canvas>
+            <div class="chart-tooltip" id="modal-chart-tooltip"></div>
+          </div>
+
+          <!-- CHART FOOTER METRICS -->
+          <div class="modal-chart-footer">
+            <div class="modal-chart-stat">
+              <span>System Benchmark vs ฿300k Unified:</span>
+              <strong class="positive" id="modal-stat-benchmark">+0.00% Alpha</strong>
+            </div>
+            <div class="modal-chart-stat">
+              <span>Active Strategy Engine:</span>
+              <strong class="accent-cyan" id="modal-stat-strat">Trend Following (EMA/RSI)</strong>
+            </div>
+            <div class="modal-chart-stat">
+              <span>AI Risk Conviction Score:</span>
+              <strong class="accent-emerald" id="modal-stat-conviction">Grade A+ (92/100)</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div class="toast-container" id="toast-container"></div>
 
