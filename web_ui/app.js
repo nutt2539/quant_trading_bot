@@ -2857,14 +2857,9 @@ function renderScalperPositions(positions) {
       </td>
       <td style="font-size:11px; color:var(--text-muted);">${p.open_time}</td>
       <td>
-        <div style="display:flex; gap:4px; align-items:center;">
-          <button class="btn-scalp-action view-chart" onclick="viewTicketOnChart('${p.symbol}', '${p.asset_class}', '${p.id}')" title="Inspect Candle Chart with TP/CL Overlay">
-            <span>📈 Chart</span>
-          </button>
-          <button class="btn-scalp-action close-ticket" onclick="closeScalperTicket('${p.id}')" title="Close Ticket">
-            <span>❌ Close</span>
-          </button>
-        </div>
+        <button class="btn-scalp-action close-ticket" onclick="closeScalperTicket('${p.id}')" title="Close Ticket Immediately">
+          <span>❌ Close</span>
+        </button>
       </td>
     `;
     DOM.scalpPositionsTbody.appendChild(tr);
