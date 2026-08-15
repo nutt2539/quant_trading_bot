@@ -1598,6 +1598,7 @@ async function fetchSystemsChart(period = "3mo") {
     if (!data.success || !data.datapoints) return;
 
     STATE.systemsChartData = data.datapoints;
+    STATE.systemsChartSummary = data.summary;
 
     if (data.summary) {
       const s = data.summary;

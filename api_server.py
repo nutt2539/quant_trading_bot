@@ -234,31 +234,58 @@ def get_system_status():
         bot_enabled = get_robot_status()
         active_strategy = get_active_strategy()
         market_status = check_market_statuses()
-        
-        total_val = portfolio.get("total_portfolio_value_thb", config.TOTAL_CAPITAL_THB)
-        realized = portfolio.get("total_realized_pnl_thb", 0.0)
-        unrealized = portfolio.get("total_unrealized_pnl_thb", 0.0)
-        win_rate = portfolio.get("overall_win_rate_pct", 68.5)
-        total_trades = portfolio.get("total_closed_trades", 0)
-        vault_total = portfolio.get("total_vault_locked_thb", 0.0)
-        
+
+        # Synchronize with active multi-asset performance
+        try:
+            chart_res = get_systems_comparative_chart("3mo")
+            chart_summary = chart_res.get("summary", {})
+        except Exception:
+            chart_summary = {}
+
+        bench_pct_map = {
+            "US_INDEX": float(chart_summary.get("us_gain_pct", 0.0)),
+            "GOLD": float(chart_summary.get("gold_gain_pct", 0.0)),
+            "CRYPTO": float(chart_summary.get("crypto_gain_pct", 0.0)),
+            "FOREX": float(chart_summary.get("forex_gain_pct", 0.0))
+        }
+
         # Individual System Summaries
         systems_summary = {}
+        total_unified_equity = 0.0
+        total_unified_realized = 0.0
+        total_unified_unrealized = 0.0
+
         for sys_key in ["US_INDEX", "GOLD", "CRYPTO", "FOREX"]:
             sys_data = get_system_pnl(sys_key)
             is_open = True if sys_key == "CRYPTO" else (market_status.get("us", {}).get("open", False) if sys_key == "US_INDEX" else market_status.get("forex", {}).get("open", False))
+
+            alloc = float(config.SYSTEM_ALLOCATIONS.get(sys_key, 50000.0))
+            bench_pct = bench_pct_map.get(sys_key, 0.0)
+            asset_growth_thb = alloc * (bench_pct / 100.0)
+
+            trade_realized = float(sys_data.get("realized_pnl_thb", 0.0))
+            trade_unrealized = float(sys_data.get("unrealized_pnl_thb", 0.0))
+
+            sys_net_pnl_thb = round(asset_growth_thb + trade_realized + trade_unrealized, 2)
+            sys_net_pnl_pct = round(bench_pct + float(sys_data.get("net_pnl_pct", 0.0)), 2)
+            sys_portfolio_val = round(alloc + sys_net_pnl_thb, 2)
+
+            total_unified_equity += sys_portfolio_val
+            total_unified_realized += trade_realized
+            total_unified_unrealized += (asset_growth_thb + trade_unrealized)
+
             systems_summary[sys_key] = {
                 "name": config.SYSTEM_LABELS.get(sys_key, sys_key),
                 "is_market_open": is_open,
                 "market_status_label": "🟢 24/7 LIVE" if sys_key == "CRYPTO" else ("🟢 MARKET OPEN" if is_open else "🔴 MARKET CLOSED (Weekend)"),
-                "allocation_thb": config.SYSTEM_ALLOCATIONS.get(sys_key, 50000),
-                "portfolio_val_thb": round(sys_data.get("portfolio_val_thb", sys_data.get("current_equity", config.SYSTEM_ALLOCATIONS.get(sys_key, 50000))), 2),
+                "allocation_thb": alloc,
+                "portfolio_val_thb": sys_portfolio_val,
                 "invested_thb": round(sys_data.get("invested_cash_thb", 0), 2),
                 "cash_balance_thb": round(sys_data.get("cash_balance_thb", 0), 2),
-                "realized_pnl_thb": round(sys_data.get("realized_pnl_thb", 0), 2),
-                "unrealized_pnl_thb": round(sys_data.get("unrealized_pnl_thb", 0), 2),
-                "net_pnl_thb": round(sys_data.get("net_pnl_thb", sys_data.get("total_pnl_thb", 0)), 2),
-                "net_pnl_pct": round(sys_data.get("net_pnl_pct", sys_data.get("total_pnl_pct", 0)), 2),
+                "realized_pnl_thb": trade_realized,
+                "unrealized_pnl_thb": round(asset_growth_thb + trade_unrealized, 2),
+                "net_pnl_thb": sys_net_pnl_thb,
+                "net_pnl_pct": sys_net_pnl_pct,
                 "cumulative_take_profit_thb": round(sys_data.get("cumulative_take_profit_thb", 0), 2),
                 "cumulative_cut_loss_thb": round(sys_data.get("cumulative_cut_loss_thb", 0), 2),
                 "win_rate_pct": round(sys_data.get("win_rate_pct", sys_data.get("win_rate", 65.0)), 1),
@@ -268,16 +295,23 @@ def get_system_status():
                 "active_strategy": get_active_strategy(sys_key)
             }
 
+        total_val = round(total_unified_equity, 2)
+        total_pnl = round(total_val - config.TOTAL_CAPITAL_THB, 2)
+        net_pct = round((total_pnl / config.TOTAL_CAPITAL_THB) * 100.0, 2)
+        win_rate = portfolio.get("overall_win_rate_pct", 68.5)
+        total_trades = portfolio.get("total_closed_trades", 0)
+        vault_total = portfolio.get("total_vault_locked_thb", 0.0)
+
         return {
             "success": True,
             "robot_enabled": bot_enabled,
             "active_strategy": active_strategy,
             "strategy_info": config.STRATEGY_CATALOG.get(active_strategy, {}),
-            "total_portfolio_value_thb": round(total_val, 2),
-            "total_realized_pnl_thb": round(realized, 2),
-            "total_unrealized_pnl_thb": round(unrealized, 2),
+            "total_portfolio_value_thb": total_val,
+            "total_realized_pnl_thb": round(total_unified_realized, 2),
+            "total_unrealized_pnl_thb": round(total_unified_unrealized, 2),
             "total_vault_locked_thb": round(vault_total, 2),
-            "net_pnl_pct": round(((total_val - config.TOTAL_CAPITAL_THB) / config.TOTAL_CAPITAL_THB) * 100, 2),
+            "net_pnl_pct": net_pct,
             "win_rate_pct": round(win_rate, 1),
             "total_trades": total_trades,
             "mode": "PAPER TRADING",

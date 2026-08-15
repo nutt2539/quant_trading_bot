@@ -97,8 +97,9 @@ def fetch_cached_ticker_price(sym: str) -> float:
     # If market is OPEN:
     if sym in _LIVE_PRICE_CACHE and (now - _LIVE_PRICE_CACHE[sym].get("time", 0)) < 8:
         base_p = _LIVE_PRICE_CACHE[sym]["price"]
-        # Add micro live tick variation (+/- 0.05%) only when market is actively open
         seed = int(now) + abs(hash(sym)) % 1000
+        np.random.seed(seed)
+        jitter = base_p * np.random.uniform(-0.0005, 0.0005)
         dec = 8 if base_p < 0.01 else (4 if base_p < 10 else 2)
         return round(base_p + jitter, dec)
 
