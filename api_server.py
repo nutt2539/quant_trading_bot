@@ -176,7 +176,55 @@ class ScalperCloseRequest(BaseModel):
 class ScalperToggleRequest(BaseModel):
     enabled: bool
 
+class SystemResetRequest(BaseModel):
+    scope: Optional[str] = "ALL"
+
 # ----------------- API ENDPOINTS -----------------
+
+@app.post("/api/system/reset")
+def reset_system_data(req: Optional[SystemResetRequest] = None):
+    """
+    Resets trading portfolio state, clears trade logs, restores initial capital allocations,
+    resets profit harvest vaults, and clears scalper open tickets.
+    """
+    scope = req.scope.upper() if req and req.scope else "ALL"
+    
+    try:
+        # 1. Reset Main Trade Logs & Auto Status
+        if scope in ["ALL", "MAIN"]:
+            with open("autotrade_logs.json", "w", encoding="utf-8") as f:
+                json.dump([], f, ensure_ascii=False, indent=2)
+                
+            if os.path.exists("autotrader_status.json"):
+                with open("autotrader_status.json", "w", encoding="utf-8") as f:
+                    json.dump({"total_trades": 0, "win_trades": 0, "robot_enabled": True}, f, indent=2)
+
+        # 2. Reset Harvest Vault
+        if scope in ["ALL", "MAIN", "VAULT"]:
+            with open("harvest_vault_master.json", "w", encoding="utf-8") as f:
+                json.dump({
+                    "US_INDEX_harvested_thb": 0.0,
+                    "GOLD_harvested_thb": 0.0,
+                    "CRYPTO_harvested_thb": 0.0,
+                    "FOREX_harvested_thb": 0.0,
+                    "master_total_harvested_thb": 0.0,
+                    "last_updated": str(get_thai_now().date())
+                }, f, ensure_ascii=False, indent=2)
+                
+            with open("daily_harvest_tracker.json", "w", encoding="utf-8") as f:
+                json.dump({"harvest_history": [], "vault_balance": 0.0}, f, ensure_ascii=False, indent=2)
+
+        # 3. Reset Scalper Engine State (Crypto ฿20k, Forex ฿20k)
+        if scope in ["ALL", "SCALPER"]:
+            scalper_engine.reset_scalper_engine()
+
+        return {
+            "success": True,
+            "message": f"รีเซ็ตระบบ ({scope}) สำเร็จ! คืนค่าเงินทุนเริ่มต้น (พอร์ตหลัก ฿300,000 + Scalper ฿40,000) เรียบร้อย",
+            "scope": scope
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e), "message": f"เกิดข้อผิดพลาดในการรีเซ็ต: {e}"}
 
 @app.get("/api/status")
 def get_system_status():

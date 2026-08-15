@@ -305,6 +305,96 @@ input:checked + .slider:before {
   transform: translateY(-1px);
 }
 
+.btn-reset-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-reset-nav:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-reset-scalp-sub {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-reset-scalp-sub:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.danger-card {
+  border: 1px solid rgba(255, 59, 105, 0.25) !important;
+  background: linear-gradient(135deg, rgba(20, 10, 16, 0.8), rgba(12, 16, 24, 0.8)) !important;
+}
+
+.reset-buttons-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-danger-outline {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255, 59, 105, 0.1);
+  border: 1px solid rgba(255, 59, 105, 0.4);
+  color: var(--accent-coral);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition-fast);
+}
+
+.btn-danger-outline:hover {
+  background: var(--accent-coral);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(255, 59, 105, 0.4);
+}
+
+.btn-warning-outline {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255, 183, 3, 0.08);
+  border: 1px solid rgba(255, 183, 3, 0.3);
+  color: var(--accent-amber);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition-fast);
+}
+
+.btn-warning-outline:hover {
+  background: var(--accent-amber);
+  color: #000;
+  box-shadow: 0 0 16px rgba(255, 183, 3, 0.3);
+}
+
 /* ==========================================================================
    LIVE MARKET TICKER RIBBON
    ========================================================================== */

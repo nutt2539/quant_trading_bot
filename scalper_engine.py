@@ -67,6 +67,26 @@ def save_scalper_state(state: Dict[str, Any]):
     except Exception as e:
         print(f"Error saving scalper state: {e}")
 
+def reset_scalper_engine() -> Dict[str, Any]:
+    """Resets Scalper engine state to initial ฿20,000 Crypto and ฿20,000 Forex."""
+    initial_state = {
+        "crypto_capital_initial": DEFAULT_CRYPTO_CAPITAL,
+        "forex_capital_initial": DEFAULT_FOREX_CAPITAL,
+        "crypto_balance": DEFAULT_CRYPTO_CAPITAL,
+        "forex_balance": DEFAULT_FOREX_CAPITAL,
+        "auto_scalp_enabled": True,
+        "crypto_auto_enabled": True,
+        "forex_auto_enabled": True,
+        "open_positions": [],
+        "closed_positions": [],
+        "total_realized_pnl_thb": 0.0,
+        "win_count": 0,
+        "loss_count": 0,
+        "last_scan_time": ""
+    }
+    save_scalper_state(initial_state)
+    return initial_state
+
 def get_latest_price(symbol: str) -> float:
     try:
         df = fetch_stock_data(symbol, period="2d", interval="5m")

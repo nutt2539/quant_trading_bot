@@ -71,6 +71,10 @@
           <span class="panic-icon">🚨</span>
           <span class="panic-text">PANIC CLOSE</span>
         </button>
+        <button class="btn-reset-nav" id="btn-master-reset" title="รีเซ็ตระบบพอร์ตและเงินทุนกลับสู่ค่าเริ่มต้น">
+          <span class="reset-icon">🔄</span>
+          <span class="reset-text">RESET พอร์ต</span>
+        </button>
       </div>
     </header>
 
@@ -265,6 +269,9 @@
               </div>
               <button class="btn-panic-scalp" id="btn-panic-scalp-all">
                 <span>🚨 ปิดทุกไม้ Scalp ฉุกเฉิน</span>
+              </button>
+              <button class="btn-reset-scalp-sub" id="btn-reset-scalp-fund" title="รีเซ็ตกองทุน Scalp เป็น ฿40,000">
+                <span>🔄 Reset กองทุน Scalp</span>
               </button>
             </div>
           </div>
@@ -1021,6 +1028,29 @@
 
             <div class="setting-group">
               <button class="btn-sm" id="btn-test-discord" style="width:fit-content;">🧪 ทดสอบส่ง Discord</button>
+            </div>
+          </div>
+
+          <!-- SYSTEM RESET & PURGE (DANGER ZONE) -->
+          <div class="settings-card glass-panel danger-card">
+            <div class="card-header" style="margin-bottom:8px;">
+              <h3>⚠️ System Reset & Data Purge (ล้างข้อมูลและเริ่มต้นใหม่)</h3>
+              <span class="card-badge" style="color:var(--accent-coral); background:rgba(255,59,105,0.15); border:1px solid rgba(255,59,105,0.3); padding:3px 8px; border-radius:4px; font-weight:800; font-size:10px;">DANGER ZONE</span>
+            </div>
+            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:16px;">
+              รีเซ็ตระบบพอร์ตโฟลิโอ บันทึกการเทรด สถานะถือครอง ตู้เซฟล็อกกำไร และกองทุน Scalper ให้กลับสู่ค่าเริ่มต้นทั้งหมด
+            </p>
+
+            <div class="reset-buttons-grid">
+              <button class="btn-danger-outline" id="btn-reset-full-system">
+                <span>🔄 รีเซ็ตทุกระบบทั้งหมด (Full Reset พอร์ตหลัก ฿300k + Scalper ฿40k)</span>
+              </button>
+              <button class="btn-warning-outline" id="btn-reset-scalper-only">
+                <span>⚡ รีเซ็ตเฉพาะโหมด Scalper Pro (฿40,000)</span>
+              </button>
+              <button class="btn-warning-outline" id="btn-reset-vault-only">
+                <span>💎 รีเซ็ตเฉพาะตู้เซฟล็อกกำไร (Harvest Vault)</span>
+              </button>
             </div>
           </div>
         </div>

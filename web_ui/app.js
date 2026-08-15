@@ -54,6 +54,11 @@ const DOM = {
   navTabs: document.querySelectorAll(".nav-tab"),
   viewPanels: document.querySelectorAll(".view-panel"),
   btnPanicAll: document.getElementById("btn-panic-all"),
+  btnMasterReset: document.getElementById("btn-master-reset"),
+  btnResetScalpFund: document.getElementById("btn-reset-scalp-fund"),
+  btnResetFullSystem: document.getElementById("btn-reset-full-system"),
+  btnResetScalperOnly: document.getElementById("btn-reset-scalper-only"),
+  btnResetVaultOnly: document.getElementById("btn-reset-vault-only"),
   toastContainer: document.getElementById("toast-container"),
 
   // Systems Overview & Unified Chart
@@ -290,6 +295,27 @@ function setupEventListeners() {
     }
   });
 
+  // Master Portfolio Reset Button (Header)
+  if (DOM.btnMasterReset) {
+    DOM.btnMasterReset.addEventListener("click", () => handleSystemReset("ALL"));
+  }
+
+  // Scalper Fund Reset (Scalper Pro view)
+  if (DOM.btnResetScalpFund) {
+    DOM.btnResetScalpFund.addEventListener("click", () => handleSystemReset("SCALPER"));
+  }
+
+  // Settings Danger Zone Reset Buttons
+  if (DOM.btnResetFullSystem) {
+    DOM.btnResetFullSystem.addEventListener("click", () => handleSystemReset("ALL"));
+  }
+  if (DOM.btnResetScalperOnly) {
+    DOM.btnResetScalperOnly.addEventListener("click", () => handleSystemReset("SCALPER"));
+  }
+  if (DOM.btnResetVaultOnly) {
+    DOM.btnResetVaultOnly.addEventListener("click", () => handleSystemReset("VAULT"));
+  }
+
   // Bulk Apply AI Strategies
   DOM.btnApplyAllAiStrats.addEventListener("click", async () => {
     try {
@@ -450,6 +476,47 @@ function setupEventListeners() {
       showToast("Discord test failed: " + err, "error");
     }
   });
+}
+
+// ----------------- SYSTEM RESET HANDLER -----------------
+async function handleSystemReset(scope = "ALL") {
+  const scopeNames = {
+    "ALL": "ระบบพอร์ตโฟลิโอทั้งหมด (คืนทุนพอร์ตหลัก ฿300,000 + Scalper ฿40,000 และล้างประวัติการเทรดทั้งหมด)",
+    "MAIN": "พอร์ตหลัก 4 สินทรัพย์ (คืนทุน ฿300,000 และล้างประวัติการเทรด)",
+    "SCALPER": "กองทุน Scalper Pro (คืนทุน Crypto ฿20,000 + Forex ฿20,000 และล้างตั๋วไม้ทั้งหมด)",
+    "VAULT": "ตู้เซฟล็อกกำไร (Harvest Vault รีเซ็ตเป็น ฿0.00)"
+  };
+
+  const desc = scopeNames[scope] || scope;
+  if (!confirm(`⚠️ ยืนยันการรีเซ็ต ${desc} หรือไม่?\n\nการดำเนินการนี้จะล้างข้อมูลและเริ่มต้นใหม่ทันที`)) {
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/system/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ scope: scope })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`🎉 ${data.message}`, "success");
+      // Instant UI refresh across all tabs and charts
+      await fetchStatus();
+      await fetchTickers();
+      await fetchPositions();
+      await fetchHarvester();
+      await fetchScalperStatus();
+      await fetchSystemsChart(STATE.systemsChartPeriod);
+      if (STATE.scalper.activeSymbol) {
+        await fetchScalperChart(STATE.scalper.activeSymbol, STATE.scalper.activeTf);
+      }
+    } else {
+      showToast(data.message || "เกิดข้อผิดพลาดในการรีเซ็ต", "error");
+    }
+  } catch (err) {
+    showToast("Reset failed: " + err, "error");
+  }
 }
 
 // ----------------- POLLING & DATA -----------------
