@@ -73,14 +73,14 @@ def analyze_multi_timeframe(symbol: str) -> dict:
         
         reason_parts = []
         if macro_bullish:
-            reason_parts.append("1D Trend เป็นขาขึ้นชัดเจน (Close > EMA50 > EMA200)")
+            reason_parts.append("1D Macro Trend Bullish (Close > EMA50 > EMA200)")
         else:
-            reason_parts.append("1D Trend ยังอยู่ในแนวโน้มชะลอตัว")
+            reason_parts.append("1D Trend Consolidation / Pullback")
             
         if inter_bullish:
-            reason_parts.append("4H Momentum เป็นบวก (MACD > Signal)")
+            reason_parts.append("4H Momentum Positive (MACD > Signal)")
         if timing_optimal:
-            reason_parts.append("1H Timing อยู่ในโซนย่อตัวได้เปรียบ")
+            reason_parts.append("1H Entry Timing in Advantageous Rebound Zone")
             
         return {
             "symbol": symbol,

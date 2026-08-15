@@ -283,7 +283,7 @@ function setupEventListeners() {
 
   // Panic Button
   DOM.btnPanicAll.addEventListener("click", async () => {
-    if (!confirm("🚨 ยืนยันการปิดทุกออเดอร์ฉุกเฉิน (Emergency Liquidate All)?")) return;
+    if (!confirm("🚨 Confirm Emergency Liquidate All active positions?")) return;
     try {
       const res = await fetch("/api/robot/panic-close", { method: "POST" });
       const data = await res.json();
@@ -319,15 +319,15 @@ function setupEventListeners() {
   // Bulk Apply AI Strategies
   DOM.btnApplyAllAiStrats.addEventListener("click", async () => {
     try {
-      DOM.btnApplyAllAiStrats.textContent = "⏳ กำลังปรับกลยุทธ์ตาม AI...";
+      DOM.btnApplyAllAiStrats.textContent = "⏳ Deploying AI Strategies Across All Assets...";
       const res = await fetch("/api/ai-planner/apply-all", { method: "POST" });
       const data = await res.json();
-      DOM.btnApplyAllAiStrats.innerHTML = `<span>🤖 ⚡ ปรับกลยุทธ์ทั้ง 4 สินทรัพย์ตาม AI แนะนำ</span>`;
+      DOM.btnApplyAllAiStrats.innerHTML = `<span>🤖 ⚡ Deploy AI Recommended Strategies Across All 4 Assets</span>`;
       showToast(data.message, "success");
       fetchStatus();
       fetchStrategies();
     } catch (err) {
-      DOM.btnApplyAllAiStrats.innerHTML = `<span>🤖 ⚡ ปรับกลยุทธ์ทั้ง 4 สินทรัพย์ตาม AI แนะนำ</span>`;
+      DOM.btnApplyAllAiStrats.innerHTML = `<span>🤖 ⚡ Deploy AI Recommended Strategies Across All 4 Assets</span>`;
       showToast("AI strategy apply failed: " + err, "error");
     }
   });
@@ -372,9 +372,9 @@ function setupEventListeners() {
       const res = await fetch("/api/harvester/execute", { method: "POST" });
       const data = await res.json();
       if (data.success) {
-        showToast(`🎉 ล็อกกำไรสำเร็จ: +฿${data.harvested_thb.toFixed(2)} ย้ายเข้าตู้เซฟแล้ว!`, "success");
+        showToast(`🎉 Profit Harvested: +฿${data.harvested_thb.toFixed(2)} transferred into vault!`, "success");
       } else {
-        showToast(data.message || "ยอดกำไรยังไม่ถึงเกณฑ์ขั้นต่ำ ฿300", "info");
+        showToast(data.message || "Profit milestone not reached yet (Min ฿300)", "info");
       }
       fetchHarvester();
       fetchStatus();
@@ -387,8 +387,8 @@ function setupEventListeners() {
   DOM.btnScanAiNow.addEventListener("click", async () => {
     DOM.btnScanAiNow.textContent = "⏳ Scanning 24/7 Global Intelligence...";
     await fetchAiPlannerQueue();
-    DOM.btnScanAiNow.innerHTML = `<span>⚡ สแกนข่าวและวิเคราะห์ตลาดใหม่ทันที</span>`;
-    showToast("สแกนข่าวและอัปเดตแผน AI เรียบร้อย!", "success");
+    DOM.btnScanAiNow.innerHTML = `<span>⚡ Run Live AI News & Market Analysis</span>`;
+    showToast("AI market intelligence & pre-market plans updated!", "success");
   });
 
   // Preset Risk Buttons
@@ -481,14 +481,14 @@ function setupEventListeners() {
 // ----------------- SYSTEM RESET HANDLER -----------------
 async function handleSystemReset(scope = "ALL") {
   const scopeNames = {
-    "ALL": "ระบบพอร์ตโฟลิโอทั้งหมด (คืนทุนพอร์ตหลัก ฿300,000 + Scalper ฿40,000 และล้างประวัติการเทรดทั้งหมด)",
-    "MAIN": "พอร์ตหลัก 4 สินทรัพย์ (คืนทุน ฿300,000 และล้างประวัติการเทรด)",
-    "SCALPER": "กองทุน Scalper Pro (คืนทุน Crypto ฿20,000 + Forex ฿20,000 และล้างตั๋วไม้ทั้งหมด)",
-    "VAULT": "ตู้เซฟล็อกกำไร (Harvest Vault รีเซ็ตเป็น ฿0.00)"
+    "ALL": "Entire Portfolio System (Restore ฿300,000 Main Portfolio + ฿40,000 Scalper Fund and purge all trade history)",
+    "MAIN": "Main 4-Asset Portfolio (Restore ฿300,000 and clear trade logs)",
+    "SCALPER": "Scalper Pro Fund (Restore ฿20,000 Crypto + ฿20,000 Forex and liquidate all tickets)",
+    "VAULT": "Daily Harvest Vault (Reset locked profit to ฿0.00)"
   };
 
   const desc = scopeNames[scope] || scope;
-  if (!confirm(`⚠️ ยืนยันการรีเซ็ต ${desc} หรือไม่?\n\nการดำเนินการนี้จะล้างข้อมูลและเริ่มต้นใหม่ทันที`)) {
+  if (!confirm(`⚠️ Are you sure you want to reset ${desc}?\n\nThis will reset state and restore initial capital immediately.`)) {
     return;
   }
 
@@ -512,7 +512,7 @@ async function handleSystemReset(scope = "ALL") {
         await fetchScalperChart(STATE.scalper.activeSymbol, STATE.scalper.activeTf);
       }
     } else {
-      showToast(data.message || "เกิดข้อผิดพลาดในการรีเซ็ต", "error");
+      showToast(data.message || "Reset execution error", "error");
     }
   } catch (err) {
     showToast("Reset failed: " + err, "error");
@@ -628,7 +628,7 @@ function render4SystemsCards(systems) {
             <h3>${meta.icon} ${meta.title}</h3>
             <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
               <span class="sys-alloc-badge" id="sys-alloc-${key}">Alloc: ฿${sys.allocation_thb.toLocaleString()} (฿${sys.portfolio_val_thb.toLocaleString()})</span>
-              <span class="status-pill-small ${sys.is_market_open ? 'open' : 'closed'}" id="sys-mkt-${key}">${sys.market_status_label || (sys.is_market_open ? '🟢 ตลาดเปิด' : '🔴 ปิดวันหยุด')}</span>
+              <span class="status-pill-small ${sys.is_market_open ? 'open' : 'closed'}" id="sys-mkt-${key}">${sys.market_status_label || (sys.is_market_open ? '🟢 LIVE' : '🔴 CLOSED')}</span>
             </div>
           </div>
           <span class="signal-tag ${tagClass}" id="sys-tag-${key}">${pnlSign}${sys.net_pnl_pct.toFixed(2)}%</span>
@@ -636,7 +636,7 @@ function render4SystemsCards(systems) {
 
         <div class="sys-pnl-banner">
           <div>
-            <span class="metric-label">กำไรสุทธิ (P&L)</span>
+            <span class="metric-label">Net P&L</span>
             <div class="sys-pnl-val mono ${pnlClass}" id="sys-pnl-${key}">${pnlSign}฿${sys.net_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
           </div>
           <div style="text-align: right;">
@@ -646,10 +646,10 @@ function render4SystemsCards(systems) {
         </div>
 
         <div class="sys-stats-row">
-          <div class="stat-item"><span>สะสม TP:</span> <strong class="positive" id="sys-tp-${key}">+฿${sys.cumulative_take_profit_thb.toLocaleString()}</strong></div>
-          <div class="stat-item"><span>สะสม Cut:</span> <strong class="negative" id="sys-cut-${key}">-฿${sys.cumulative_cut_loss_thb.toLocaleString()}</strong></div>
-          <div class="stat-item"><span>ปิดแล้ว:</span> <strong id="sys-closed-${key}">${sys.closed_trades_count} ไม้</strong></div>
-          <div class="stat-item"><span>ถือครอง:</span> <strong id="sys-holdings-${key}">${sys.active_holdings_count} ไม้</strong></div>
+          <div class="stat-item"><span>Cum. TP:</span> <strong class="positive" id="sys-tp-${key}">+฿${sys.cumulative_take_profit_thb.toLocaleString()}</strong></div>
+          <div class="stat-item"><span>Cum. Cut:</span> <strong class="negative" id="sys-cut-${key}">-฿${sys.cumulative_cut_loss_thb.toLocaleString()}</strong></div>
+          <div class="stat-item"><span>Closed:</span> <strong id="sys-closed-${key}">${sys.closed_trades_count} Trades</strong></div>
+          <div class="stat-item"><span>Holdings:</span> <strong id="sys-holdings-${key}">${sys.active_holdings_count} Open</strong></div>
         </div>
 
         <div class="sys-strategy-selector">
@@ -697,7 +697,7 @@ function render4SystemsCards(systems) {
 
       if (elAlloc) elAlloc.textContent = `Alloc: ฿${sys.allocation_thb.toLocaleString()} (฿${sys.portfolio_val_thb.toLocaleString()})`;
       if (elMkt) {
-        elMkt.textContent = sys.market_status_label || (sys.is_market_open ? '🟢 ตลาดเปิด' : '🔴 ปิดวันหยุด');
+        elMkt.textContent = sys.market_status_label || (sys.is_market_open ? '🟢 LIVE' : '🔴 CLOSED');
         elMkt.className = `status-pill-small ${sys.is_market_open ? 'open' : 'closed'}`;
       }
       if (elTag) {
@@ -711,8 +711,8 @@ function render4SystemsCards(systems) {
       if (elWin) elWin.textContent = `${sys.win_rate_pct.toFixed(1)}%`;
       if (elTp) elTp.textContent = `+฿${sys.cumulative_take_profit_thb.toLocaleString()}`;
       if (elCut) elCut.textContent = `-฿${sys.cumulative_cut_loss_thb.toLocaleString()}`;
-      if (elClosed) elClosed.textContent = `${sys.closed_trades_count} ไม้`;
-      if (elHoldings) elHoldings.textContent = `${sys.active_holdings_count} ไม้`;
+      if (elClosed) elClosed.textContent = `${sys.closed_trades_count} Trades`;
+      if (elHoldings) elHoldings.textContent = `${sys.active_holdings_count} Open`;
       if (elDropdown && document.activeElement !== elDropdown) {
         elDropdown.value = sys.active_strategy;
       }
@@ -820,15 +820,15 @@ async function fetchHarvester() {
     DOM.hmTodayThb.textContent = `฿${data.today_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
     DOM.hmYesterdayThb.textContent = `฿${data.yesterday_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
     DOM.hmAlltimeThb.textContent = `฿${data.all_time_vault_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-    DOM.hmDaysCount.textContent = `${data.harvest_days_count} วัน`;
-    DOM.hmPctVsYesterday.textContent = `${data.pct_vs_yesterday >= 0 ? '+' : ''}${data.pct_vs_yesterday.toFixed(1)}% vs เมื่อวาน`;
+    DOM.hmDaysCount.textContent = `${data.harvest_days_count} Days`;
+    DOM.hmPctVsYesterday.textContent = `${data.pct_vs_yesterday >= 0 ? '+' : ''}${data.pct_vs_yesterday.toFixed(1)}% vs Yesterday`;
 
     if (data.can_harvest_now) {
       DOM.btnTriggerHarvest.style.animation = "pulseGlow 1.5s infinite";
-      DOM.btnTriggerHarvest.innerHTML = `<span>🎯 กดเก็บกำไร ( ฿${data.unrealized_profit_thb.toFixed(0)} ) เข้าตู้เซฟ</span>`;
+      DOM.btnTriggerHarvest.innerHTML = `<span>🎯 Lock Profit ( ฿${data.unrealized_profit_thb.toFixed(0)} ) Into Vault</span>`;
     } else {
       DOM.btnTriggerHarvest.style.animation = "none";
-      DOM.btnTriggerHarvest.innerHTML = `<span>🔒 รอครบเป้า ฿300 (มี +฿${data.unrealized_profit_thb.toFixed(0)})</span>`;
+      DOM.btnTriggerHarvest.innerHTML = `<span>🔒 Target ฿300 (Current: +฿${data.unrealized_profit_thb.toFixed(0)})</span>`;
     }
 
     renderHarvestChart();
@@ -913,7 +913,7 @@ function renderAiPlanCards(plan) {
             <span class="ai-plan-sym">${cp.symbol}</span>
             <span class="strat-pill">${sysKey}</span>
           </div>
-          <div class="ai-win-prob mono">โอกาสชนะ (Win Prob): ${cp.win_probability_pct}%</div>
+          <div class="ai-win-prob mono">Win Probability: ${cp.win_probability_pct}%</div>
         </div>
 
         <div class="ai-thought-box">
@@ -961,11 +961,11 @@ function renderStrategiesGrid(strategies) {
       </div>
       <div>
         <div class="strat-meta">
-          <span>ความเสี่ยง: <strong>${s.risk_level}</strong></span>
+          <span>Risk Level: <strong>${s.risk_level}</strong></span>
           <span>${s.level_label.split(" ")[0]}</span>
         </div>
         <button class="btn-activate-strat" data-key="${s.key}">
-          ${s.is_active ? '✅ ใช้งานอยู่นี้' : '⚡ เปิดใช้งานกลยุทธ์นี้'}
+          ${s.is_active ? '✅ Active Strategy' : '⚡ Activate Strategy'}
         </button>
       </div>
     `;
@@ -1002,7 +1002,7 @@ async function fetchPositions() {
     DOM.masterPositionsCount.textContent = `${data.positions.length} Positions`;
 
     if (data.positions.length === 0) {
-      DOM.positionsList.innerHTML = `<div class="empty-state">ไม่มีสถานะถือครองในขณะนี้</div>`;
+      DOM.positionsList.innerHTML = `<div class="empty-state">No open positions at this moment.</div>`;
       DOM.masterHoldingsTbody.innerHTML = `<tr><td colspan="8" class="text-center" style="padding:24px;">No active positions currently.</td></tr>`;
       return;
     }
@@ -1026,7 +1026,7 @@ async function fetchPositions() {
             <div style="font-size: 10px;">${sign}${p.pnl_pct.toFixed(2)}%</div>
           </div>
           <button class="btn-close-pos" data-sym="${p.symbol}" data-shares="${p.shares}" data-price="${p.current_price}">
-            ปิดไม้
+            Close
           </button>
         </div>
       `;
@@ -1756,8 +1756,8 @@ function setupScalperEventListeners() {
     DOM.btnRefreshScalpSignals.addEventListener("click", () => {
       DOM.btnRefreshScalpSignals.textContent = "⏳ Scanning...";
       fetchScalperSignals().then(() => {
-        DOM.btnRefreshScalpSignals.innerHTML = "<span>🔄 สแกนใหม่</span>";
-        showToast("สแกนสัญญาณ Scalping ล่าสุดเรียบร้อย!", "success");
+        DOM.btnRefreshScalpSignals.innerHTML = "<span>🔄 Re-Scan</span>";
+        showToast("Latest Scalping signals refreshed!", "success");
       });
     });
   }
@@ -1833,7 +1833,7 @@ function updateScalpOrderFormCalculations() {
 
   const avail = getScalpAvailableBalance(STATE.scalper.activeAssetClass);
   if (DOM.scalpMaxAvailText) {
-    DOM.scalpMaxAvailText.textContent = `คงเหลือ: ฿${avail.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    DOM.scalpMaxAvailText.textContent = `Available: ฿${avail.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
   }
 
   let currPrice = 0.0;
@@ -1854,7 +1854,7 @@ function updateScalpOrderFormCalculations() {
   }
 
   if (DOM.btnExecuteScalpOrder) {
-    DOM.btnExecuteScalpOrder.innerHTML = `<span>⚡ เปิดไม้ ${side} ทันที (฿${margin.toLocaleString()} x ${leverage}X)</span>`;
+    DOM.btnExecuteScalpOrder.innerHTML = `<span>⚡ OPEN ${side} POSITION (฿${margin.toLocaleString()} x ${leverage}X)</span>`;
   }
 }
 
@@ -1906,9 +1906,9 @@ async function fetchScalperStatus() {
       DOM.scalpTotalRealized.textContent = `${sum.total_realized_pnl_thb >= 0 ? '+' : ''}฿${sum.total_realized_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
       DOM.scalpTotalRealized.className = `mono ${sum.total_realized_pnl_thb >= 0 ? 'positive' : 'negative'}`;
     }
-    if (DOM.scalpWinRate) DOM.scalpWinRate.textContent = `${sum.win_rate_pct.toFixed(1)}% (${sum.total_closed_trades} ไม้)`;
+    if (DOM.scalpWinRate) DOM.scalpWinRate.textContent = `${sum.win_rate_pct.toFixed(1)}% (${sum.total_closed_trades} Trades)`;
     if (DOM.scalpTotalEquity) DOM.scalpTotalEquity.textContent = `฿${sum.total_equity_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-    if (DOM.scalpActiveTicketsBadge) DOM.scalpActiveTicketsBadge.textContent = `${data.active_tickets_count} ตั๋วเปิดอยู่`;
+    if (DOM.scalpActiveTicketsBadge) DOM.scalpActiveTicketsBadge.textContent = `${data.active_tickets_count} Active Tickets`;
     if (DOM.scalpOpenCountBadge) DOM.scalpOpenCountBadge.textContent = `${data.active_tickets_count} Active Tickets`;
 
     renderScalperPositions(data.open_positions);
@@ -1924,7 +1924,7 @@ function renderScalperPositions(positions) {
   DOM.scalpPositionsTbody.innerHTML = "";
 
   if (!positions || positions.length === 0) {
-    DOM.scalpPositionsTbody.innerHTML = `<tr><td colspan="11" class="text-center" style="color:var(--text-muted); padding:20px;">ไม่มีตั๋วเทรดที่กำลังเปิดอยู่ — ส่งคำสั่ง Short/Long หรือเปิดใช้งาน AI Auto-Scalper</td></tr>`;
+    DOM.scalpPositionsTbody.innerHTML = `<tr><td colspan="11" class="text-center" style="color:var(--text-muted); padding:20px;">No active tickets open — Enter a Short/Long scalp order or enable AI Auto-Scalper</td></tr>`;
     return;
   }
 
@@ -1951,7 +1951,7 @@ function renderScalperPositions(positions) {
       <td style="font-size:11px; color:var(--text-muted);">${p.open_time}</td>
       <td>
         <button class="btn-scalp-action close-ticket" onclick="closeScalperTicket('${p.id}')">
-          <span>❌ ปิดไม้</span>
+          <span>❌ Close</span>
         </button>
       </td>
     `;
@@ -1964,7 +1964,7 @@ function renderScalperHistory(history) {
   DOM.scalpHistoryTbody.innerHTML = "";
 
   if (!history || history.length === 0) {
-    DOM.scalpHistoryTbody.innerHTML = `<tr><td colspan="9" class="text-center" style="color:var(--text-muted); padding:16px;">ยังไม่มีประวัติการปิดไม้</td></tr>`;
+    DOM.scalpHistoryTbody.innerHTML = `<tr><td colspan="9" class="text-center" style="color:var(--text-muted); padding:16px;">No closed scalp trades in history yet</td></tr>`;
     return;
   }
 
@@ -2170,7 +2170,7 @@ function renderScalperSignals(signals) {
   DOM.scalpSignalsContainer.innerHTML = "";
 
   if (!signals || signals.length === 0) {
-    DOM.scalpSignalsContainer.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:16px;">กำลังสแกนจังหวะโมเมนตัม 1M/5M/15M ทั่วตลาด...</div>`;
+    DOM.scalpSignalsContainer.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:16px;">Scanning 1M/5M/15M momentum opportunities across markets...</div>`;
     return;
   }
 
@@ -2187,12 +2187,12 @@ function renderScalperSignals(signals) {
       </div>
       <div class="sig-item-reason">💡 ${s.reason}</div>
       <div class="sig-item-targets">
-        <span>ราคาเข้า: <strong>$${s.current_price.toFixed(dec)}</strong></span>
+        <span>Entry Price: <strong>$${s.current_price.toFixed(dec)}</strong></span>
         <span style="color:#00f090;">TP: +${s.tp_pct}% ($${s.tp_price})</span>
         <span style="color:#ff3b69;">SL: -${s.sl_pct}% ($${s.sl_price})</span>
       </div>
       <button class="btn-apply-scalp-signal" onclick="applyScalpSignalToOrder('${s.symbol}', '${s.side}', ${s.suggested_leverage}, ${s.tp_pct}, ${s.sl_pct})">
-        <span>⚡ 1-Click นำสัญญาณนี้ไปเปิดไม้</span>
+        <span>⚡ 1-Click Load Setup to Execution Deck</span>
       </button>
     `;
     DOM.scalpSignalsContainer.appendChild(card);
@@ -2221,12 +2221,12 @@ window.applyScalpSignalToOrder = function(symbol, side, leverage, tpPct, slPct) 
   STATE.scalper.slPct = slPct;
 
   updateScalpOrderFormCalculations();
-  showToast(`🎯 โหลดสัญญาณ ${side} ${symbol} เข้าหน้าส่งคำสั่งเรียบร้อย!`, "info");
+  showToast(`🎯 Loaded ${side} setup for ${symbol} into execution deck!`, "info");
 };
 
 // Global helper for Close Ticket
 window.closeScalperTicket = async function(ticketId) {
-  if (!confirm(`ยืนยันการปิดตั๋วไม้ ${ticketId} ทันที?`)) return;
+  if (!confirm(`Confirm closing ticket ${ticketId} immediately?`)) return;
   try {
     const res = await fetch("/api/scalper/close-position", {
       method: "POST",
@@ -2272,7 +2272,7 @@ async function executeScalperOrder() {
       fetchScalperStatus();
       fetchScalperChart(symbol, STATE.scalper.activeTf);
     } else {
-      showToast(`⚠️ ${data.message || "ส่งคำสั่งไม่สำเร็จ"}`, "error");
+      showToast(`⚠️ ${data.message || "Order execution failed"}`, "error");
     }
   } catch (err) {
     if (DOM.btnExecuteScalpOrder) DOM.btnExecuteScalpOrder.disabled = false;
@@ -2281,7 +2281,7 @@ async function executeScalperOrder() {
 }
 
 async function closeAllScalperPositions() {
-  if (!confirm("🚨 ยืนยันการปิดทุกไม้ Scalp ฉุกเฉินทั้งหมด (Emergency Close All Scalps)?")) return;
+  if (!confirm("🚨 Confirm Emergency Liquidate All Scalp Positions?")) return;
   try {
     const res = await fetch("/api/scalper/close-all", { method: "POST" });
     const data = await res.json();

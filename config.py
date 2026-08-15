@@ -20,10 +20,10 @@ SYSTEM_ALLOCATIONS = {
 }
 
 SYSTEM_LABELS = {
-    "US_INDEX": "🇺🇸 ดัชนีหุ้นสหรัฐฯ (S&P 500 / NASDAQ / Dow Jones)",
-    "GOLD": "🥇 บอททองคำ (Gold / XAUUSD)",
-    "CRYPTO": "🪙 บอท Crypto Spot (24/7)",
-    "FOREX": "💱 บอท Forex (24/5)"
+    "US_INDEX": "🇺🇸 US Equities & Indices (S&P 500 / NASDAQ / Dow)",
+    "GOLD": "🥇 Gold & Commodities (XAU/USD / GC=F)",
+    "CRYPTO": "🪙 Crypto Spot Terminal (24/7)",
+    "FOREX": "💱 Forex Currency Pairs (24/5)"
 }
 
 # API Keys (Loaded from environment variables or .env)
@@ -98,105 +98,105 @@ STRATEGY_CATALOG = {
     # 🟢 2.1 Beginner Level (Rule-Based)
     "GRID_TRADING": {
         "level": "BEGINNER",
-        "level_label": "🟢 ระดับเริ่มต้น (Beginner)",
-        "name": "Grid Trading (การวางตาข่ายซื้อขาย)",
+        "level_label": "🟢 Beginner Tier (Rule-Based)",
+        "name": "Grid Trading (Range Mesh Execution)",
         "icon": "🕸️",
-        "risk_level": "ต่ำ (Low Risk - Sideway Market)",
-        "desc": "วางคำสั่งซื้อ-ขายเป็นช่วงตาข่าย (Grid) ตามกรอบราคาเพื่อทำกำไรจากแกว่งตัวแคบ (Sideway)",
-        "pros": "ทำกำไรสม่ำเสมอในสภาวะตลาดไซด์เวย์ ไม่ต้องคาดเดาทิศทางตลาดสด",
-        "cons": "หากราคาเกิดเทรนด์หลุดกรอบตาข่ายลงแรง อาจติดดอยสะสมตำแหน่งหลายชั้น"
+        "risk_level": "Low (Sideway Range Market)",
+        "desc": "Places geometric limit buy & sell grids across price corridors to extract consistent alpha from sideways consolidation.",
+        "pros": "Reliable passive income in ranging markets without directional forecasting.",
+        "cons": "Risk of multiple accumulating long bags during prolonged downward breakdown."
     },
     "TREND_FOLLOWING": {
         "level": "BEGINNER",
-        "level_label": "🟢 ระดับเริ่มต้น (Beginner)",
-        "name": "Simple Trend Following (กลยุทธ์ตามเทรนด์ด้วย EMA/RSI/MACD)",
+        "level_label": "🟢 Beginner Tier (Rule-Based)",
+        "name": "Trend Following (EMA / RSI / MACD Momentum)",
         "icon": "📈",
-        "risk_level": "ปานกลาง (Moderate Risk)",
-        "desc": "เกาะเทรนด์ใหญ่ด้วยสัญญาณ EMA Cross, RSI Momentum และ MACD Rebound",
-        "pros": "รันเทรนด์ได้กำไรคำโตเมื่อตลาดเป็นเทรนด์ชัดเจน ตัดขาดทุนตามวินัยรวดเร็ว",
-        "cons": "อาจเกิดสัญญาณหลอก (Whipsaw) ในช่วงตลาดแกว่งตัวผันผวนไม่มีทิศทาง"
+        "risk_level": "Moderate (Momentum Tracking)",
+        "desc": "Captures macro breakouts and multi-day trending expansions via EMA Crosses, RSI confirmation, and MACD divergence.",
+        "pros": "Captures outsized profit runs during bull rallies with disciplined trailing stop-loss.",
+        "cons": "Susceptible to whipsaw chop and false breakout signals in choppy markets."
     },
     "DCA_REBALANCE": {
         "level": "BEGINNER",
-        "level_label": "🟢 ระดับเริ่มต้น (Beginner)",
-        "name": "DCA Bot & Smart Rebalancing (ทยอยสะสมถัวเฉลี่ย)",
+        "level_label": "🟢 Beginner Tier (Rule-Based)",
+        "name": "DCA Bot & Smart Dynamic Rebalancing",
         "icon": "💰",
-        "risk_level": "ต่ำมาก (Very Low Risk - Capital Saver)",
-        "desc": "ทยอยสะสมสินทรัพย์ตามเปอร์เซ็นต์ย่อตัวและปรับพอร์ตถัวเฉลี่ยอัตโนมัติ",
-        "pros": "ลดความเสี่ยงจากการเข้าซื้อผิดจังหวะ เหมาะสำหรับสะสมพอร์ตระยะยาว",
-        "cons": "ผลตอบแทนอาจไม่หวือหวาเท่ากลยุทธ์ตามเทรนด์แรงๆ ในระยะสั้น"
+        "risk_level": "Very Low (Capital Preservation)",
+        "desc": "Systematically accumulates assets at pullback thresholds and automatically rebalances portfolio weights.",
+        "pros": "Eliminates timing risk and dollar-cost averages for long-term compound growth.",
+        "cons": "Lower short-term velocity compared to high-frequency momentum strategies."
     },
     # 🟡 2.2 Intermediate Level (Statistics & ML)
     "MEAN_REVERSION": {
         "level": "INTERMEDIATE",
-        "level_label": "🟡 ระดับปานกลาง (Intermediate)",
-        "name": "Mean Reversion (การย้อนกลับสู่ค่าเฉลี่ย)",
+        "level_label": "🟡 Intermediate Tier (Statistical)",
+        "name": "Mean Reversion (Bollinger Bands & Z-Score)",
         "icon": "⚖️",
-        "risk_level": "ปานกลาง (Moderate Risk)",
-        "desc": "ใช้สถิติ Z-Score & Bollinger Bands คำนวณจุดหลุดเบี่ยงเบนเพื่อเทรดสวนทางกลับเข้าหาศูนย์กลาง",
-        "pros": "อัตราการชนะ (Win Rate) สูง มีจุดเข้าซื้อที่ชัดเจนตามสถิติเบี่ยงเบน",
-        "cons": "หากราคาทะลุแนวรับ/แนวต้านเปิดเทรนด์แรง อาจเข้าซื้อสวนเทรนด์ต่อเนื่อง"
+        "risk_level": "Moderate (Statistical Arbitrage)",
+        "desc": "Detects statistical standard deviation extremes (Z-Score > 2.0) and triggers counter-trend mean reversion trades.",
+        "pros": "High mathematical win rate with clear, data-driven entry and exit bounds.",
+        "cons": "Vulnerable to runaway momentum trends violating standard distribution boundaries."
     },
     "VOLATILITY_BREAKOUT": {
         "level": "INTERMEDIATE",
-        "level_label": "🟡 ระดับปานกลาง (Intermediate)",
-        "name": "Volatility Breakout & Momentum (การทะลุกรอบความผันผวน)",
+        "level_label": "🟡 Intermediate Tier (Statistical)",
+        "name": "Volatility Breakout & Volume Surge",
         "icon": "💥",
-        "risk_level": "ปานกลาง-สูง (Med-High Risk)",
-        "desc": "ตรวจจับกรอบแคบ (Squeeze) และยิงออเดอร์เมื่อเกิดแรงซื้อทะลุ Volume ผิดปกติ",
-        "pros": "เข้าซื้อตอนต้นเทรนด์ได้อย่างรวดเร็ว ทำกำไรตามแรงระเบิดของราคาได้ดี",
-        "cons": "ต้องมีวินัย Stop Loss ที่เด็ดขาดเมื่อเกิดการ Breakout หลอก (False Breakout)"
+        "risk_level": "Medium-High (Expansion Surge)",
+        "desc": "Monitors volatility contraction (Squeeze) and fires aggressive market orders upon volume expansion breakouts.",
+        "pros": "Secures ground-floor entry on explosive market moves with rapid profit realization.",
+        "cons": "Requires strict, instantaneous stop-loss management against fakeouts."
     },
     "SUPERVISED_ML": {
         "level": "INTERMEDIATE",
-        "level_label": "🟡 ระดับปานกลาง (Intermediate)",
-        "name": "Supervised ML Classification (โมเดล Random Forest/XGBoost)",
+        "level_label": "🟡 Intermediate Tier (Statistical)",
+        "name": "Supervised ML Classification (Random Forest / XGBoost)",
         "icon": "🤖",
-        "risk_level": "ปานกลาง (Quant Model Risk)",
-        "desc": "ใช้โมเดล Machine Learning จำแนกสภาวะตลาดและทายผลลัพธ์ทิศทางแท่งถัดไป",
-        "pros": "วิเคราะห์อินดิเคเตอร์หลายมิติพร้อมกันได้อย่างแม่นยำ ปรับตัวตามฟีเจอร์ใหม่",
-        "cons": "ต้องคอย Retrain โมเดลเป็นระยะเพื่อป้องกันปัญหา Model Overfitting"
+        "risk_level": "Moderate (Quantitative ML)",
+        "desc": "Leverages ensemble machine learning classifiers to forecast next-candle directional probabilities across 15+ technical features.",
+        "pros": "Synthesizes multi-dimensional technical features simultaneously with dynamic adaptability.",
+        "cons": "Requires periodic hyperparameter tuning and model retraining to avoid overfitting."
     },
     # 🔴 2.3 Professional Level (Quant Funds & Deep AI)
     "STAT_ARBITRAGE": {
         "level": "PROFESSIONAL",
-        "level_label": "🔴 ระดับมืออาชีพ (Professional Quant)",
-        "name": "Statistical Arbitrage & Pairs Trading (สถิติอนุพันธ์คู่สินทรัพย์)",
+        "level_label": "🔴 Professional Tier (Institutional Quant)",
+        "name": "Statistical Arbitrage & Pairs Trading",
         "icon": "📊",
-        "risk_level": "ปานกลาง-ต่ำ (Market Neutral)",
-        "desc": "หาคู่สินทรัพย์ Cointegration เพื่อ Long ตัวถูก / Short ตัวแพง รอราคาดึงกลับสมดุล",
-        "pros": "ไร้ความเสี่ยงจากทิศทางตลาดใหญ่ (Market Neutral) เน้นส่วนต่างราคา",
-        "cons": "กำไรต่อรอบอาจไม่สูงมาก ต้องใช้เลเวอเรจ หรือจัดการคู่สินทรัพย์อย่างใกล้ชิด"
+        "risk_level": "Low-Moderate (Market Neutral)",
+        "desc": "Identifies cointegrated asset pairs to execute Long undervalued / Short overvalued market-neutral spreads.",
+        "pros": "Zero exposure to broader market directional beta (true market-neutral alpha).",
+        "cons": "Narrow per-trade margins require precision sizing and tight spread monitoring."
     },
     "NLP_SENTIMENT": {
         "level": "PROFESSIONAL",
-        "level_label": "🔴 ระดับมืออาชีพ (Professional Quant)",
-        "name": "Sentiment Analysis & NLP Trading (ประมวลข่าวสาร Real-time)",
+        "level_label": "🔴 Professional Tier (Institutional Quant)",
+        "name": "AI NLP News Sentiment Analysis (Gemini Flash)",
         "icon": "📰",
-        "risk_level": "สูง (Macro Sentiment Sensitive)",
-        "desc": "ใช้ Gemini AI NLP อ่านข่าวเศรษฐกิจ งบการเงิน แถลงการณ์ Fed สั่งซื้อขายล่วงหน้าทันที",
-        "pros": "ได้เปรียบด้านข้อมูลข่าวสาร ยิงออเดอร์ก่อนที่ราคาจะตอบรับข่าวใหญ่",
-        "cons": "ข่าวบางประเภทอาจมีข้อมูลขัดแย้งกัน ต้องมีตัวกรอง Sentiment ที่รัดกุม"
+        "risk_level": "High (Macro News Catalyst)",
+        "desc": "Utilizes Gemini AI NLP to ingest economic headlines, SEC filings, and Fed speeches in real-time for front-running catalyst moves.",
+        "pros": "Substantial informational edge by executing orders prior to general market pricing.",
+        "cons": "Conflicting news headlines necessitate robust sentiment score filtering."
     },
     "REINFORCEMENT_LEARNING": {
         "level": "PROFESSIONAL",
-        "level_label": "🔴 ระดับมืออาชีพ (Professional Quant)",
-        "name": "Reinforcement Learning (RL Trading Agent)",
+        "level_label": "🔴 Professional Tier (Institutional Quant)",
+        "name": "Deep Reinforcement Learning (Q-Learning Agent)",
         "icon": "🧠",
-        "risk_level": "สูง (AI Dynamic Adaptability)",
-        "desc": "เอเจนต์ AI เรียนรู้ผ่าน Reward System ลองเทรดจำลองเพื่อปรับตัวตามสภาวะตลาดสด",
-        "pros": "สามารถค้นพบรูปแบบกลยุทธ์แปลกใหม่ที่ไม่เคยมีมนุษย์คนไหนคิดมาก่อน",
-        "cons": "ความซับซ้อนของเอเจนต์สูง ต้องควบคุมจริยธรรมและกรอบบริหารความเสี่ยงเคร่งครัด"
+        "risk_level": "High (Autonomous AI Policy)",
+        "desc": "Autonomous policy-gradient agent trained via reward functions to optimize risk-adjusted Sharpe ratios dynamically.",
+        "pros": "Discovers non-linear, emergent alpha patterns beyond standard human heuristics.",
+        "cons": "High algorithmic complexity requiring robust safety guardrails."
     },
     "ORDER_FLOW_HFT": {
         "level": "PROFESSIONAL",
-        "level_label": "🔴 ระดับมืออาชีพ (Professional Quant)",
-        "name": "High-Frequency Trading & Order Flow (วิเคราะห์ Order Book)",
+        "level_label": "🔴 Professional Tier (Institutional Quant)",
+        "name": "High-Frequency Order Flow & Microstructure",
         "icon": "⚡",
-        "risk_level": "สูงมาก (High Frequency Micro Execution)",
-        "desc": "จำลองการวิเคราะห์ Order Book Imbalance / Spread Capture ความเร็วสูงระดับมิลลิวินาที",
-        "pros": "ก็อบปี้การเก็บกำไรช่องเล็กๆ สม่ำเสมอจากส่วนต่างราคา BID/ASK",
-        "cons": "ต้องคำนึงถึงค่าธรรมเนียมการเทรดและค่าความหน่วงของเครือข่าย (Latency)"
+        "risk_level": "Very High (Microsecond Scalp)",
+        "desc": "Analyzes Order Book Imbalance, bid-ask spread liquidity, and tick volume velocity for rapid micro-scalps.",
+        "pros": "Captures consistent micro-spread profits independently of macro direction.",
+        "cons": "Demands ultra-low latency execution and strict fee-adjusted slippage controls."
     }
 }
 

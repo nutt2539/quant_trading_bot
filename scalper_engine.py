@@ -230,14 +230,14 @@ def open_position(
         return {"success": False, "message": f"Unsupported symbol: {symbol}"}
 
     if margin_thb > balance:
-        return {"success": False, "message": f"ยอดเงินคงเหลือไม่พอ (มี ฿{balance:.2f}, ต้องการ ฿{margin_thb:.2f})"}
+        return {"success": False, "message": f"Insufficient margin balance (Available: ฿{balance:.2f}, Required: ฿{margin_thb:.2f})"}
 
     if margin_thb < 100:
-        return {"success": False, "message": "ขนาดไม้ขั้นต่ำคือ ฿100"}
+        return {"success": False, "message": "Minimum position size is ฿100"}
 
     curr_price = get_latest_price(symbol)
     if curr_price <= 0:
-        return {"success": False, "message": "ไม่สามารถดึงราคาตลาดสดได้"}
+        return {"success": False, "message": "Unable to fetch live ticker price"}
 
     # Calculate TP and SL prices
     leverage = max(1.0, min(20.0, float(leverage)))
@@ -287,7 +287,7 @@ def open_position(
 
     return {
         "success": True,
-        "message": f"เปิดตั๋วไม้ {side} {sym_info['name']} (ทุน ฿{margin_thb:,.2f} x {leverage:.0f}X) สำเร็จ!",
+        "message": f"Opened {side} ticket for {sym_info['name']} (Margin: ฿{margin_thb:,.2f} x {leverage:.0f}X) successfully!",
         "ticket": new_pos
     }
 
@@ -305,7 +305,7 @@ def close_position(ticket_id: str, close_pct: float = 100.0) -> Dict[str, Any]:
             break
 
     if target_idx == -1:
-        return {"success": False, "message": "ไม่พบ Ticket ID ดังกล่าว"}
+        return {"success": False, "message": "Ticket ID not found"}
 
     pos = open_pos.pop(target_idx)
     curr_price = get_latest_price(pos["symbol"])
@@ -336,7 +336,7 @@ def close_position(ticket_id: str, close_pct: float = 100.0) -> Dict[str, Any]:
     sign = "+" if pnl_thb >= 0 else ""
     return {
         "success": True,
-        "message": f"ปิดตั๋ว {ticket_id} ({pos['side']} {pos['name']}) เรียบร้อย P&L: {sign}฿{pnl_thb:,.2f} ({sign}{pnl_pct:.2f}%)",
+        "message": f"Closed ticket {ticket_id} ({pos['side']} {pos['name']}) with P&L: {sign}฿{pnl_thb:,.2f} ({sign}{pnl_pct:.2f}%)",
         "closed_ticket": pos
     }
 
@@ -347,7 +347,7 @@ def close_all_positions() -> Dict[str, Any]:
     state = load_scalper_state()
     open_pos = state.get("open_positions", [])
     if not open_pos:
-        return {"success": True, "message": "ไม่มีตั๋วเทรดที่กำลังเปิดอยู่", "closed_count": 0}
+        return {"success": True, "message": "No active scalping positions open", "closed_count": 0}
 
     total_closed_pnl = 0.0
     closed_count = len(open_pos)
@@ -382,7 +382,7 @@ def close_all_positions() -> Dict[str, Any]:
     sign = "+" if total_closed_pnl >= 0 else ""
     return {
         "success": True,
-        "message": f"🚨 ปิดทุกไม้ฉุกเฉิน {closed_count} ตั๋วสำเร็จ! รวม P&L: {sign}฿{total_closed_pnl:,.2f}",
+        "message": f"🚨 Emergency Liquidated {closed_count} scalping tickets. Total P&L: {sign}฿{total_closed_pnl:,.2f}",
         "closed_count": closed_count,
         "total_pnl_thb": total_closed_pnl
     }

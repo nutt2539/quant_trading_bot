@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,13 +67,13 @@
             <span class="slider"></span>
           </label>
         </div>
-        <button class="btn-panic" id="btn-panic-all" title="ฉุกเฉิน: ขายปิดทุกออเดอร์ทันที">
+        <button class="btn-panic" id="btn-panic-all" title="Emergency Liquidate: Close all open positions immediately">
           <span class="panic-icon">🚨</span>
           <span class="panic-text">PANIC CLOSE</span>
         </button>
-        <button class="btn-reset-nav" id="btn-master-reset" title="รีเซ็ตระบบพอร์ตและเงินทุนกลับสู่ค่าเริ่มต้น">
+        <button class="btn-reset-nav" id="btn-master-reset" title="Reset portfolio and capital allocations to default state">
           <span class="reset-icon">🔄</span>
-          <span class="reset-text">RESET พอร์ต</span>
+          <span class="reset-text">RESET PORTFOLIO</span>
         </button>
       </div>
     </header>
@@ -91,7 +91,7 @@
       <nav class="terminal-nav">
         <button class="nav-tab active" data-view="view-systems">
           <span class="tab-icon">🌐</span>
-          <span class="tab-text">4 Systems Overview</span>
+          <span class="tab-text">4-Asset Center</span>
         </button>
         <button class="nav-tab" data-view="view-scalper">
           <span class="tab-icon">⚡</span>
@@ -99,7 +99,7 @@
         </button>
         <button class="nav-tab" data-view="view-terminal">
           <span class="tab-icon">📈</span>
-          <span class="tab-text">Live Terminal & Multi-TF</span>
+          <span class="tab-text">Live Chart & Multi-TF</span>
         </button>
         <button class="nav-tab" data-view="view-harvester">
           <span class="tab-icon">💰</span>
@@ -133,12 +133,12 @@
       <div class="view-panel active" id="view-systems">
         <div class="systems-overview-header">
           <div>
-            <h2>🌐 ศูนย์กลางระบบการเทรด 4 สินทรัพย์ (ทุนรวม ฿300,000)</h2>
-            <p>แบ่งสัดส่วนการลงทุนกระจายความเสี่ยงอย่างสมดุล (US Index ฿100k, Gold ฿90k, Crypto ฿80k, Forex ฿30k)</p>
+            <h2>🌐 4-Asset Unified Multi-Market Center (Total Capital ฿300,000)</h2>
+            <p>Systematic multi-market risk diversification (US Equities ฿100k, Gold ฿90k, Crypto ฿80k, Forex ฿30k)</p>
           </div>
           <div class="ai-quick-bulk-btn">
             <button class="btn-neon" id="btn-apply-all-ai-strats">
-              <span>🤖 ⚡ ปรับกลยุทธ์ทั้ง 4 สินทรัพย์ตาม AI แนะนำ</span>
+              <span>🤖 ⚡ Deploy AI Recommended Strategies Across All 4 Assets</span>
             </button>
           </div>
         </div>
@@ -148,13 +148,13 @@
           <div class="unified-chart-header">
             <div class="uchart-title-group">
               <div class="uchart-badge">⚡ UNIFIED MULTI-ASSET PERFORMANCE & GROWTH MATRIX</div>
-              <h3>📈 กราฟเปรียบเทียบผลตอบแทนสะสม 4 สินทรัพย์ & พอร์ตโฟลิโอรวม (฿300,000)</h3>
+              <h3>📈 Multi-Asset Cumulative Return & Unified Portfolio Matrix (฿300,000 Initial)</h3>
             </div>
             
             <div class="uchart-controls">
               <div class="btn-group" id="sys-chart-mode-btns">
-                <button class="btn-sm active" data-mode="PCT">% ผลตอบแทน</button>
-                <button class="btn-sm" data-mode="VAL">มูลค่าพอร์ต (฿)</button>
+                <button class="btn-sm active" data-mode="PCT">% Return</button>
+                <button class="btn-sm" data-mode="VAL">Portfolio Value (฿)</button>
               </div>
               <div class="btn-group" id="sys-chart-period-btns">
                 <button class="btn-sm" data-period="1mo">1M</button>
@@ -176,7 +176,7 @@
             <div class="u-legend-item active" data-asset="unified">
               <span class="dot-legend" style="background:#00f090; box-shadow: 0 0 8px #00f090;"></span>
               <div class="ul-text">
-                <span class="ul-name">🌐 พอร์ตรวม 4 ระบบ (฿300k)</span>
+                <span class="ul-name">🌐 Unified 4-Asset Portfolio (฿300k)</span>
                 <span class="ul-val mono positive" id="ul-unified-val">+0.00%</span>
               </div>
             </div>
@@ -184,7 +184,7 @@
             <div class="u-legend-item active" data-asset="us">
               <span class="dot-legend" style="background:#00c8ff;"></span>
               <div class="ul-text">
-                <span class="ul-name">🇺🇸 ดัชนีหุ้นสหรัฐฯ (฿100k)</span>
+                <span class="ul-name">🇺🇸 US Equities Index (฿100k)</span>
                 <span class="ul-val mono positive" id="ul-us-val">+0.00%</span>
               </div>
             </div>
@@ -192,7 +192,7 @@
             <div class="u-legend-item active" data-asset="gold">
               <span class="dot-legend" style="background:#ffb703;"></span>
               <div class="ul-text">
-                <span class="ul-name">🥇 บอททองคำ (฿90k)</span>
+                <span class="ul-name">🥇 Gold & Metals Bot (฿90k)</span>
                 <span class="ul-val mono positive" id="ul-gold-val">+0.00%</span>
               </div>
             </div>
@@ -200,7 +200,7 @@
             <div class="u-legend-item active" data-asset="crypto">
               <span class="dot-legend" style="background:#9d4edd;"></span>
               <div class="ul-text">
-                <span class="ul-name">🪙 บอท Crypto Spot (฿80k)</span>
+                <span class="ul-name">🪙 Crypto Spot Bot (฿80k)</span>
                 <span class="ul-val mono positive" id="ul-crypto-val">+0.00%</span>
               </div>
             </div>
@@ -208,7 +208,7 @@
             <div class="u-legend-item active" data-asset="forex">
               <span class="dot-legend" style="background:#ff3b69;"></span>
               <div class="ul-text">
-                <span class="ul-name">💱 บอท Forex (฿30k)</span>
+                <span class="ul-name">💱 Forex Currency Bot (฿30k)</span>
                 <span class="ul-val mono" id="ul-forex-val">+0.00%</span>
               </div>
             </div>
@@ -222,7 +222,7 @@
         <!-- RECENT HOLDINGS QUICK TABLE -->
         <div class="system-holdings-box glass-panel">
           <div class="card-header">
-            <h3>💼 รายการสินทรัพย์ที่กำลังถือครองทั้งหมด (All Active Holdings)</h3>
+            <h3>💼 All Active System Holdings</h3>
             <span class="counter-badge" id="master-positions-count">0 Positions</span>
           </div>
           <div class="holdings-table-wrapper">
@@ -240,7 +240,7 @@
                 </tr>
               </thead>
               <tbody id="master-holdings-tbody">
-                <tr><td colspan="8" class="text-center">No active positions currently.</td></tr>
+                <tr><td colspan="8" class="text-center">No active positions currently open.</td></tr>
               </tbody>
             </table>
           </div>
@@ -256,8 +256,8 @@
           <div class="scalper-hero-header">
             <div>
               <div class="scalper-badge">⚡ HIGH-FREQUENCY SHORT/LONG SCALPING TERMINAL</div>
-              <h2>⚡ โหมดเทรดทำกำไรระยะสั้น (Short / Long รายไม้)</h2>
-              <p>ระบบเทรดความเร็วสูง แบ่งทุนเทรดสั้นแยกอิสระ: <strong>Forex ฿20,000</strong> และ <strong>Crypto ฿20,000</strong> (รวมกองทุนสเกลป์ ฿40,000)</p>
+              <h2>⚡ High-Frequency Scalping Terminal (Short / Long Multi-Order)</h2>
+              <p>Dedicated high-speed capital pools: <strong>Forex ฿20,000</strong> and <strong>Crypto ฿20,000</strong> (Total Scalper Fund ฿40,000)</p>
             </div>
             <div class="scalper-top-controls">
               <div class="scalp-auto-toggle-box">
@@ -268,10 +268,10 @@
                 </label>
               </div>
               <button class="btn-panic-scalp" id="btn-panic-scalp-all">
-                <span>🚨 ปิดทุกไม้ Scalp ฉุกเฉิน</span>
+                <span>🚨 Emergency Close All Scalps</span>
               </button>
-              <button class="btn-reset-scalp-sub" id="btn-reset-scalp-fund" title="รีเซ็ตกองทุน Scalp เป็น ฿40,000">
-                <span>🔄 Reset กองทุน Scalp</span>
+              <button class="btn-reset-scalp-sub" id="btn-reset-scalp-fund" title="Reset Scalper fund to ฿40,000 default">
+                <span>🔄 Reset Scalp Fund</span>
               </button>
             </div>
           </div>
@@ -280,24 +280,24 @@
           <div class="scalp-capital-grid">
             <div class="scalp-bucket-card crypto-bucket">
               <div class="s-bucket-header">
-                <div class="s-bucket-title">🪙 กองทุน Crypto Scalp (฿20,000)</div>
+                <div class="s-bucket-title">🪙 Crypto Scalp Fund (฿20,000)</div>
                 <span class="s-bucket-badge positive" id="scalp-crypto-return">+0.00%</span>
               </div>
               <div class="s-bucket-body">
                 <div class="s-b-item">
-                  <span class="s-b-lbl">เงินคงเหลือ (Available):</span>
+                  <span class="s-b-lbl">Available Balance:</span>
                   <strong class="mono" id="scalp-crypto-balance">฿20,000.00</strong>
                 </div>
                 <div class="s-b-item">
-                  <span class="s-b-lbl">มาร์จิ้นที่ใช้อยู่ (In Use):</span>
+                  <span class="s-b-lbl">Margin in Use:</span>
                   <strong class="mono" id="scalp-crypto-margin">฿0.00</strong>
                 </div>
                 <div class="s-b-item">
-                  <span class="s-b-lbl">กำไรลอยตัว (Floating):</span>
+                  <span class="s-b-lbl">Floating P&L:</span>
                   <strong class="mono positive" id="scalp-crypto-float">+฿0.00</strong>
                 </div>
                 <div class="s-b-item">
-                  <span class="s-b-lbl">มูลค่าพอร์ต Crypto รวม:</span>
+                  <span class="s-b-lbl">Total Crypto Equity:</span>
                   <strong class="mono accent-emerald" id="scalp-crypto-equity">฿20,000.00</strong>
                 </div>
               </div>
@@ -305,24 +305,24 @@
 
             <div class="scalp-bucket-card forex-bucket">
               <div class="s-bucket-header">
-                <div class="s-bucket-title">💱 กองทุน Forex Scalp (฿20,000)</div>
+                <div class="s-bucket-title">💱 Forex Scalp Fund (฿20,000)</div>
                 <span class="s-bucket-badge positive" id="scalp-forex-return">+0.00%</span>
               </div>
               <div class="s-bucket-body">
                 <div class="s-b-item">
-                  <span class="s-b-lbl">เงินคงเหลือ (Available):</span>
+                  <span class="s-b-lbl">Available Balance:</span>
                   <strong class="mono" id="scalp-forex-balance">฿20,000.00</strong>
                 </div>
                 <div class="s-b-item">
-                  <span class="s-b-lbl">มาร์จิ้นที่ใช้อยู่ (In Use):</span>
+                  <span class="s-b-lbl">Margin in Use:</span>
                   <strong class="mono" id="scalp-forex-margin">฿0.00</strong>
                 </div>
                 <div class="s-b-item">
-                  <span class="s-b-lbl">กำไรลอยตัว (Floating):</span>
+                  <span class="s-b-lbl">Floating P&L:</span>
                   <strong class="mono positive" id="scalp-forex-float">+฿0.00</strong>
                 </div>
                 <div class="s-b-item">
-                  <span class="s-b-lbl">มูลค่าพอร์ต Forex รวม:</span>
+                  <span class="s-b-lbl">Total Forex Equity:</span>
                   <strong class="mono accent-cyan" id="scalp-forex-equity">฿20,000.00</strong>
                 </div>
               </div>
@@ -330,24 +330,24 @@
 
             <div class="scalp-bucket-card total-bucket">
               <div class="s-bucket-header">
-                <div class="s-bucket-title">⚡ พอร์ต Scalper Pro รวม (฿40,000)</div>
-                <span class="s-bucket-badge neutral" id="scalp-active-tickets-badge">0 ตั๋วเปิดอยู่</span>
+                <div class="s-bucket-title">⚡ Combined Scalper Pro Fund (฿40,000)</div>
+                <span class="s-bucket-badge neutral" id="scalp-active-tickets-badge">0 Active Tickets</span>
               </div>
               <div class="s-bucket-body">
                 <div class="s-b-item">
-                  <span class="s-b-lbl">กำไรลอยตัวรวม (Live P&L):</span>
+                  <span class="s-b-lbl">Live Floating P&L:</span>
                   <strong class="mono positive" id="scalp-total-float">+฿0.00</strong>
                 </div>
                 <div class="s-b-item">
-                  <span class="s-b-lbl">กำไรสะสมปิดรอบ (Realized):</span>
+                  <span class="s-b-lbl">Closed Realized P&L:</span>
                   <strong class="mono positive" id="scalp-total-realized">+฿0.00</strong>
                 </div>
                 <div class="s-b-item">
-                  <span class="s-b-lbl">อัตราชนะ (Win Rate):</span>
-                  <strong class="mono" id="scalp-win-rate">0.0% (0 ไม้)</strong>
+                  <span class="s-b-lbl">Scalper Win Rate:</span>
+                  <strong class="mono" id="scalp-win-rate">0.0% (0 Trades)</strong>
                 </div>
                 <div class="s-b-item">
-                  <span class="s-b-lbl">มูลค่ากองทุนรวมทั้งหมด:</span>
+                  <span class="s-b-lbl">Combined Scalper Equity:</span>
                   <strong class="mono accent-gold" id="scalp-total-equity">฿40,000.00</strong>
                 </div>
               </div>
@@ -397,10 +397,10 @@
             <div class="scalp-radar-card glass-panel">
               <div class="radar-header">
                 <div>
-                  <h4>📡 AI Scalping Radar & Fast Signals (ตรวจจับจังหวะ Long/Short อัตโนมัติ)</h4>
-                  <p>อัลกอริทึมวิเคราะห์ RSI Extremes, Bollinger Band Rebound, และ EMA Cross เพื่อหาจุดเข้าไม้ที่มีความได้เปรียบสูง</p>
+                  <h4>📡 AI Scalping Radar & Fast Signals (Auto Long / Short Detection)</h4>
+                  <p>Real-time technical scans: RSI Oversold/Overbought, Bollinger Band Rebounds, and EMA Momentum Crosses for high-edge scalp setups.</p>
                 </div>
-                <button class="btn-sm btn-neon" id="btn-refresh-scalp-signals"><span>🔄 สแกนใหม่</span></button>
+                <button class="btn-sm btn-neon" id="btn-refresh-scalp-signals"><span>🔄 Re-Scan</span></button>
               </div>
               <div class="scalp-signals-grid" id="scalp-signals-container">
                 <!-- Dynamically populated AI signal cards -->
@@ -412,7 +412,7 @@
           <div class="scalp-right-col">
             <div class="scalp-order-deck glass-panel">
               <div class="deck-title">
-                <h3>⚡ ส่งคำสั่ง Short / Long รายไม้</h3>
+                <h3>⚡ Scalp Order Ticket (Short / Long)</h3>
                 <span class="deck-badge">EXECUTION TERMINAL</span>
               </div>
 
@@ -428,7 +428,7 @@
 
               <!-- SYMBOL SELECTOR -->
               <div class="form-group-scalp">
-                <label>เลือกสินทรัพย์ (Symbol):</label>
+                <label>Select Asset (Symbol):</label>
                 <select class="cyber-select" id="scalp-order-symbol">
                   <option value="BTC-USD">🪙 BTC-USD (Bitcoin)</option>
                   <option value="ETH-USD">💎 ETH-USD (Ethereum)</option>
@@ -438,17 +438,17 @@
 
               <!-- SHORT / LONG SIDE SELECTOR -->
               <div class="form-group-scalp">
-                <label>ทิศทางการเทรด (Order Side):</label>
+                <label>Order Direction (Side):</label>
                 <div class="scalp-side-selector">
                   <button class="btn-side-select long active" id="btn-side-long" data-side="LONG">
                     <span class="side-icon">🟢</span>
                     <span class="side-text">LONG (BUY)</span>
-                    <small>คาดว่าราคาจะขึ้น</small>
+                    <small>Bullish Expansion</small>
                   </button>
                   <button class="btn-side-select short" id="btn-side-short" data-side="SHORT">
                     <span class="side-icon">🔴</span>
                     <span class="side-text">SHORT (SELL)</span>
-                    <small>คาดว่าราคาจะลง</small>
+                    <small>Bearish Retracement</small>
                   </button>
                 </div>
               </div>
@@ -456,7 +456,7 @@
               <!-- LEVERAGE SELECTOR -->
               <div class="form-group-scalp">
                 <div class="flex-between">
-                  <label>อัตราทดเลเวอเรจ (Leverage Multiplier):</label>
+                  <label>Leverage Multiplier:</label>
                   <span class="leverage-val mono" id="scalp-leverage-display">5X</span>
                 </div>
                 <div class="leverage-pills" id="scalp-leverage-pills">
@@ -471,8 +471,8 @@
               <!-- MARGIN INPUT & QUICK PILLS -->
               <div class="form-group-scalp">
                 <div class="flex-between">
-                  <label>เงินมาร์จิ้นต่อไม้นี้ (Margin THB):</label>
-                  <span class="avail-text" id="scalp-max-avail-text">คงเหลือ: ฿20,000.00</span>
+                  <label>Margin Capital (THB):</label>
+                  <span class="avail-text" id="scalp-max-avail-text">Available: ฿20,000.00</span>
                 </div>
                 <div class="input-with-stepper">
                   <input type="number" class="cyber-input mono" id="scalp-margin-input" value="2000" min="100" step="500">
@@ -489,11 +489,11 @@
               <!-- EFFECTIVE POSITION SIZE HUD -->
               <div class="scalp-power-hud">
                 <div class="p-hud-row">
-                  <span>มูลค่าไม้เทรดจริง (Effective Size):</span>
+                  <span>Effective Position Value:</span>
                   <strong class="mono accent-emerald" id="scalp-effective-size">฿10,000.00</strong>
                 </div>
                 <div class="p-hud-row">
-                  <span>ราคาเข้าตลาดสด (Est. Entry):</span>
+                  <span>Est. Live Entry Price:</span>
                   <strong class="mono" id="scalp-est-entry">$0.00</strong>
                 </div>
               </div>
@@ -514,7 +514,7 @@
 
               <!-- EXECUTE ACTION BUTTON -->
               <button class="btn-execute-scalp long" id="btn-execute-scalp-order">
-                <span>⚡ เปิดไม้ LONG ทันที (฿2,000 x 5X)</span>
+                <span>⚡ OPEN LONG POSITION (฿2,000 x 5X)</span>
               </button>
             </div>
           </div>
@@ -524,8 +524,8 @@
         <div class="scalp-positions-card glass-panel" style="margin-top: 20px;">
           <div class="scalp-pos-header">
             <div class="pos-title-group">
-              <h3>🎯 ตั๋วไม้เทรดที่กำลังเปิดอยู่ (Active Open Tickets)</h3>
-              <p>ระบบติดตามกำไร/ขาดทุนรายไม้แบบ Real-Time พร้อมฟังก์ชันล็อกต้นทุน Break-Even และปิดทำกำไรแยกไม้</p>
+              <h3>🎯 Active Open Scalp Tickets</h3>
+              <p>Real-time Mark-to-Market ticket tracking with dynamic Break-Even trailing and per-ticket close controls.</p>
             </div>
             <span class="active-count-badge" id="scalp-open-count-badge">0 Active Tickets</span>
           </div>
@@ -534,17 +534,17 @@
             <table class="cyber-table">
               <thead>
                 <tr>
-                  <th>Ticket ID</th>
-                  <th>สินทรัพย์</th>
-                  <th>ทิศทาง</th>
-                  <th>ราคาเข้า (Entry)</th>
-                  <th>ราคาล่าสุด</th>
-                  <th>Leverage</th>
-                  <th>มาร์จิ้น (ทุน)</th>
-                  <th>กำไรลอยตัว (P&L)</th>
-                  <th>เป้า TP / SL</th>
-                  <th>เปิดเมื่อ</th>
-                  <th>การจัดการ</th>
+                  <th>TICKET ID</th>
+                  <th>ASSET</th>
+                  <th>SIDE</th>
+                  <th>ENTRY PRICE</th>
+                  <th>CURRENT PRICE</th>
+                  <th>LEVERAGE</th>
+                  <th>MARGIN</th>
+                  <th>FLOATING P&L</th>
+                  <th>TARGET TP / SL</th>
+                  <th>OPENED TIME</th>
+                  <th>ACTION</th>
                 </tr>
               </thead>
               <tbody id="scalp-positions-tbody">
@@ -558,8 +558,8 @@
         <div class="scalp-history-card glass-panel" style="margin-top: 20px;">
           <div class="scalp-pos-header">
             <div class="pos-title-group">
-              <h3>📋 ประวัติการปิดรอบไม้ทำกำไร (Closed Scalp Journal)</h3>
-              <p>บันทึกผลการเทรดสั้นรอบที่ผ่านมา พร้อมเหตุผลการปิด (TP Hit / SL Hit / Manual Exit)</p>
+              <h3>📋 Closed Scalp Trades Journal</h3>
+              <p>Chronological record of completed scalp executions with exit triggers (TP Hit / SL Hit / Manual Exit).</p>
             </div>
           </div>
 
@@ -567,15 +567,15 @@
             <table class="cyber-table">
               <thead>
                 <tr>
-                  <th>Ticket ID</th>
-                  <th>สินทรัพย์</th>
-                  <th>ทิศทาง</th>
-                  <th>ราคาเข้า -> ราคาปิด</th>
-                  <th>มาร์จิ้น</th>
-                  <th>กำไรสุทธิ (Realized)</th>
-                  <th>ผลตอบแทน %</th>
-                  <th>เหตุผลการปิด</th>
-                  <th>เวลาปิดไม้</th>
+                  <th>TICKET ID</th>
+                  <th>ASSET</th>
+                  <th>SIDE</th>
+                  <th>ENTRY -> EXIT</th>
+                  <th>MARGIN</th>
+                  <th>REALIZED P&L</th>
+                  <th>RETURN %</th>
+                  <th>EXIT REASON</th>
+                  <th>CLOSED TIME</th>
                 </tr>
               </thead>
               <tbody id="scalp-history-tbody">
@@ -645,7 +645,7 @@
             <!-- QUICK ORDER BOX -->
             <div class="quick-order-card glass-panel">
               <div class="card-header">
-                <h3>⚡ Quick Trade (Manual / Test)</h3>
+                <h3>⚡ Quick Trade (Manual / Paper Mode)</h3>
                 <span class="badge-mode">PAPER MODE</span>
               </div>
               <div class="order-form">
@@ -705,23 +705,23 @@
           <div class="harvest-hero glass-panel">
             <div class="harvest-hero-content">
               <div class="harvest-badge">💰 DAILY PROFIT HARVESTER & LOCK VAULT</div>
-              <h2>ระบบล็อกกำไรรายวันเก็บเข้าตู้เซฟ (Daily Target ฿300)</h2>
-              <p>เมื่อบอททำกำไรได้ตามเป้าหมาย ระบบสามารถตัดกำไรส่วนเกินเก็บเข้าตู้เซฟทันที เพื่อรักษาเงินต้นและล็อกกำไรที่จับต้องได้จริง</p>
+              <h2>Daily Profit Harvester & Lock Vault (Daily Target ฿300)</h2>
+              <p>When the robot reaches target daily profit milestones, surplus gains can be harvested directly into the secure vault to protect initial principal and lock realized wealth.</p>
               
               <div class="harvest-status-row">
                 <div class="harvest-stat">
-                  <span class="h-label">กำไรที่พร้อมเก็บ (Unrealized Profit)</span>
+                  <span class="h-label">Available Unrealized Profit</span>
                   <div class="h-val mono positive" id="harvest-unrealized-val">+฿0.00</div>
-                  <span class="h-sub">เป้าหมายขั้นต่ำ ฿300.00</span>
+                  <span class="h-sub">Minimum Lock Target ฿300.00</span>
                 </div>
                 <div class="harvest-stat">
-                  <span class="h-label">💎 ยอดเงินในตู้เซฟสะสม (Vault Balance)</span>
+                  <span class="h-label">💎 Cumulative Vault Balance</span>
                   <div class="h-val mono accent-amber" id="harvest-vault-val">฿0.00</div>
-                  <span class="h-sub">ล็อกกำไรปลอดภัย ไม่นำมาเสี่ยงต่อ</span>
+                  <span class="h-sub">Secured Capital: Protected from downside risk</span>
                 </div>
                 <div class="harvest-action-box">
                   <button class="btn-harvest-action" id="btn-trigger-harvest">
-                    <span>🎯 กดเก็บกำไรเข้าตู้เซฟทันที</span>
+                    <span>🎯 Lock Profit Into Vault Now</span>
                   </button>
                 </div>
               </div>
@@ -731,31 +731,31 @@
           <!-- COMPARISON METRICS CARDS -->
           <div class="harvest-metrics-grid">
             <div class="h-metric-card glass-panel">
-              <span class="hm-label">เก็บกำไรวันนี้ (TODAY)</span>
+              <span class="hm-label">Harvested Today (TODAY)</span>
               <div class="hm-val mono positive" id="hm-today-thb">฿0.00</div>
-              <span class="hm-sub" id="hm-pct-vs-yesterday">+0.0% vs เมื่อวาน</span>
+              <span class="hm-sub" id="hm-pct-vs-yesterday">+0.0% vs Yesterday</span>
             </div>
             <div class="h-metric-card glass-panel">
-              <span class="hm-label">เก็บกำไรเมื่อวาน (YESTERDAY)</span>
+              <span class="hm-label">Harvested Yesterday (YESTERDAY)</span>
               <div class="hm-val mono" id="hm-yesterday-thb">฿0.00</div>
-              <span class="hm-sub">กำไรที่ล็อกไว้รอบก่อนหน้า</span>
+              <span class="hm-sub">Previous Cycle Vault Total</span>
             </div>
             <div class="h-metric-card glass-panel">
-              <span class="hm-label">ยอดเก็บกำไรรวมทั้งหมด</span>
+              <span class="hm-label">Total Vault Accumulated</span>
               <div class="hm-val mono accent-amber" id="hm-alltime-thb">฿0.00</div>
               <span class="hm-sub">All-Time Locked Vault</span>
             </div>
             <div class="h-metric-card glass-panel">
-              <span class="hm-label">จำนวนวันที่กดเก็บกำไร</span>
-              <div class="hm-val mono" id="hm-days-count">0 วัน</div>
-              <span class="hm-sub">ความต่อเนื่องในการทำกำไร</span>
+              <span class="hm-label">Active Harvesting Days</span>
+              <div class="hm-val mono" id="hm-days-count">0 Days</div>
+              <span class="hm-sub">Profit Consistency Streak</span>
             </div>
           </div>
 
           <!-- HARVEST HISTORY CHART -->
           <div class="harvest-chart-card glass-panel">
             <div class="card-header">
-              <h3>📈 ประวัติการเก็บกำไรรายวัน & ยอดสะสมในตู้เซฟ (Daily Harvest History)</h3>
+              <h3>📈 Daily Profit Harvest History & Cumulative Vault Growth</h3>
             </div>
             <div class="canvas-wrapper harvest-canvas">
               <canvas id="harvest-history-chart"></canvas>
@@ -775,18 +775,18 @@
                 <span class="ai-icon-large">🧠</span>
                 <div>
                   <h2>24/7 Active AI Market Intelligence & Pre-Market Plan Queue</h2>
-                  <p>สมองกล AI สแกนข่าวกรองการเงินรอบโลก คำนวณความน่าจะเป็นที่จะชนะ และตั้งแผนเตรียมเข้าซื้อล่วงหน้า</p>
+                  <p>Autonomous AI engine parsing global financial catalysts, calculating statistical win probabilities, and scheduling high-conviction pre-market setups.</p>
                 </div>
               </div>
               <button class="btn-cyber" id="btn-scan-ai-now">
-                <span>⚡ สแกนข่าวและวิเคราะห์ตลาดใหม่ทันที</span>
+                <span>⚡ Run Live AI News & Market Analysis</span>
               </button>
             </div>
           </div>
 
           <!-- AI CANDIDATE PLANS QUEUE -->
           <div class="ai-plans-container" id="ai-plans-container">
-            <div class="loading-box">กำลังโหลดแผนการเข้าซื้อล่วงหน้าจากสมองกล AI...</div>
+            <div class="loading-box">Loading AI Pre-Market Tactical Setups...</div>
           </div>
         </div>
       </div>
@@ -799,29 +799,29 @@
           <!-- BEGINNER RISK STUDIO PRESETS -->
           <div class="risk-studio-card glass-panel">
             <div class="section-title">
-              <h2>🎨 Beginner Visual Strategy Studio (เลือกระดับความเสี่ยงใน 1 คลิก)</h2>
-              <p>ปรับรูปแบบการบริหารเงินทุน ขนาดไม้ Take Profit และ Stop Loss ตามสไตล์ของคุณ</p>
+              <h2>🎨 Visual Risk Studio & Preset Modes (One-Click Sizing)</h2>
+              <p>Configure portfolio allocation percentages, position sizing, Take-Profit targets, and Stop-Loss boundaries tailored to your risk profile.</p>
             </div>
             <div class="preset-modes-grid">
               <div class="preset-mode-card" data-mode="SAFE">
                 <div class="pm-icon">🛡️</div>
-                <div class="pm-title">1. โหมดเน้นปลอดภัย (Safe)</div>
-                <div class="pm-desc">ซื้อไม้ละ 10% | TP +5% | Cut Loss -2%</div>
-                <button class="btn-preset-apply" data-mode="SAFE">เลือกโหมดนี้</button>
+                <div class="pm-title">1. Safe Preservation Mode</div>
+                <div class="pm-desc">Position 10% | TP +5% | Stop Loss -2%</div>
+                <button class="btn-preset-apply" data-mode="SAFE">Apply Safe Mode</button>
               </div>
 
               <div class="preset-mode-card active-preset" data-mode="BALANCED">
                 <div class="pm-icon">⚖️</div>
-                <div class="pm-title">2. โหมดสมดุล กลางๆ (Balanced)</div>
-                <div class="pm-desc">ซื้อไม้ละ 20% | TP +8% | Cut Loss -3.5%</div>
-                <button class="btn-preset-apply" data-mode="BALANCED">เลือกโหมดนี้</button>
+                <div class="pm-title">2. Balanced Growth Mode</div>
+                <div class="pm-desc">Position 20% | TP +8% | Stop Loss -3.5%</div>
+                <button class="btn-preset-apply" data-mode="BALANCED">Apply Balanced Mode</button>
               </div>
 
               <div class="preset-mode-card" data-mode="AGGRESSIVE">
                 <div class="pm-icon">🚀</div>
-                <div class="pm-title">3. โหมดสายซิ่ง (Aggressive)</div>
-                <div class="pm-desc">ซื้อไม้ละ 35% | TP +15% | Cut Loss -5%</div>
-                <button class="btn-preset-apply" data-mode="AGGRESSIVE">เลือกโหมดนี้</button>
+                <div class="pm-title">3. Aggressive Momentum Mode</div>
+                <div class="pm-desc">Position 35% | TP +15% | Stop Loss -5%</div>
+                <button class="btn-preset-apply" data-mode="AGGRESSIVE">Apply Aggressive Mode</button>
               </div>
             </div>
           </div>
@@ -829,8 +829,8 @@
           <!-- 10 QUANT ENGINES MATRIX -->
           <div class="strategy-catalog-section">
             <div class="section-title">
-              <h2>🧠 10 คลังกลยุทธ์ Quant & AI Engine Catalog</h2>
-              <p>เลือกเปลี่ยนกลยุทธ์หลักของบอทได้ในคลิกเดียว</p>
+              <h2>🧠 10 Institutional Quant & AI Trading Engine Catalog</h2>
+              <p>Switch trading algorithms and execution models with single-click zero-downtime deployment.</p>
             </div>
             <div class="strategy-grid" id="strategy-grid">
               <!-- Dynamically populated from API -->
@@ -922,7 +922,7 @@
           <!-- EQUITY CURVE CHART -->
           <div class="equity-chart-card glass-panel">
             <div class="card-header">
-              <h3>📈 Equity Growth Curve (พอร์ตเติบโตสะสม)</h3>
+              <h3>📈 Cumulative Equity Growth Curve</h3>
             </div>
             <div class="canvas-wrapper backtest-canvas">
               <canvas id="equity-chart"></canvas>
@@ -969,11 +969,11 @@
         <div class="settings-layout">
           <!-- BROKER API KEYS -->
           <div class="settings-card glass-panel">
-            <h3>🔑 Broker API Credentials (เชื่อมต่อพอร์ตจริง)</h3>
-            <p>กรอก API Key สำหรับการส่งคำสั่งอัตโนมัติ (ระบบเข้ารหัสและเก็บรักษาปลอดภัยในเครื่อง)</p>
+            <h3>🔑 Broker API Credentials (Live Account Integration)</h3>
+            <p>Enter your broker API keys for live automated execution. Credentials are encrypted locally and never transmitted externally.</p>
 
             <div class="setting-group">
-              <label>Alpaca API Key (US Stock / Paper Trading)</label>
+              <label>Alpaca API Key (US Stocks / Paper Trading)</label>
               <input type="text" id="cfg-alpaca-key" class="cyber-input" placeholder="PK...">
             </div>
 
@@ -983,7 +983,7 @@
             </div>
 
             <div class="setting-group">
-              <label>Settrade Open API App ID (หุ้นไทย SET / TFEX)</label>
+              <label>Settrade Open API App ID (Thai Equities / TFEX)</label>
               <input type="text" id="cfg-settrade-id" class="cyber-input" placeholder="App ID...">
             </div>
 
@@ -993,19 +993,19 @@
             </div>
 
             <div class="setting-group">
-              <label>Binance / Bitkub API Key (Crypto)</label>
+              <label>Binance / Bitkub API Key (Crypto Spot)</label>
               <input type="text" id="cfg-crypto-key" class="cyber-input" placeholder="Crypto API Key...">
             </div>
 
             <div class="setting-group">
-              <button class="btn-cyber" id="btn-save-broker-keys">💾 บันทึกข้อมูล Broker API Keys</button>
+              <button class="btn-cyber" id="btn-save-broker-keys">💾 Save Broker Credentials</button>
             </div>
           </div>
 
           <!-- NOTIFICATIONS & WEBHOOKS -->
           <div class="settings-card glass-panel">
-            <h3>📱 Instant Notifications (แจ้งเตือนมือถือ 24/7)</h3>
-            <p>รับสัญญาณการซื้อขาย สรุปกำไรรายวัน และการแจ้งเตือนฉุกเฉินผ่าน Telegram และ Discord</p>
+            <h3>📱 Instant Notifications (Mobile Alerts 24/7)</h3>
+            <p>Receive live trade executions, daily profit lock summaries, and risk alerts via Telegram and Discord.</p>
 
             <div class="setting-group">
               <label>Telegram Bot Token</label>
@@ -1018,7 +1018,7 @@
             </div>
 
             <div class="setting-group">
-              <button class="btn-sm" id="btn-test-tg" style="width:fit-content;">🧪 ทดสอบส่ง Telegram</button>
+              <button class="btn-sm" id="btn-test-tg" style="width:fit-content;">🧪 Test Telegram Notification</button>
             </div>
 
             <div class="setting-group" style="margin-top: 12px;">
@@ -1027,29 +1027,29 @@
             </div>
 
             <div class="setting-group">
-              <button class="btn-sm" id="btn-test-discord" style="width:fit-content;">🧪 ทดสอบส่ง Discord</button>
+              <button class="btn-sm" id="btn-test-discord" style="width:fit-content;">🧪 Test Discord Webhook</button>
             </div>
           </div>
 
           <!-- SYSTEM RESET & PURGE (DANGER ZONE) -->
           <div class="settings-card glass-panel danger-card">
             <div class="card-header" style="margin-bottom:8px;">
-              <h3>⚠️ System Reset & Data Purge (ล้างข้อมูลและเริ่มต้นใหม่)</h3>
+              <h3>⚠️ System Reset & Master Data Purge</h3>
               <span class="card-badge" style="color:var(--accent-coral); background:rgba(255,59,105,0.15); border:1px solid rgba(255,59,105,0.3); padding:3px 8px; border-radius:4px; font-weight:800; font-size:10px;">DANGER ZONE</span>
             </div>
             <p style="font-size:12px; color:var(--text-secondary); margin-bottom:16px;">
-              รีเซ็ตระบบพอร์ตโฟลิโอ บันทึกการเทรด สถานะถือครอง ตู้เซฟล็อกกำไร และกองทุน Scalper ให้กลับสู่ค่าเริ่มต้นทั้งหมด
+              Reset portfolio state, trade logs, active positions, profit vaults, and scalper balances to initial clean defaults.
             </p>
 
             <div class="reset-buttons-grid">
               <button class="btn-danger-outline" id="btn-reset-full-system">
-                <span>🔄 รีเซ็ตทุกระบบทั้งหมด (Full Reset พอร์ตหลัก ฿300k + Scalper ฿40k)</span>
+                <span>🔄 Full System Reset (Restore ฿300k Main Portfolio + ฿40k Scalper Fund)</span>
               </button>
               <button class="btn-warning-outline" id="btn-reset-scalper-only">
-                <span>⚡ รีเซ็ตเฉพาะโหมด Scalper Pro (฿40,000)</span>
+                <span>⚡ Reset Scalper Pro Fund Only (฿40,000)</span>
               </button>
               <button class="btn-warning-outline" id="btn-reset-vault-only">
-                <span>💎 รีเซ็ตเฉพาะตู้เซฟล็อกกำไร (Harvest Vault)</span>
+                <span>💎 Reset Harvest Profit Vault Only (฿0.00)</span>
               </button>
             </div>
           </div>

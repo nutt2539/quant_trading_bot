@@ -92,24 +92,24 @@ def check_market_statuses():
 
     # Thai SET
     if weekday < 5 and ((10.0 <= time_float <= 12.5) or (14.5 <= time_float <= 16.5)):
-        thai_status = {"open": True, "label": "🟢 SET: เปิดทำการ", "hours": "10:00-12:30, 14:30-16:30"}
+        thai_status = {"open": True, "label": "🟢 SET: Open", "hours": "10:00-16:30 ICT"}
     else:
-        thai_status = {"open": False, "label": "🔴 SET: ปิดทำการ", "hours": "เปิด 10:00 น."}
+        thai_status = {"open": False, "label": "🔴 SET: Closed", "hours": "Opens 10:00 ICT"}
 
-    # US Market (21:30 - 04:00 Thai Time)
+    # US Market (21:30 - 04:00 Thai Time / 09:30 - 16:00 EST)
     if weekday < 5 and ((time_float >= 21.5) or (time_float <= 4.0)):
-        us_status = {"open": True, "label": "🟢 US Market: เปิดทำการ", "hours": "21:30-04:00 น."}
+        us_status = {"open": True, "label": "🟢 US Market: Open", "hours": "09:30-16:00 EST"}
     else:
-        us_status = {"open": False, "label": "🔴 US Market: ปิดทำการ", "hours": "เปิด 21:30 น."}
+        us_status = {"open": False, "label": "🔴 US Market: Closed", "hours": "Opens Mon 21:30 ICT"}
 
     # Crypto (24/7)
-    crypto_status = {"open": True, "label": "🟢 Crypto: เปิด 24/7", "hours": "ตลอด 24 ชั่วโมง"}
+    crypto_status = {"open": True, "label": "🟢 Crypto: Open 24/7", "hours": "Continuous 24/7/365"}
 
     # Forex (24/5)
     if weekday < 5 or (weekday == 5 and time_float < 4.0):
-        forex_status = {"open": True, "label": "🟢 Forex: เปิด 24/5", "hours": "จันทร์-ศุกร์"}
+        forex_status = {"open": True, "label": "🟢 Forex: Open 24/5", "hours": "Mon - Fri"}
     else:
-        forex_status = {"open": False, "label": "🔴 Forex: ตลาดปิดวันหยุด", "hours": "เปิดเช้าวันจันทร์"}
+        forex_status = {"open": False, "label": "🔴 Forex: Weekend Closed", "hours": "Opens Mon 05:00 ICT"}
 
     return {
         "thai": thai_status,
@@ -220,11 +220,11 @@ def reset_system_data(req: Optional[SystemResetRequest] = None):
 
         return {
             "success": True,
-            "message": f"รีเซ็ตระบบ ({scope}) สำเร็จ! คืนค่าเงินทุนเริ่มต้น (พอร์ตหลัก ฿300,000 + Scalper ฿40,000) เรียบร้อย",
+            "message": f"System reset ({scope}) complete! Restored default allocations (Main Portfolio $300k + Scalper $40k).",
             "scope": scope
         }
     except Exception as e:
-        return {"success": False, "error": str(e), "message": f"เกิดข้อผิดพลาดในการรีเซ็ต: {e}"}
+        return {"success": False, "error": str(e), "message": f"Reset error: {e}"}
 
 @app.get("/api/status")
 def get_system_status():
@@ -250,7 +250,7 @@ def get_system_status():
             systems_summary[sys_key] = {
                 "name": config.SYSTEM_LABELS.get(sys_key, sys_key),
                 "is_market_open": is_open,
-                "market_status_label": "🟢 ตลาดเปิด 24/7" if sys_key == "CRYPTO" else ("🟢 ตลาดเปิดสด" if is_open else "🔴 ตลาดปิดวันหยุด (ราคาปิดล่าสุด)"),
+                "market_status_label": "🟢 24/7 LIVE" if sys_key == "CRYPTO" else ("🟢 MARKET OPEN" if is_open else "🔴 MARKET CLOSED (Weekend)"),
                 "allocation_thb": config.SYSTEM_ALLOCATIONS.get(sys_key, 50000),
                 "portfolio_val_thb": round(sys_data.get("portfolio_val_thb", sys_data.get("current_equity", config.SYSTEM_ALLOCATIONS.get(sys_key, 50000))), 2),
                 "invested_thb": round(sys_data.get("invested_cash_thb", 0), 2),
@@ -492,7 +492,7 @@ def get_market_chart(
             
         latest_row = df_sig.iloc[-1]
         latest_signal = int(latest_row.get('Signal', 0))
-        signal_text = "BUY (🟢 สัญญาณเข้าซื้อ)" if latest_signal == 1 else "SELL (🔴 สัญญาณขาย/ทำกำไร)" if latest_signal == -1 else "HOLD (⚪ ถือรอจังหวะ)"
+        signal_text = "BUY (🟢 Bullish Entry)" if latest_signal == 1 else "SELL (🔴 Bearish Take-Profit / Exit)" if latest_signal == -1 else "HOLD (⚪ Neutral Wait)"
 
         # Multi-timeframe trend score
         mtf_data = analyze_multi_timeframe(symbol)
@@ -580,9 +580,9 @@ def apply_all_ai_strategies():
             set_active_strategy(rec_strat, sys_cat)
             results[sys_cat] = rec_strat
             
-        msg = f"🤖 [AI BULK STRATEGY APPLIED]\nปรับกลยุทธ์ตาม AI แนะนำครบ 4 สินทรัพย์เรียบร้อย:\n" + "\n".join([f"- {k}: {v}" for k, v in results.items()])
+        msg = f"🤖 [AI BULK STRATEGY APPLIED]\nAI recommended strategies deployed across all 4 asset systems:\n" + "\n".join([f"- {k}: {v}" for k, v in results.items()])
         send_instant_notification(msg)
-        return {"success": True, "applied_strategies": results, "message": "ปรับกลยุทธ์ทั้ง 4 สินทรัพย์ตาม AI แนะนำเรียบร้อยแล้ว!"}
+        return {"success": True, "applied_strategies": results, "message": "Successfully applied AI-optimized strategies to all 4 asset systems!"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -601,7 +601,7 @@ def get_strategies_catalog():
             "icon": item.get("icon", "⚙️"),
             "level": item.get("level", "BEGINNER"),
             "level_label": item.get("level_label", ""),
-            "risk_level": item.get("risk_level", "ปานกลาง"),
+            "risk_level": item.get("risk_level", "Moderate"),
             "desc": item.get("desc", ""),
             "pros": item.get("pros", ""),
             "cons": item.get("cons", ""),
@@ -629,7 +629,7 @@ def set_strategy_endpoint(payload: SetStrategyRequest):
     msg = f"🎯 [STRATEGY SWITCHED]: {info.get('icon', '')} {info.get('name', strat)} ({payload.system})"
     send_instant_notification(msg)
     
-    return {"success": True, "active_strategy": strat, "message": f"สลับกลยุทธ์เป็น {info.get('name', strat)} สำเร็จ"}
+    return {"success": True, "active_strategy": strat, "message": f"Switched strategy to {info.get('name', strat)} successfully"}
 
 @app.post("/api/strategy-presets/apply")
 def apply_strategy_preset(payload: StrategyPresetRequest):
@@ -649,7 +649,7 @@ def apply_strategy_preset(payload: StrategyPresetRequest):
         msg = f"🎨 [STRATEGY PRESET APPLIED]: Mode {mode}\nAllocation: {params.get('alloc_pct')}% | TP: +{params.get('tp_pct')}% | SL: {params.get('sl_pct')}%"
         send_instant_notification(msg)
 
-        return {"success": True, "mode": mode, "params": params, "message": f"บันทึกและปรับใช้โหมด {mode} เรียบร้อยแล้ว!"}
+        return {"success": True, "mode": mode, "params": params, "message": f"Successfully applied {mode} preset parameters!"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -730,7 +730,7 @@ def place_manual_order(req: ManualOrderRequest):
             with open(log_file, "w", encoding="utf-8") as f:
                 json.dump(logs, f, ensure_ascii=False, indent=2)
                 
-            msg = f"🟢 ส่งคำสั่งซื้อ {sym} จำนวน {req.shares} หน่วย สำเร็จ!"
+            msg = f"🟢 Buy order executed: {sym} x {req.shares} shares successfully!"
             success = True
             
         return {"success": success, "message": msg}
@@ -760,7 +760,7 @@ def panic_close_all():
         return {
             "success": True,
             "closed_count": closed_count,
-            "message": f"ปิดทุกสถานะฉุกเฉินสำเร็จ (Liquidated {closed_count} positions)"
+            "message": f"Emergency Liquidate Complete: Closed {closed_count} positions."
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -813,14 +813,14 @@ def save_broker_credentials_endpoint(payload: BrokerCredentialsSaveRequest):
                 if sub_v and not sub_v.startswith("****"):
                     existing[k][sub_k] = sub_v
         bcm.save_credentials(existing)
-        return {"success": True, "message": "บันทึกข้อมูล Broker API Keys เรียบร้อยแล้ว!"}
+        return {"success": True, "message": "Broker API credentials saved successfully!"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/test-notification")
 def test_notification_endpoint(req: NotificationTestRequest):
     """Sends a live test notification to Telegram or Discord."""
-    test_msg = f"🧪 [TEST NOTIFICATION - ทดสอบระบบแจ้งเตือน]\nระบบ Quantum Pro Trading Engine เชื่อมต่อสำเร็จ!\nเวลา: {get_thai_str()}"
+    test_msg = f"🧪 [TEST NOTIFICATION]\nQuantum Pro Trading Engine connected successfully!\nTimestamp: {get_thai_str()}"
     if req.channel == "telegram":
         success, msg = send_telegram_notification(test_msg, req.token, req.chat_id)
         if success:
@@ -830,7 +830,7 @@ def test_notification_endpoint(req: NotificationTestRequest):
         success = send_discord_webhook(test_msg, req.webhook_url)
         if success:
             config.update_discord_config(req.webhook_url)
-        return {"success": success, "message": "ส่งการแจ้งเตือน Discord สำเร็จ!" if success else "ส่ง Discord ไม่สำเร็จ"}
+        return {"success": success, "message": "Discord test notification sent successfully!" if success else "Failed to send Discord webhook"}
     return {"success": False, "message": "Unknown notification channel"}
 
 # ----------------- SCALPER PRO (SHORT / LONG TERMINAL) -----------------
@@ -883,7 +883,7 @@ def toggle_auto_scalper_endpoint(req: ScalperToggleRequest):
         state = scalper_engine.load_scalper_state()
         state["auto_scalp_enabled"] = req.enabled
         scalper_engine.save_scalper_state(state)
-        status_txt = "เปิดใช้งานบอท AI Scalper อัตโนมัติ" if req.enabled else "หยุดพักบอท AI Scalper ชั่วคราว"
+        status_txt = "AI Scalper Auto Engine Activated" if req.enabled else "AI Scalper Auto Engine Paused"
         return {"success": True, "auto_scalp_enabled": req.enabled, "message": status_txt}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

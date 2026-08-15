@@ -309,13 +309,13 @@ def execute_daily_profit_harvest() -> dict:
     if not status['is_eligible']:
         return {
             'success': False,
-            'message': f"กำไรจากพอร์ตถือครองขณะนี้อยู่ที่ ฿{status['total_unrealized_profit_thb']:,.2f} บาท (ยังไม่ถึงเกณฑ์ขั้นต่ำ ฿{status['min_profit_threshold']:,.0f} บาทในการกดเก็บกำไร)"
+            'message': f"Available unrealized profit is ฿{status['total_unrealized_profit_thb']:,.2f} (Minimum threshold is ฿{status['min_profit_threshold']:,.0f} to harvest profit into vault)"
         }
             
     candidates = status['profitable_positions']
     open_candidates = [c for c in candidates if is_market_open(str(c['symbol']))]
     if not open_candidates:
-        return {'success': False, 'message': 'ไม่พบสินทรัพย์ที่มีกำไรในตลาดที่เปิดทำการอยู่ในขณะนี้ (ขณะนี้ตลาดปิดทำการ)'}
+        return {'success': False, 'message': 'No profitable assets found in currently open markets (Target market is closed)'}
         
     target_harvest_baht = HARVEST_TARGET_PER_CLICK  # ฿300.0 THB per click
     
@@ -355,7 +355,7 @@ def execute_daily_profit_harvest() -> dict:
     # Financial Safety Check before executing
     is_safe, safety_msg = validate_trade_safety(symbol, 'SELL', trade_total_thb)
     if not is_safe:
-        return {'success': False, 'message': f"🛑 ระบบความปลอดภัยปฏิเสธออเดอร์: {safety_msg}"}
+        return {'success': False, 'message': f"🛑 Financial safety rejected order: {safety_msg}"}
 
     timestamp_str = get_thai_now().strftime('%Y-%m-%d %H:%M:%S')
     today_str = get_thai_now().strftime('%Y-%m-%d')
@@ -385,8 +385,8 @@ def execute_daily_profit_harvest() -> dict:
             "shares": sell_qty,
             "price": round(curr_price_val, 2),
             "total_thb": trade_total_thb,
-            "reason": f"🎯 AI Manual Daily Profit Harvest (เก็บกำไรเข้ากระเป๋าทีละ +฿{harvested_pnl:,.2f} บาท)",
-            "ai_summary": f"AI คัดเลือก {symbol} ซึ่งมีผลตอบแทนสูงสุด (+{best_candidate['pnl_pct']:.2f}%) เพื่อทำกำไรทีละ ฿{harvested_pnl:,.2f} บาท"
+            "reason": f"🎯 AI Daily Profit Harvest (Transferred +฿{harvested_pnl:,.2f} into vault)",
+            "ai_summary": f"AI selected {symbol} (+{best_candidate['pnl_pct']:.2f}% gain) to lock +฿{harvested_pnl:,.2f} into safe vault"
         }
         logs.insert(0, log_entry)
         with open(TRADE_LOG_FILE, "w", encoding="utf-8") as f:
@@ -398,12 +398,12 @@ def execute_daily_profit_harvest() -> dict:
     
     # Send instant Telegram Notification
     new_today_harvest = status['harvested_today_thb'] + harvested_pnl
-    msg = f"🎯 [DAILY PROFIT HARVEST - AI เก็บกำไรเข้ากระเป๋าทีละ ฿300 บาท]\nขายทำกำไร: {symbol}\nจำนวน: {sell_qty} หน่วย (ราคา {curr_price_val:,.2f})\nกำไรล็อคเข้ากระเป๋า: +฿{harvested_pnl:,.2f} บาท (+{best_candidate['pnl_pct']:.2f}%)\nเหตุผล: AI ประเมินคุ้มค่าสูงสุด เก็บกำไรสะสมวันนี้รวม ฿{new_today_harvest:,.2f} บาท"
+    msg = f"🎯 [DAILY PROFIT HARVEST - Vault Lock +฿300 THB]\nSold asset: {symbol}\nQuantity: {sell_qty} units (Price: ${curr_price_val:,.2f})\nVault Locked Profit: +฿{harvested_pnl:,.2f} (+{best_candidate['pnl_pct']:.2f}%)\nToday Total Vault: ฿{new_today_harvest:,.2f}"
     send_instant_notification(msg)
     
     return {
         'success': True,
         'symbol': symbol,
         'harvested_pnl_thb': harvested_pnl,
-        'message': f"AI ดำเนินการขาย {symbol} จำนวน {sell_qty} หน่วย เพื่อล็อคกำไรเข้ากระเป๋าจำนวน +฿{harvested_pnl:,.2f} บาทสำเร็จ!"
+        'message': f"AI sold {sell_qty} units of {symbol} and locked +฿{harvested_pnl:,.2f} profit into vault successfully!"
     }

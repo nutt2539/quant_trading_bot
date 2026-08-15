@@ -22,7 +22,7 @@ def calculate_kelly_allocation(
             "allocated_thb": 0.0,
             "kelly_pct": 0.0,
             "conviction_tier": "NO_CASH",
-            "reason": "เงินสดไม่เพียงพอสำหรับการยิงออเดอร์"
+            "reason": "Insufficient cash balance to place order"
         }
         
     # 1. Standard Kelly Fraction Calculation
@@ -36,16 +36,16 @@ def calculate_kelly_allocation(
     # Higher positive sentiment increases conviction
     if ai_sentiment_score >= 0.50:
         conviction_mult = 1.5  # High Conviction (Tier 1)
-        conviction_tier = "🔥 HIGH CONVICTION (เกรด A+)"
+        conviction_tier = "🔥 HIGH CONVICTION (Grade A+)"
     elif ai_sentiment_score >= 0.20:
         conviction_mult = 1.0  # Moderate Conviction (Tier 2)
-        conviction_tier = "🟢 MODERATE CONVICTION (เกรด B+)"
+        conviction_tier = "🟢 MODERATE CONVICTION (Grade B+)"
     elif ai_sentiment_score >= 0.0:
         conviction_mult = 0.75 # Neutral Conviction (Tier 3)
-        conviction_tier = "🟡 NEUTRAL CONVICTION (เกรด B)"
+        conviction_tier = "🟡 NEUTRAL CONVICTION (Grade B)"
     else:
         conviction_mult = 0.50 # Low Conviction (Tier 4)
-        conviction_tier = "⚠️ LOW CONVICTION (เกรด C)"
+        conviction_tier = "⚠️ LOW CONVICTION (Grade C)"
         
     # Calculate recommended THB amount
     calculated_thb = base_allocation_thb * conviction_mult
