@@ -143,6 +143,8 @@ const DOM = {
   scalpSpreadTag: document.getElementById("scalp-spread-tag"),
   scalpSymbolBtns: document.getElementById("scalp-symbol-btns"),
   scalpTfBtns: document.getElementById("scalp-tf-btns"),
+  scalpHeldTicketsStrip: document.getElementById("scalp-held-tickets-strip"),
+  scalpHeldChipsWrap: document.getElementById("scalp-held-chips-wrap"),
   scalpRadarCard: document.getElementById("scalp-radar-card"),
   radarHeaderBar: document.getElementById("radar-header-bar"),
   btnToggleRadarCollapse: document.getElementById("btn-toggle-radar-collapse"),
@@ -2746,12 +2748,40 @@ async function fetchScalperStatus() {
     renderScalperPositions(data.open_positions);
     renderScalperHistory(data.closed_positions);
     updateScalpOrderFormCalculations();
+    renderScalperChart();
   } catch (err) {
     console.error("Scalper status fetch error", err);
   }
 }
 
 function renderScalperPositions(positions) {
+  // Update Held Tickets Live Strip
+  if (DOM.scalpHeldTicketsStrip && DOM.scalpHeldChipsWrap) {
+    if (!positions || positions.length === 0) {
+      DOM.scalpHeldTicketsStrip.style.display = "none";
+      DOM.scalpHeldChipsWrap.innerHTML = "";
+    } else {
+      DOM.scalpHeldTicketsStrip.style.display = "flex";
+      DOM.scalpHeldChipsWrap.innerHTML = "";
+      positions.forEach(p => {
+        const chip = document.createElement("button");
+        const isLong = p.side === "LONG";
+        const isActive = p.symbol === STATE.scalper.activeSymbol;
+        const pnlSign = p.floating_pnl_thb >= 0 ? '+' : '';
+        const pnlClass = p.floating_pnl_thb >= 0 ? 'positive' : 'negative';
+        chip.className = `held-chip ${isLong ? 'long' : 'short'} ${isActive ? 'active' : ''}`;
+        chip.title = `Click to inspect realtime candlestick chart for ${p.name}`;
+        chip.innerHTML = `
+          <span>${p.icon || '⚡'} ${p.symbol.replace('-USD', '').replace('=X', '')}</span>
+          <span style="font-size:9px; padding:1px 4px; border-radius:3px; background:${isLong ? 'rgba(0,240,144,0.2)' : 'rgba(255,59,105,0.2)'}; color:${isLong ? '#00f090' : '#ff3b69'}; font-weight:800;">${p.side}</span>
+          <strong class="${pnlClass}">${pnlSign}฿${p.floating_pnl_thb.toFixed(2)}</strong>
+        `;
+        chip.onclick = () => viewTicketOnChart(p.symbol, p.asset_class, p.id);
+        DOM.scalpHeldChipsWrap.appendChild(chip);
+      });
+    }
+  }
+
   if (!DOM.scalpPositionsTbody) return;
   DOM.scalpPositionsTbody.innerHTML = "";
 
@@ -2765,31 +2795,64 @@ function renderScalperPositions(positions) {
     const isLong = p.side === "LONG";
     const pnlSign = p.floating_pnl_thb >= 0 ? '+' : '';
     const pnlClass = p.floating_pnl_thb >= 0 ? 'positive' : 'negative';
-    const dec = p.entry_price < 10 ? 4 : 2;
+    const dec = p.entry_price < 10 ? (p.entry_price < 0.01 ? 6 : 4) : 2;
 
     tr.innerHTML = `
       <td class="mono font-bold" style="color:#f8fafc;">${p.id}</td>
       <td>${p.icon || '⚡'} <strong>${p.name}</strong> <span style="font-size:10px; color:var(--text-muted);">(${p.symbol})</span></td>
       <td><span class="sig-side-badge ${isLong ? 'long' : 'short'}">${isLong ? '🟢 LONG' : '🔴 SHORT'}</span></td>
-      <td class="mono">$${p.entry_price.toFixed(dec)}</td>
-      <td class="mono font-bold">$${(p.current_price || p.entry_price).toFixed(dec)}</td>
+      <td class="mono font-bold" style="color:#38bdf8;">$${p.entry_price.toFixed(dec)}</td>
+      <td class="mono font-bold" style="color:#ffb703;">$${(p.current_price || p.entry_price).toFixed(dec)}</td>
       <td><span class="mono" style="background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px; font-weight:700;">${p.leverage}X</span></td>
       <td class="mono">฿${p.margin_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
       <td class="mono font-bold ${pnlClass}">${pnlSign}฿${p.floating_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })} (${pnlSign}${p.floating_pnl_pct.toFixed(2)}%)</td>
       <td class="mono" style="font-size:11px;">
-        <span style="color:#00f090;">TP: ${p.tp_price ? '$' + p.tp_price.toFixed(dec) : '-'}</span><br>
-        <span style="color:#ff3b69;">SL: ${p.sl_price ? '$' + p.sl_price.toFixed(dec) : '-'}</span>
+        <span style="color:#00f090; font-weight:700;">🎯 TP: ${p.tp_price ? '$' + p.tp_price.toFixed(dec) : '-'}</span><br>
+        <span style="color:#ff3b69; font-weight:700;">🛑 CL: ${p.sl_price ? '$' + p.sl_price.toFixed(dec) : '-'}</span>
       </td>
       <td style="font-size:11px; color:var(--text-muted);">${p.open_time}</td>
       <td>
-        <button class="btn-scalp-action close-ticket" onclick="closeScalperTicket('${p.id}')">
-          <span>❌ Close</span>
-        </button>
+        <div style="display:flex; gap:4px; align-items:center;">
+          <button class="btn-scalp-action view-chart" onclick="viewTicketOnChart('${p.symbol}', '${p.asset_class}', '${p.id}')" title="Inspect Candle Chart with TP/CL Overlay">
+            <span>📈 Chart</span>
+          </button>
+          <button class="btn-scalp-action close-ticket" onclick="closeScalperTicket('${p.id}')" title="Close Ticket">
+            <span>❌ Close</span>
+          </button>
+        </div>
       </td>
     `;
     DOM.scalpPositionsTbody.appendChild(tr);
   });
 }
+
+// Global helper to load held ticket into real-time candlestick chart with TP/CL overlay
+window.viewTicketOnChart = function(symbol, assetClass, ticketId) {
+  if (!symbol) return;
+  STATE.scalper.activeSymbol = symbol;
+  
+  if (assetClass && assetClass !== STATE.scalper.activeAssetClass) {
+    switchScalpAssetClass(assetClass, symbol);
+  } else {
+    // Update active button styling in symbol list
+    if (DOM.scalpSymbolBtns) {
+      DOM.scalpSymbolBtns.querySelectorAll("button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.sym === symbol);
+      });
+    }
+    if (DOM.scalpOrderSymbol) {
+      DOM.scalpOrderSymbol.value = symbol;
+    }
+  }
+
+  fetchScalperChart(symbol, STATE.scalper.activeTf);
+  showToast(`Loaded realtime candlestick chart for ${symbol} with TP / CL overlays`, "info");
+
+  // Scroll smoothly to chart title
+  if (DOM.scalpChartTitle) {
+    DOM.scalpChartTitle.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+};
 
 function renderScalperHistory(history) {
   if (!DOM.scalpHistoryTbody) return;
@@ -2837,10 +2900,12 @@ async function fetchScalperChart(symbol, tf = "5m") {
       DOM.scalpChartTitle.textContent = `${symInfo} — ${tf.toUpperCase()} Scalp Station`;
     }
 
-    if (DOM.scalpChartPrice && data.candles.length > 0) {
-      const latestC = data.candles[data.candles.length - 1].close;
-      const dec = latestC < 10 ? 4 : 2;
-      DOM.scalpChartPrice.textContent = `$${latestC.toLocaleString('en-US', { minimumFractionDigits: dec })}`;
+    if (data.candles.length > 0) {
+      const latest = data.candles[data.candles.length - 1];
+      if (DOM.scalpChartPrice) {
+        const dec = latest.close < 10 ? (latest.close < 0.01 ? 6 : 4) : 2;
+        DOM.scalpChartPrice.textContent = `$${latest.close.toFixed(dec)}`;
+      }
     }
 
     renderScalperChart();
@@ -2882,18 +2947,43 @@ function renderScalperChart() {
   const candles = STATE.scalper.chartData;
   scalpCtx.clearRect(0, 0, scalpWidth, scalpHeight);
 
-  const pad = { top: 20, right: 65, bottom: 25, left: 10 };
+  const pad = { top: 32, right: 95, bottom: 25, left: 10 };
   const cW = scalpWidth - pad.left - pad.right;
   const cH = scalpHeight - pad.top - pad.bottom;
 
   let minP = Math.min(...candles.map(c => c.low));
   let maxP = Math.max(...candles.map(c => c.high));
-  const range = (maxP - minP) || 1;
-  minP -= range * 0.05;
-  maxP += range * 0.05;
 
-  const getY = (p) => pad.top + cH - ((p - minP) / (maxP - minP)) * cH;
-  const candleW = Math.max(2, (cW / candles.length) * 0.7);
+  // Include active open tickets TP/CL/Entry and current live price in vertical bounds
+  const activeForSym = (STATE.scalper.status && STATE.scalper.status.open_positions)
+    ? STATE.scalper.status.open_positions.filter(p => p.symbol === STATE.scalper.activeSymbol)
+    : [];
+
+  activeForSym.forEach(p => {
+    if (p.entry_price) {
+      minP = Math.min(minP, p.entry_price);
+      maxP = Math.max(maxP, p.entry_price);
+    }
+    if (p.tp_price) {
+      minP = Math.min(minP, p.tp_price);
+      maxP = Math.max(maxP, p.tp_price);
+    }
+    if (p.sl_price) {
+      minP = Math.min(minP, p.sl_price);
+      maxP = Math.max(maxP, p.sl_price);
+    }
+    if (p.current_price) {
+      minP = Math.min(minP, p.current_price);
+      maxP = Math.max(maxP, p.current_price);
+    }
+  });
+
+  const range = (maxP - minP) || 1;
+  minP -= range * 0.08;
+  maxP += range * 0.08;
+
+  const getY = (p) => Math.max(pad.top + 2, Math.min(pad.top + cH - 2, pad.top + cH - ((p - minP) / (maxP - minP)) * cH));
+  const candleW = Math.max(2.5, (cW / candles.length) * 0.7);
 
   // 1. Horizontal Grid lines
   scalpCtx.strokeStyle = "rgba(255, 255, 255, 0.05)";
@@ -2908,11 +2998,34 @@ function renderScalperChart() {
     const priceLabel = maxP - (i / 4) * (maxP - minP);
     scalpCtx.fillStyle = "#64748b";
     scalpCtx.font = "10px 'JetBrains Mono'";
-    const dec = priceLabel < 10 ? 4 : 2;
+    const dec = priceLabel < 10 ? (priceLabel < 0.01 ? 6 : 4) : 2;
     scalpCtx.fillText(`$${priceLabel.toFixed(dec)}`, scalpWidth - pad.right + 6, y + 3);
   }
 
-  // 2. Candlesticks
+  // 2. Open Positions Shaded Corridors (drawn behind candlesticks)
+  activeForSym.forEach(p => {
+    const yEntry = getY(p.entry_price);
+    const yTP = p.tp_price ? getY(p.tp_price) : null;
+    const ySL = p.sl_price ? getY(p.sl_price) : null;
+
+    // Green TP Corridor
+    if (yTP !== null) {
+      const topTP = Math.min(yEntry, yTP);
+      const hTP = Math.abs(yEntry - yTP);
+      scalpCtx.fillStyle = "rgba(0, 240, 144, 0.08)";
+      scalpCtx.fillRect(pad.left, topTP, cW, Math.max(2, hTP));
+    }
+
+    // Red SL / Cut Loss Corridor
+    if (ySL !== null) {
+      const topSL = Math.min(yEntry, ySL);
+      const hSL = Math.abs(yEntry - ySL);
+      scalpCtx.fillStyle = "rgba(255, 59, 105, 0.08)";
+      scalpCtx.fillRect(pad.left, topSL, cW, Math.max(2, hSL));
+    }
+  });
+
+  // 3. Candlesticks
   candles.forEach((c, i) => {
     const x = pad.left + (i / (candles.length - 1 || 1)) * cW;
     const yO = getY(c.open);
@@ -2937,47 +3050,117 @@ function renderScalperChart() {
     scalpCtx.fillRect(x - candleW / 2, topY, candleW, bodyH);
   });
 
-  // 3. Open Positions Targets Overlay
-  if (STATE.scalper.status && STATE.scalper.status.open_positions) {
-    const activeForSym = STATE.scalper.status.open_positions.filter(p => p.symbol === STATE.scalper.activeSymbol);
-    activeForSym.forEach(p => {
-      // Entry Line
-      const yEntry = getY(p.entry_price);
-      scalpCtx.strokeStyle = p.side === "LONG" ? "#00f090" : "#ff3b69";
-      scalpCtx.lineWidth = 1;
-      scalpCtx.setLineDash([4, 4]);
+  // 4. Distinct Lines & Clear Badges for Entry, TP, Cut Loss (CL), and Live Price
+  activeForSym.forEach(p => {
+    const isLong = p.side === "LONG";
+    const dec = p.entry_price < 10 ? (p.entry_price < 0.01 ? 6 : 4) : 2;
+
+    // --- A. ENTRY PRICE LINE & BADGE ---
+    const yEntry = getY(p.entry_price);
+    scalpCtx.strokeStyle = "#38bdf8"; // Bright Sky Cyan
+    scalpCtx.lineWidth = 1.5;
+    scalpCtx.setLineDash([5, 4]);
+    scalpCtx.beginPath();
+    scalpCtx.moveTo(pad.left, yEntry);
+    scalpCtx.lineTo(scalpWidth - pad.right, yEntry);
+    scalpCtx.stroke();
+    scalpCtx.setLineDash([]);
+
+    // Entry Left Tag
+    scalpCtx.fillStyle = "rgba(14, 165, 233, 0.95)";
+    scalpCtx.fillRect(pad.left + 4, yEntry - 9, 140, 18);
+    scalpCtx.fillStyle = "#ffffff";
+    scalpCtx.font = "bold 9px 'JetBrains Mono'";
+    scalpCtx.fillText(`⚡ ENTRY: $${p.entry_price.toFixed(dec)} (${p.side})`, pad.left + 8, yEntry + 3);
+
+    // --- B. TAKE PROFIT (TP) LINE & BADGE ---
+    if (p.tp_price) {
+      const yTP = getY(p.tp_price);
+      scalpCtx.strokeStyle = "#00f090"; // Neon Emerald Green
+      scalpCtx.lineWidth = 2;
       scalpCtx.beginPath();
-      scalpCtx.moveTo(pad.left, yEntry);
-      scalpCtx.lineTo(scalpWidth - pad.right, yEntry);
+      scalpCtx.moveTo(pad.left, yTP);
+      scalpCtx.lineTo(scalpWidth - pad.right, yTP);
       scalpCtx.stroke();
-      scalpCtx.setLineDash([]);
 
-      // TP Line
-      if (p.tp_price) {
-        const yTP = getY(p.tp_price);
-        scalpCtx.strokeStyle = "#00f090";
-        scalpCtx.lineWidth = 1.2;
-        scalpCtx.setLineDash([2, 2]);
-        scalpCtx.beginPath();
-        scalpCtx.moveTo(pad.left, yTP);
-        scalpCtx.lineTo(scalpWidth - pad.right, yTP);
-        scalpCtx.stroke();
-        scalpCtx.setLineDash([]);
-      }
+      // Right TP Badge Pill
+      scalpCtx.fillStyle = "#00f090";
+      scalpCtx.fillRect(scalpWidth - pad.right + 2, yTP - 9, 90, 18);
+      scalpCtx.fillStyle = "#040914";
+      scalpCtx.font = "bold 9px 'JetBrains Mono'";
+      scalpCtx.fillText(`🎯 TP: $${p.tp_price.toFixed(dec)}`, scalpWidth - pad.right + 5, yTP + 3);
+    }
 
-      // SL Line
-      if (p.sl_price) {
-        const ySL = getY(p.sl_price);
-        scalpCtx.strokeStyle = "#ff3b69";
-        scalpCtx.lineWidth = 1.2;
-        scalpCtx.setLineDash([2, 2]);
-        scalpCtx.beginPath();
-        scalpCtx.moveTo(pad.left, ySL);
-        scalpCtx.lineTo(scalpWidth - pad.right, ySL);
-        scalpCtx.stroke();
-        scalpCtx.setLineDash([]);
-      }
-    });
+    // --- C. CUT LOSS / STOP LOSS (CL) LINE & BADGE ---
+    if (p.sl_price) {
+      const ySL = getY(p.sl_price);
+      scalpCtx.strokeStyle = "#ff3b69"; // Neon Coral Red
+      scalpCtx.lineWidth = 2;
+      scalpCtx.beginPath();
+      scalpCtx.moveTo(pad.left, ySL);
+      scalpCtx.lineTo(scalpWidth - pad.right, ySL);
+      scalpCtx.stroke();
+
+      // Right CL Badge Pill
+      scalpCtx.fillStyle = "#ff3b69";
+      scalpCtx.fillRect(scalpWidth - pad.right + 2, ySL - 9, 90, 18);
+      scalpCtx.fillStyle = "#ffffff";
+      scalpCtx.font = "bold 9px 'JetBrains Mono'";
+      scalpCtx.fillText(`🛑 CL: $${p.sl_price.toFixed(dec)}`, scalpWidth - pad.right + 5, ySL + 3);
+    }
+  });
+
+  // 5. Live Current Price Marker Line
+  const lastCandle = candles[candles.length - 1];
+  if (lastCandle) {
+    const yLive = getY(lastCandle.close);
+    const dec = lastCandle.close < 10 ? (lastCandle.close < 0.01 ? 6 : 4) : 2;
+    scalpCtx.strokeStyle = "rgba(255, 183, 3, 0.9)"; // Amber Gold
+    scalpCtx.lineWidth = 1;
+    scalpCtx.setLineDash([3, 3]);
+    scalpCtx.beginPath();
+    scalpCtx.moveTo(pad.left, yLive);
+    scalpCtx.lineTo(scalpWidth - pad.right, yLive);
+    scalpCtx.stroke();
+    scalpCtx.setLineDash([]);
+
+    // Live Price Tag on right
+    scalpCtx.fillStyle = "#ffb703";
+    scalpCtx.fillRect(scalpWidth - pad.right + 2, yLive - 8, 90, 16);
+    scalpCtx.fillStyle = "#040914";
+    scalpCtx.font = "bold 9px 'JetBrains Mono'";
+    scalpCtx.fillText(`● $${lastCandle.close.toFixed(dec)}`, scalpWidth - pad.right + 5, yLive + 3);
+  }
+
+  // 6. Top Canvas Active Position HUD Ribbon
+  if (activeForSym.length > 0) {
+    const p = activeForSym[0];
+    const isLong = p.side === "LONG";
+    const pnlSign = p.floating_pnl_thb >= 0 ? '+' : '';
+    const pnlColor = p.floating_pnl_thb >= 0 ? '#00f090' : '#ff3b69';
+    const dec = p.entry_price < 10 ? (p.entry_price < 0.01 ? 6 : 4) : 2;
+
+    scalpCtx.fillStyle = "rgba(4, 9, 22, 0.88)";
+    scalpCtx.fillRect(pad.left, 4, cW, 22);
+    scalpCtx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+    scalpCtx.lineWidth = 1;
+    scalpCtx.strokeRect(pad.left, 4, cW, 22);
+
+    scalpCtx.fillStyle = "#f8fafc";
+    scalpCtx.font = "bold 10px 'JetBrains Mono'";
+    scalpCtx.fillText(`🎫 Ticket ${p.id} [${p.side} ${p.leverage}X]`, pad.left + 8, 19);
+
+    scalpCtx.fillStyle = "#38bdf8";
+    scalpCtx.fillText(`⚡ Entry: $${p.entry_price.toFixed(dec)}`, pad.left + 155, 19);
+
+    scalpCtx.fillStyle = "#00f090";
+    scalpCtx.fillText(`🎯 TP: $${p.tp_price ? p.tp_price.toFixed(dec) : '-'}`, pad.left + 265, 19);
+
+    scalpCtx.fillStyle = "#ff3b69";
+    scalpCtx.fillText(`🛑 CL: $${p.sl_price ? p.sl_price.toFixed(dec) : '-'}`, pad.left + 365, 19);
+
+    scalpCtx.fillStyle = pnlColor;
+    scalpCtx.fillText(`Float: ${pnlSign}฿${p.floating_pnl_thb.toFixed(2)} (${pnlSign}${p.floating_pnl_pct.toFixed(2)}%)`, pad.left + 465, 19);
   }
 }
 
