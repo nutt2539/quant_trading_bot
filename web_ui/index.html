@@ -559,17 +559,52 @@
           </div>
         </div>
 
-        <!-- ACTIVE SCALP POSITIONS MATRIX -->
-        <div class="scalp-positions-card glass-panel" style="margin-top: 20px;">
+        <!-- ACTIVE SCALP POSITIONS MATRIX & LIVE CANDLESTICK VISUALIZER -->
+        <div class="scalp-positions-card glass-panel" style="margin-top: 20px;" id="scalp-positions-card">
           <div class="scalp-pos-header">
             <div class="pos-title-group">
-              <h3>🎯 Active Open Scalp Tickets</h3>
-              <p>Real-time Mark-to-Market ticket tracking with dynamic Break-Even trailing and per-ticket close controls.</p>
+              <h3>🎯 Active Open Scalp Tickets & Live Candlestick Visualizer</h3>
+              <p>Real-time Candlestick Chart with Entry Level (🔵), Take-Profit (🟢), Cut-Loss (🔴), and Live Market Ticker (🟡).</p>
             </div>
             <span class="active-count-badge" id="scalp-open-count-badge">0 Active Tickets</span>
           </div>
 
-          <div class="table-container">
+          <!-- ACTIVE HELD TICKETS LIVE CANDLESTICK VIEWER -->
+          <div class="scalp-ticket-chart-section" id="scalp-ticket-chart-section">
+            <div class="ticket-chart-top-bar">
+              <div class="t-chart-info-left">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="t-chart-badge" id="scalp-chart-badge">LIVE TICKET CANDLESTICK RADAR</span>
+                  <h4 id="scalp-chart-title">🪙 BTC-USD (Bitcoin 5M Scalp)</h4>
+                </div>
+                <div class="t-chart-metrics">
+                  <span class="t-price mono font-bold" id="scalp-chart-price">$0.00</span>
+                  <span class="t-pnl-pill mono" id="scalp-chart-pnl">+฿0.00 (+0.00%)</span>
+                </div>
+              </div>
+              <div class="t-chart-controls">
+                <div class="btn-group" id="scalp-tf-btns">
+                  <button class="btn-sm" data-tf="1m">1M</button>
+                  <button class="btn-sm active" data-tf="5m">5M</button>
+                  <button class="btn-sm" data-tf="15m">15M</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- HELD TICKETS FAST-SWITCHER CHIP TABS -->
+            <div class="scalp-held-tickets-strip" id="scalp-held-tickets-strip" style="display: none;">
+              <span class="held-strip-title">🎫 Select Ticket:</span>
+              <div class="held-chips-wrap" id="scalp-held-chips-wrap"></div>
+            </div>
+
+            <!-- CANVAS FOR REAL-TIME CANDLESTICK & TP / CL / ENTRY OVERLAYS -->
+            <div class="canvas-wrapper scalp-canvas-wrap" style="height: 340px; position: relative;">
+              <canvas id="scalper-chart-canvas"></canvas>
+              <div class="chart-tooltip" id="scalper-chart-tooltip"></div>
+            </div>
+          </div>
+
+          <div class="table-container" style="margin-top: 15px;">
             <table class="cyber-table">
               <thead>
                 <tr>

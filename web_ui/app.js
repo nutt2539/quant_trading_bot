@@ -140,6 +140,9 @@ const DOM = {
   scalpChartTooltip: document.getElementById("scalper-chart-tooltip"),
   scalpChartTitle: document.getElementById("scalp-chart-title"),
   scalpChartPrice: document.getElementById("scalp-chart-price"),
+  scalpChartBadge: document.getElementById("scalp-chart-badge"),
+  scalpChartPnl: document.getElementById("scalp-chart-pnl"),
+  scalpTicketChartSection: document.getElementById("scalp-ticket-chart-section"),
   scalpSpreadTag: document.getElementById("scalp-spread-tag"),
   scalpSymbolBtns: document.getElementById("scalp-symbol-btns"),
   scalpTfBtns: document.getElementById("scalp-tf-btns"),
@@ -2838,6 +2841,23 @@ function renderScalperPositions(positions) {
     }
   }
 
+  // Update Active Selected Ticket Header Info
+  if (positions && positions.length > 0) {
+    const activePos = positions.find(p => p.symbol === STATE.scalper.activeSymbol) || positions[0];
+    if (activePos) {
+      const dec = activePos.entry_price < 10 ? (activePos.entry_price < 0.01 ? 6 : 4) : 2;
+      const pnlSign = activePos.floating_pnl_thb >= 0 ? '+' : '';
+      const pnlClass = activePos.floating_pnl_thb >= 0 ? 'positive' : 'negative';
+      if (DOM.scalpChartBadge) DOM.scalpChartBadge.textContent = `TICKET: ${activePos.id} (${activePos.side} ${activePos.leverage}X)`;
+      if (DOM.scalpChartTitle) DOM.scalpChartTitle.textContent = `${activePos.icon || '⚡'} ${activePos.name} (${activePos.symbol})`;
+      if (DOM.scalpChartPrice) DOM.scalpChartPrice.textContent = `$${(activePos.current_price || activePos.entry_price).toFixed(dec)}`;
+      if (DOM.scalpChartPnl) {
+        DOM.scalpChartPnl.textContent = `${pnlSign}฿${activePos.floating_pnl_thb.toFixed(2)} (${pnlSign}${activePos.floating_pnl_pct.toFixed(2)}%)`;
+        DOM.scalpChartPnl.className = `t-pnl-pill mono ${pnlClass}`;
+      }
+    }
+  }
+
   if (!DOM.scalpPositionsTbody) return;
   DOM.scalpPositionsTbody.innerHTML = "";
 
@@ -2849,9 +2869,21 @@ function renderScalperPositions(positions) {
   positions.forEach(p => {
     const tr = document.createElement("tr");
     const isLong = p.side === "LONG";
+    const isActive = p.symbol === STATE.scalper.activeSymbol;
     const pnlSign = p.floating_pnl_thb >= 0 ? '+' : '';
     const pnlClass = p.floating_pnl_thb >= 0 ? 'positive' : 'negative';
     const dec = p.entry_price < 10 ? (p.entry_price < 0.01 ? 6 : 4) : 2;
+
+    if (isActive) {
+      tr.style.background = "rgba(56, 189, 248, 0.08)";
+      tr.style.outline = "1px solid rgba(56, 189, 248, 0.3)";
+    }
+    tr.style.cursor = "pointer";
+    tr.onclick = (e) => {
+      if (!e.target.closest("button")) {
+        viewTicketOnChart(p.symbol, p.asset_class, p.id);
+      }
+    };
 
     tr.innerHTML = `
       <td class="mono font-bold" style="color:#f8fafc;">${p.id}</td>
@@ -2868,9 +2900,14 @@ function renderScalperPositions(positions) {
       </td>
       <td style="font-size:11px; color:var(--text-muted);">${p.open_time}</td>
       <td>
-        <button class="btn-scalp-action close-ticket" onclick="closeScalperTicket('${p.id}')" title="Close Ticket Immediately">
-          <span>❌ Close</span>
-        </button>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <button class="btn-scalp-action view-chart" onclick="viewTicketOnChart('${p.symbol}', '${p.asset_class}', '${p.id}')" title="Inspect Candlestick Chart with TP/CL/Entry Overlay">
+            <span>📈 Chart</span>
+          </button>
+          <button class="btn-scalp-action close-ticket" onclick="closeScalperTicket('${p.id}')" title="Close Ticket Immediately">
+            <span>❌ Close</span>
+          </button>
+        </div>
       </td>
     `;
     DOM.scalpPositionsTbody.appendChild(tr);
@@ -2897,11 +2934,11 @@ window.viewTicketOnChart = function(symbol, assetClass, ticketId) {
   }
 
   fetchScalperChart(symbol, STATE.scalper.activeTf);
-  showToast(`Loaded realtime candlestick chart for ${symbol} with TP / CL overlays`, "info");
+  showToast(`🎯 Loaded ${symbol} Candlestick Chart with TP / CL / Entry levels`, "info");
 
-  // Scroll smoothly to chart title
-  if (DOM.scalpChartTitle) {
-    DOM.scalpChartTitle.scrollIntoView({ behavior: "smooth", block: "center" });
+  // Scroll smoothly to chart section
+  if (DOM.scalpTicketChartSection) {
+    DOM.scalpTicketChartSection.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 };
 
