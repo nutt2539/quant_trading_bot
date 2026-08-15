@@ -16,6 +16,19 @@ const STATE = {
   systemsChartPeriod: "3mo",
   systemsChartMode: "PCT",
   visibleSystems: { unified: true, us: true, gold: true, crypto: true, forex: true },
+  scalper: {
+    activeAssetClass: "CRYPTO",
+    activeSymbol: "BTC-USD",
+    activeTf: "5m",
+    activeSide: "LONG",
+    leverage: 5,
+    margin: 2000,
+    tpPct: 1.5,
+    slPct: 0.8,
+    chartData: [],
+    status: null,
+    signals: []
+  },
   harvesterData: {},
   aiPlan: null,
   robotEnabled: true,
@@ -58,6 +71,54 @@ const DOM = {
   ulGoldVal: document.getElementById("ul-gold-val"),
   ulCryptoVal: document.getElementById("ul-crypto-val"),
   ulForexVal: document.getElementById("ul-forex-val"),
+
+  // Scalper Pro
+  scalpAutoToggle: document.getElementById("scalp-auto-toggle"),
+  btnPanicScalpAll: document.getElementById("btn-panic-scalp-all"),
+  scalpCryptoReturn: document.getElementById("scalp-crypto-return"),
+  scalpCryptoBalance: document.getElementById("scalp-crypto-balance"),
+  scalpCryptoMargin: document.getElementById("scalp-crypto-margin"),
+  scalpCryptoFloat: document.getElementById("scalp-crypto-float"),
+  scalpCryptoEquity: document.getElementById("scalp-crypto-equity"),
+  scalpForexReturn: document.getElementById("scalp-forex-return"),
+  scalpForexBalance: document.getElementById("scalp-forex-balance"),
+  scalpForexMargin: document.getElementById("scalp-forex-margin"),
+  scalpForexFloat: document.getElementById("scalp-forex-float"),
+  scalpForexEquity: document.getElementById("scalp-forex-equity"),
+  scalpTotalFloat: document.getElementById("scalp-total-float"),
+  scalpTotalRealized: document.getElementById("scalp-total-realized"),
+  scalpWinRate: document.getElementById("scalp-win-rate"),
+  scalpTotalEquity: document.getElementById("scalp-total-equity"),
+  scalpActiveTicketsBadge: document.getElementById("scalp-active-tickets-badge"),
+  scalpChartCanvas: document.getElementById("scalper-chart-canvas"),
+  scalpChartTooltip: document.getElementById("scalper-chart-tooltip"),
+  scalpChartTitle: document.getElementById("scalp-chart-title"),
+  scalpChartPrice: document.getElementById("scalp-chart-price"),
+  scalpSpreadTag: document.getElementById("scalp-spread-tag"),
+  scalpSymbolBtns: document.getElementById("scalp-symbol-btns"),
+  scalpTfBtns: document.getElementById("scalp-tf-btns"),
+  scalpSignalsContainer: document.getElementById("scalp-signals-container"),
+  btnRefreshScalpSignals: document.getElementById("btn-refresh-scalp-signals"),
+  tabScalpCrypto: document.getElementById("tab-scalp-crypto"),
+  tabScalpForex: document.getElementById("tab-scalp-forex"),
+  scalpOrderSymbol: document.getElementById("scalp-order-symbol"),
+  btnSideLong: document.getElementById("btn-side-long"),
+  btnSideShort: document.getElementById("btn-side-short"),
+  scalpLeverageDisplay: document.getElementById("scalp-leverage-display"),
+  scalpLeveragePills: document.getElementById("scalp-leverage-pills"),
+  scalpMarginInput: document.getElementById("scalp-margin-input"),
+  scalpMaxAvailText: document.getElementById("scalp-max-avail-text"),
+  scalpPctPills: document.getElementById("scalp-pct-pills"),
+  scalpEffectiveSize: document.getElementById("scalp-effective-size"),
+  scalpEstEntry: document.getElementById("scalp-est-entry"),
+  scalpTpInput: document.getElementById("scalp-tp-input"),
+  scalpSlInput: document.getElementById("scalp-sl-input"),
+  scalpTpPriceHint: document.getElementById("scalp-tp-price-hint"),
+  scalpSlPriceHint: document.getElementById("scalp-sl-price-hint"),
+  btnExecuteScalpOrder: document.getElementById("btn-execute-scalp-order"),
+  scalpPositionsTbody: document.getElementById("scalp-positions-tbody"),
+  scalpOpenCountBadge: document.getElementById("scalp-open-count-badge"),
+  scalpHistoryTbody: document.getElementById("scalp-history-tbody"),
 
   // Terminal & Chart
   chartSymbolTitle: document.getElementById("chart-symbol-title"),
@@ -126,8 +187,10 @@ function showToast(message, type = "info") {
 document.addEventListener("DOMContentLoaded", () => {
   setupNavigation();
   setupEventListeners();
+  setupScalperEventListeners();
   initCanvas();
   initUnifiedCanvas();
+  initScalperCanvas();
   fetchInitialData();
   startRealtimePolling();
 });
@@ -146,6 +209,11 @@ function setupNavigation() {
 
       // Redraw charts or trigger tab specific fetchers
       if (targetId === "view-systems") { fetchSystemsChart(STATE.systemsChartPeriod); renderUnifiedSystemsChart(); }
+      if (targetId === "view-scalper") {
+        fetchScalperStatus();
+        fetchScalperChart(STATE.scalper.activeSymbol, STATE.scalper.activeTf);
+        fetchScalperSignals();
+      }
       if (targetId === "view-terminal") renderChart();
       if (targetId === "view-harvester") { fetchHarvester(); renderHarvestChart(); }
       if (targetId === "view-ai-planner") fetchAiPlannerQueue();
@@ -393,12 +461,14 @@ function startRealtimePolling() {
   fetchPositions();
   fetchHarvester();
   fetchAiPlannerQueue();
+  fetchScalperStatus();
 
   STATE.pollingTimer = setInterval(() => {
     fetchStatus();
     fetchTickers();
     fetchPositions();
     fetchHarvester();
+    fetchScalperStatus();
   }, 3500);
 }
 
@@ -408,6 +478,8 @@ async function fetchInitialData() {
   await fetchStrategies();
   await fetchMarketChart(STATE.activeSymbol, STATE.activePeriod);
   await fetchSystemsChart(STATE.systemsChartPeriod);
+  await fetchScalperStatus();
+  await fetchScalperSignals();
 }
 
 async function fetchStatus() {
@@ -1431,4 +1503,687 @@ function renderUnifiedSystemsChart() {
     if (STATE.visibleSystems.unified) drawDot(isVal ? cur.unified_val : cur.unified_pct, "#00f090");
   }
 }
+
+// ==========================================================================
+// SCALPER PRO (SHORT / LONG) CONTROLLER & ENGINE
+// ==========================================================================
+
+let scalpCtx, scalpWidth, scalpHeight;
+
+function setupScalperEventListeners() {
+  // 1. Asset Class Switcher (Crypto vs Forex)
+  if (DOM.tabScalpCrypto && DOM.tabScalpForex) {
+    DOM.tabScalpCrypto.addEventListener("click", () => switchScalpAssetClass("CRYPTO"));
+    DOM.tabScalpForex.addEventListener("click", () => switchScalpAssetClass("FOREX"));
+  }
+
+  // 2. Order Symbol Change
+  if (DOM.scalpOrderSymbol) {
+    DOM.scalpOrderSymbol.addEventListener("change", (e) => {
+      STATE.scalper.activeSymbol = e.target.value;
+      updateScalpSymbolButtons(STATE.scalper.activeSymbol);
+      fetchScalperChart(STATE.scalper.activeSymbol, STATE.scalper.activeTf);
+      updateScalpOrderFormCalculations();
+    });
+  }
+
+  // 3. Chart Symbol Quick Buttons
+  if (DOM.scalpSymbolBtns) {
+    DOM.scalpSymbolBtns.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const sym = btn.getAttribute("data-sym");
+        STATE.scalper.activeSymbol = sym;
+        
+        // Auto detect asset class
+        const isForex = sym.includes("=") || sym.includes("EUR") || sym.includes("GBP") || sym.includes("JPY");
+        const targetAsset = isForex ? "FOREX" : "CRYPTO";
+        if (targetAsset !== STATE.scalper.activeAssetClass) {
+          switchScalpAssetClass(targetAsset, sym);
+        } else {
+          if (DOM.scalpOrderSymbol) DOM.scalpOrderSymbol.value = sym;
+          updateScalpSymbolButtons(sym);
+          fetchScalperChart(sym, STATE.scalper.activeTf);
+          updateScalpOrderFormCalculations();
+        }
+      });
+    });
+  }
+
+  // 4. Chart Timeframe Quick Buttons (1M, 5M, 15M)
+  if (DOM.scalpTfBtns) {
+    DOM.scalpTfBtns.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        DOM.scalpTfBtns.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        STATE.scalper.activeTf = btn.getAttribute("data-tf");
+        fetchScalperChart(STATE.scalper.activeSymbol, STATE.scalper.activeTf);
+      });
+    });
+  }
+
+  // 5. Order Side Buttons (LONG vs SHORT)
+  if (DOM.btnSideLong && DOM.btnSideShort) {
+    DOM.btnSideLong.addEventListener("click", () => setScalpOrderSide("LONG"));
+    DOM.btnSideShort.addEventListener("click", () => setScalpOrderSide("SHORT"));
+  }
+
+  // 6. Leverage Pills (1X, 2X, 5X, 10X, 20X)
+  if (DOM.scalpLeveragePills) {
+    DOM.scalpLeveragePills.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        DOM.scalpLeveragePills.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        STATE.scalper.leverage = parseFloat(btn.getAttribute("data-lev")) || 5;
+        if (DOM.scalpLeverageDisplay) DOM.scalpLeverageDisplay.textContent = `${STATE.scalper.leverage}X`;
+        updateScalpOrderFormCalculations();
+      });
+    });
+  }
+
+  // 7. Margin Input & Percentage Pills
+  if (DOM.scalpMarginInput) {
+    DOM.scalpMarginInput.addEventListener("input", () => {
+      STATE.scalper.margin = parseFloat(DOM.scalpMarginInput.value) || 1000;
+      updateScalpOrderFormCalculations();
+    });
+  }
+
+  if (DOM.scalpPctPills) {
+    DOM.scalpPctPills.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const pct = parseFloat(btn.getAttribute("data-pct")) || 25;
+        const bal = getScalpAvailableBalance(STATE.scalper.activeAssetClass);
+        const calcMargin = Math.max(100, Math.floor((bal * (pct / 100)) / 100) * 100);
+        STATE.scalper.margin = calcMargin;
+        if (DOM.scalpMarginInput) DOM.scalpMarginInput.value = calcMargin;
+        updateScalpOrderFormCalculations();
+      });
+    });
+  }
+
+  // 8. TP & SL Input Changes
+  if (DOM.scalpTpInput) {
+    DOM.scalpTpInput.addEventListener("input", () => {
+      STATE.scalper.tpPct = parseFloat(DOM.scalpTpInput.value) || 1.5;
+      updateScalpOrderFormCalculations();
+    });
+  }
+  if (DOM.scalpSlInput) {
+    DOM.scalpSlInput.addEventListener("input", () => {
+      STATE.scalper.slPct = parseFloat(DOM.scalpSlInput.value) || 0.8;
+      updateScalpOrderFormCalculations();
+    });
+  }
+
+  // 9. Execute Order Button
+  if (DOM.btnExecuteScalpOrder) {
+    DOM.btnExecuteScalpOrder.addEventListener("click", executeScalperOrder);
+  }
+
+  // 10. Auto-Scalper Master Toggle
+  if (DOM.scalpAutoToggle) {
+    DOM.scalpAutoToggle.addEventListener("change", async (e) => {
+      const enabled = e.target.checked;
+      try {
+        const res = await fetch("/api/scalper/toggle-auto", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ enabled })
+        });
+        const data = await res.json();
+        showToast(data.message, "info");
+        fetchScalperStatus();
+      } catch (err) {
+        showToast("Auto-scalp toggle failed", "error");
+      }
+    });
+  }
+
+  // 11. Panic Close All Scalps
+  if (DOM.btnPanicScalpAll) {
+    DOM.btnPanicScalpAll.addEventListener("click", closeAllScalperPositions);
+  }
+
+  // 12. Refresh AI Signals
+  if (DOM.btnRefreshScalpSignals) {
+    DOM.btnRefreshScalpSignals.addEventListener("click", () => {
+      DOM.btnRefreshScalpSignals.textContent = "⏳ Scanning...";
+      fetchScalperSignals().then(() => {
+        DOM.btnRefreshScalpSignals.innerHTML = "<span>🔄 สแกนใหม่</span>";
+        showToast("สแกนสัญญาณ Scalping ล่าสุดเรียบร้อย!", "success");
+      });
+    });
+  }
+}
+
+function getScalpAvailableBalance(assetClass) {
+  if (!STATE.scalper.status || !STATE.scalper.status.capital_summary) return 20000.0;
+  const key = assetClass.toLowerCase();
+  return STATE.scalper.status.capital_summary[key]?.balance_thb || 20000.0;
+}
+
+function switchScalpAssetClass(assetClass, specificSymbol = null) {
+  STATE.scalper.activeAssetClass = assetClass;
+
+  if (DOM.tabScalpCrypto) DOM.tabScalpCrypto.classList.toggle("active", assetClass === "CRYPTO");
+  if (DOM.tabScalpForex) DOM.tabScalpForex.classList.toggle("active", assetClass === "FOREX");
+
+  // Re-populate symbol selectbox
+  if (DOM.scalpOrderSymbol) {
+    DOM.scalpOrderSymbol.innerHTML = "";
+    if (assetClass === "CRYPTO") {
+      DOM.scalpOrderSymbol.innerHTML = `
+        <option value="BTC-USD">🪙 BTC-USD (Bitcoin)</option>
+        <option value="ETH-USD">💎 ETH-USD (Ethereum)</option>
+        <option value="SOL-USD">⚡ SOL-USD (Solana)</option>
+      `;
+      STATE.scalper.activeSymbol = specificSymbol || "BTC-USD";
+    } else {
+      DOM.scalpOrderSymbol.innerHTML = `
+        <option value="EURUSD=X">💶 EUR/USD (Euro / US Dollar)</option>
+        <option value="GBPUSD=X">💷 GBP/USD (British Pound)</option>
+        <option value="USDJPY=X">💴 USD/JPY (US Dollar / Yen)</option>
+      `;
+      STATE.scalper.activeSymbol = specificSymbol || "EURUSD=X";
+    }
+    DOM.scalpOrderSymbol.value = STATE.scalper.activeSymbol;
+  }
+
+  updateScalpSymbolButtons(STATE.scalper.activeSymbol);
+  fetchScalperChart(STATE.scalper.activeSymbol, STATE.scalper.activeTf);
+  updateScalpOrderFormCalculations();
+}
+
+function updateScalpSymbolButtons(symbol) {
+  if (!DOM.scalpSymbolBtns) return;
+  DOM.scalpSymbolBtns.querySelectorAll("button").forEach(btn => {
+    btn.classList.toggle("active", btn.getAttribute("data-sym") === symbol);
+  });
+}
+
+function setScalpOrderSide(side) {
+  STATE.scalper.activeSide = side;
+  if (DOM.btnSideLong) DOM.btnSideLong.classList.toggle("active", side === "LONG");
+  if (DOM.btnSideShort) DOM.btnSideShort.classList.toggle("active", side === "SHORT");
+
+  if (DOM.btnExecuteScalpOrder) {
+    DOM.btnExecuteScalpOrder.className = `btn-execute-scalp ${side.toLowerCase()}`;
+  }
+  updateScalpOrderFormCalculations();
+}
+
+function updateScalpOrderFormCalculations() {
+  const margin = parseFloat(DOM.scalpMarginInput ? DOM.scalpMarginInput.value : 2000) || 2000;
+  const leverage = STATE.scalper.leverage || 5;
+  const side = STATE.scalper.activeSide || "LONG";
+  const tpPct = parseFloat(DOM.scalpTpInput ? DOM.scalpTpInput.value : 1.5) || 1.5;
+  const slPct = parseFloat(DOM.scalpSlInput ? DOM.scalpSlInput.value : 0.8) || 0.8;
+
+  const effectiveSize = margin * leverage;
+  if (DOM.scalpEffectiveSize) {
+    DOM.scalpEffectiveSize.textContent = `฿${effectiveSize.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  }
+
+  const avail = getScalpAvailableBalance(STATE.scalper.activeAssetClass);
+  if (DOM.scalpMaxAvailText) {
+    DOM.scalpMaxAvailText.textContent = `คงเหลือ: ฿${avail.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  }
+
+  let currPrice = 0.0;
+  if (STATE.scalper.chartData && STATE.scalper.chartData.length > 0) {
+    currPrice = STATE.scalper.chartData[STATE.scalper.chartData.length - 1].close;
+  }
+  if (currPrice > 0) {
+    if (DOM.scalpEstEntry) DOM.scalpEstEntry.textContent = `$${currPrice.toLocaleString('en-US', { minimumFractionDigits: currPrice < 10 ? 4 : 2 })}`;
+    
+    const tpDelta = currPrice * (tpPct / 100);
+    const slDelta = currPrice * (slPct / 100);
+    const tpPrice = side === "LONG" ? (currPrice + tpDelta) : (currPrice - tpDelta);
+    const slPrice = side === "LONG" ? (currPrice - slDelta) : (currPrice + slDelta);
+
+    const decimals = currPrice < 10 ? 4 : 2;
+    if (DOM.scalpTpPriceHint) DOM.scalpTpPriceHint.textContent = `TP Price: $${tpPrice.toFixed(decimals)}`;
+    if (DOM.scalpSlPriceHint) DOM.scalpSlPriceHint.textContent = `SL Price: $${slPrice.toFixed(decimals)}`;
+  }
+
+  if (DOM.btnExecuteScalpOrder) {
+    DOM.btnExecuteScalpOrder.innerHTML = `<span>⚡ เปิดไม้ ${side} ทันที (฿${margin.toLocaleString()} x ${leverage}X)</span>`;
+  }
+}
+
+// ----------------- SCALPER DATA FETCHERS & RENDERERS -----------------
+
+async function fetchScalperStatus() {
+  try {
+    const res = await fetch("/api/scalper/status");
+    const data = await res.json();
+    if (!data.success) return;
+
+    STATE.scalper.status = data;
+
+    // HUD: Crypto Bucket
+    const c = data.capital_summary.crypto;
+    if (DOM.scalpCryptoReturn) {
+      DOM.scalpCryptoReturn.textContent = `${c.return_pct >= 0 ? '+' : ''}${c.return_pct.toFixed(2)}%`;
+      DOM.scalpCryptoReturn.className = `s-bucket-badge ${c.return_pct >= 0 ? 'positive' : 'negative'}`;
+    }
+    if (DOM.scalpCryptoBalance) DOM.scalpCryptoBalance.textContent = `฿${c.balance_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    if (DOM.scalpCryptoMargin) DOM.scalpCryptoMargin.textContent = `฿${c.margin_used_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    if (DOM.scalpCryptoFloat) {
+      DOM.scalpCryptoFloat.textContent = `${c.floating_pnl_thb >= 0 ? '+' : ''}฿${c.floating_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      DOM.scalpCryptoFloat.className = `mono ${c.floating_pnl_thb >= 0 ? 'positive' : 'negative'}`;
+    }
+    if (DOM.scalpCryptoEquity) DOM.scalpCryptoEquity.textContent = `฿${c.equity_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+    // HUD: Forex Bucket
+    const f = data.capital_summary.forex;
+    if (DOM.scalpForexReturn) {
+      DOM.scalpForexReturn.textContent = `${f.return_pct >= 0 ? '+' : ''}${f.return_pct.toFixed(2)}%`;
+      DOM.scalpForexReturn.className = `s-bucket-badge ${f.return_pct >= 0 ? 'positive' : 'negative'}`;
+    }
+    if (DOM.scalpForexBalance) DOM.scalpForexBalance.textContent = `฿${f.balance_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    if (DOM.scalpForexMargin) DOM.scalpForexMargin.textContent = `฿${f.margin_used_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    if (DOM.scalpForexFloat) {
+      DOM.scalpForexFloat.textContent = `${f.floating_pnl_thb >= 0 ? '+' : ''}฿${f.floating_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      DOM.scalpForexFloat.className = `mono ${f.floating_pnl_thb >= 0 ? 'positive' : 'negative'}`;
+    }
+    if (DOM.scalpForexEquity) DOM.scalpForexEquity.textContent = `฿${f.equity_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+    // HUD: Total Bucket
+    const sum = data.capital_summary;
+    if (DOM.scalpTotalFloat) {
+      DOM.scalpTotalFloat.textContent = `${sum.total_floating_pnl_thb >= 0 ? '+' : ''}฿${sum.total_floating_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      DOM.scalpTotalFloat.className = `mono ${sum.total_floating_pnl_thb >= 0 ? 'positive' : 'negative'}`;
+    }
+    if (DOM.scalpTotalRealized) {
+      DOM.scalpTotalRealized.textContent = `${sum.total_realized_pnl_thb >= 0 ? '+' : ''}฿${sum.total_realized_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      DOM.scalpTotalRealized.className = `mono ${sum.total_realized_pnl_thb >= 0 ? 'positive' : 'negative'}`;
+    }
+    if (DOM.scalpWinRate) DOM.scalpWinRate.textContent = `${sum.win_rate_pct.toFixed(1)}% (${sum.total_closed_trades} ไม้)`;
+    if (DOM.scalpTotalEquity) DOM.scalpTotalEquity.textContent = `฿${sum.total_equity_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    if (DOM.scalpActiveTicketsBadge) DOM.scalpActiveTicketsBadge.textContent = `${data.active_tickets_count} ตั๋วเปิดอยู่`;
+    if (DOM.scalpOpenCountBadge) DOM.scalpOpenCountBadge.textContent = `${data.active_tickets_count} Active Tickets`;
+
+    renderScalperPositions(data.open_positions);
+    renderScalperHistory(data.closed_positions);
+    updateScalpOrderFormCalculations();
+  } catch (err) {
+    console.error("Scalper status fetch error", err);
+  }
+}
+
+function renderScalperPositions(positions) {
+  if (!DOM.scalpPositionsTbody) return;
+  DOM.scalpPositionsTbody.innerHTML = "";
+
+  if (!positions || positions.length === 0) {
+    DOM.scalpPositionsTbody.innerHTML = `<tr><td colspan="11" class="text-center" style="color:var(--text-muted); padding:20px;">ไม่มีตั๋วเทรดที่กำลังเปิดอยู่ — ส่งคำสั่ง Short/Long หรือเปิดใช้งาน AI Auto-Scalper</td></tr>`;
+    return;
+  }
+
+  positions.forEach(p => {
+    const tr = document.createElement("tr");
+    const isLong = p.side === "LONG";
+    const pnlSign = p.floating_pnl_thb >= 0 ? '+' : '';
+    const pnlClass = p.floating_pnl_thb >= 0 ? 'positive' : 'negative';
+    const dec = p.entry_price < 10 ? 4 : 2;
+
+    tr.innerHTML = `
+      <td class="mono font-bold" style="color:#f8fafc;">${p.id}</td>
+      <td>${p.icon || '⚡'} <strong>${p.name}</strong> <span style="font-size:10px; color:var(--text-muted);">(${p.symbol})</span></td>
+      <td><span class="sig-side-badge ${isLong ? 'long' : 'short'}">${isLong ? '🟢 LONG' : '🔴 SHORT'}</span></td>
+      <td class="mono">$${p.entry_price.toFixed(dec)}</td>
+      <td class="mono font-bold">$${(p.current_price || p.entry_price).toFixed(dec)}</td>
+      <td><span class="mono" style="background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px; font-weight:700;">${p.leverage}X</span></td>
+      <td class="mono">฿${p.margin_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+      <td class="mono font-bold ${pnlClass}">${pnlSign}฿${p.floating_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })} (${pnlSign}${p.floating_pnl_pct.toFixed(2)}%)</td>
+      <td class="mono" style="font-size:11px;">
+        <span style="color:#00f090;">TP: ${p.tp_price ? '$' + p.tp_price.toFixed(dec) : '-'}</span><br>
+        <span style="color:#ff3b69;">SL: ${p.sl_price ? '$' + p.sl_price.toFixed(dec) : '-'}</span>
+      </td>
+      <td style="font-size:11px; color:var(--text-muted);">${p.open_time}</td>
+      <td>
+        <button class="btn-scalp-action close-ticket" onclick="closeScalperTicket('${p.id}')">
+          <span>❌ ปิดไม้</span>
+        </button>
+      </td>
+    `;
+    DOM.scalpPositionsTbody.appendChild(tr);
+  });
+}
+
+function renderScalperHistory(history) {
+  if (!DOM.scalpHistoryTbody) return;
+  DOM.scalpHistoryTbody.innerHTML = "";
+
+  if (!history || history.length === 0) {
+    DOM.scalpHistoryTbody.innerHTML = `<tr><td colspan="9" class="text-center" style="color:var(--text-muted); padding:16px;">ยังไม่มีประวัติการปิดไม้</td></tr>`;
+    return;
+  }
+
+  history.forEach(h => {
+    const tr = document.createElement("tr");
+    const isLong = h.side === "LONG";
+    const pnlSign = h.realized_pnl_thb >= 0 ? '+' : '';
+    const pnlClass = h.realized_pnl_thb >= 0 ? 'positive' : 'negative';
+    const dec = h.entry_price < 10 ? 4 : 2;
+
+    tr.innerHTML = `
+      <td class="mono font-bold">${h.id}</td>
+      <td>${h.icon || '⚡'} ${h.name}</td>
+      <td><span class="sig-side-badge ${isLong ? 'long' : 'short'}">${isLong ? '🟢 LONG' : '🔴 SHORT'}</span></td>
+      <td class="mono">$${h.entry_price.toFixed(dec)} ➔ $${(h.close_price || h.entry_price).toFixed(dec)}</td>
+      <td class="mono">฿${h.margin_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+      <td class="mono font-bold ${pnlClass}">${pnlSign}฿${h.realized_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+      <td class="mono font-bold ${pnlClass}">${pnlSign}${h.realized_pnl_pct.toFixed(2)}%</td>
+      <td><span style="font-size:10px; padding:2px 6px; border-radius:4px; background:rgba(255,255,255,0.06);">${h.close_reason || 'MANUAL'}</span></td>
+      <td style="font-size:11px; color:var(--text-muted);">${h.close_time || '-'}</td>
+    `;
+    DOM.scalpHistoryTbody.appendChild(tr);
+  });
+}
+
+async function fetchScalperChart(symbol, tf = "5m") {
+  try {
+    const period = tf === "1m" ? "1d" : tf === "5m" ? "2d" : "5d";
+    const res = await fetch(`/api/market-chart?symbol=${symbol}&period=${period}&interval=${tf}`);
+    const data = await res.json();
+    if (!data.success || !data.candles) return;
+
+    STATE.scalper.chartData = data.candles;
+    
+    if (DOM.scalpChartTitle) {
+      const symInfo = symbol.includes("BTC") ? "🪙 BTC-USD (Bitcoin)" :
+                      symbol.includes("ETH") ? "💎 ETH-USD (Ethereum)" :
+                      symbol.includes("SOL") ? "⚡ SOL-USD (Solana)" :
+                      symbol.includes("EUR") ? "💶 EUR/USD (Forex)" :
+                      symbol.includes("GBP") ? "💷 GBP/USD (Forex)" : "💴 USD/JPY (Forex)";
+      DOM.scalpChartTitle.textContent = `${symInfo} — ${tf.toUpperCase()} Scalp Station`;
+    }
+
+    if (DOM.scalpChartPrice && data.candles.length > 0) {
+      const latestC = data.candles[data.candles.length - 1].close;
+      const dec = latestC < 10 ? 4 : 2;
+      DOM.scalpChartPrice.textContent = `$${latestC.toLocaleString('en-US', { minimumFractionDigits: dec })}`;
+    }
+
+    renderScalperChart();
+    updateScalpOrderFormCalculations();
+  } catch (err) {
+    console.error("Scalper chart fetch error", err);
+  }
+}
+
+function initScalperCanvas() {
+  const canvas = DOM.scalpChartCanvas;
+  if (!canvas) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  scalpCtx = canvas.getContext("2d");
+  scalpCtx.scale(dpr, dpr);
+  scalpWidth = rect.width;
+  scalpHeight = rect.height;
+
+  window.addEventListener("resize", () => {
+    const r = canvas.getBoundingClientRect();
+    canvas.width = r.width * dpr;
+    canvas.height = r.height * dpr;
+    scalpCtx = canvas.getContext("2d");
+    scalpCtx.scale(dpr, dpr);
+    scalpWidth = r.width;
+    scalpHeight = r.height;
+    renderScalperChart();
+  });
+}
+
+function renderScalperChart() {
+  const canvas = DOM.scalpChartCanvas;
+  if (!canvas || !scalpCtx || !STATE.scalper.chartData || STATE.scalper.chartData.length === 0) return;
+
+  const candles = STATE.scalper.chartData;
+  scalpCtx.clearRect(0, 0, scalpWidth, scalpHeight);
+
+  const pad = { top: 20, right: 65, bottom: 25, left: 10 };
+  const cW = scalpWidth - pad.left - pad.right;
+  const cH = scalpHeight - pad.top - pad.bottom;
+
+  let minP = Math.min(...candles.map(c => c.low));
+  let maxP = Math.max(...candles.map(c => c.high));
+  const range = (maxP - minP) || 1;
+  minP -= range * 0.05;
+  maxP += range * 0.05;
+
+  const getY = (p) => pad.top + cH - ((p - minP) / (maxP - minP)) * cH;
+  const candleW = Math.max(2, (cW / candles.length) * 0.7);
+
+  // 1. Horizontal Grid lines
+  scalpCtx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+  scalpCtx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (cH / 4) * i;
+    scalpCtx.beginPath();
+    scalpCtx.moveTo(pad.left, y);
+    scalpCtx.lineTo(scalpWidth - pad.right, y);
+    scalpCtx.stroke();
+
+    const priceLabel = maxP - (i / 4) * (maxP - minP);
+    scalpCtx.fillStyle = "#64748b";
+    scalpCtx.font = "10px 'JetBrains Mono'";
+    const dec = priceLabel < 10 ? 4 : 2;
+    scalpCtx.fillText(`$${priceLabel.toFixed(dec)}`, scalpWidth - pad.right + 6, y + 3);
+  }
+
+  // 2. Candlesticks
+  candles.forEach((c, i) => {
+    const x = pad.left + (i / (candles.length - 1 || 1)) * cW;
+    const yO = getY(c.open);
+    const yC = getY(c.close);
+    const yH = getY(c.high);
+    const yL = getY(c.low);
+
+    const isBull = c.close >= c.open;
+    scalpCtx.strokeStyle = isBull ? "#00f090" : "#ff3b69";
+    scalpCtx.fillStyle = isBull ? "#00f090" : "#ff3b69";
+
+    // Wick
+    scalpCtx.lineWidth = 1.2;
+    scalpCtx.beginPath();
+    scalpCtx.moveTo(x, yH);
+    scalpCtx.lineTo(x, yL);
+    scalpCtx.stroke();
+
+    // Body
+    const topY = Math.min(yO, yC);
+    const bodyH = Math.max(2, Math.abs(yC - yO));
+    scalpCtx.fillRect(x - candleW / 2, topY, candleW, bodyH);
+  });
+
+  // 3. Open Positions Targets Overlay
+  if (STATE.scalper.status && STATE.scalper.status.open_positions) {
+    const activeForSym = STATE.scalper.status.open_positions.filter(p => p.symbol === STATE.scalper.activeSymbol);
+    activeForSym.forEach(p => {
+      // Entry Line
+      const yEntry = getY(p.entry_price);
+      scalpCtx.strokeStyle = p.side === "LONG" ? "#00f090" : "#ff3b69";
+      scalpCtx.lineWidth = 1;
+      scalpCtx.setLineDash([4, 4]);
+      scalpCtx.beginPath();
+      scalpCtx.moveTo(pad.left, yEntry);
+      scalpCtx.lineTo(scalpWidth - pad.right, yEntry);
+      scalpCtx.stroke();
+      scalpCtx.setLineDash([]);
+
+      // TP Line
+      if (p.tp_price) {
+        const yTP = getY(p.tp_price);
+        scalpCtx.strokeStyle = "#00f090";
+        scalpCtx.lineWidth = 1.2;
+        scalpCtx.setLineDash([2, 2]);
+        scalpCtx.beginPath();
+        scalpCtx.moveTo(pad.left, yTP);
+        scalpCtx.lineTo(scalpWidth - pad.right, yTP);
+        scalpCtx.stroke();
+        scalpCtx.setLineDash([]);
+      }
+
+      // SL Line
+      if (p.sl_price) {
+        const ySL = getY(p.sl_price);
+        scalpCtx.strokeStyle = "#ff3b69";
+        scalpCtx.lineWidth = 1.2;
+        scalpCtx.setLineDash([2, 2]);
+        scalpCtx.beginPath();
+        scalpCtx.moveTo(pad.left, ySL);
+        scalpCtx.lineTo(scalpWidth - pad.right, ySL);
+        scalpCtx.stroke();
+        scalpCtx.setLineDash([]);
+      }
+    });
+  }
+}
+
+async function fetchScalperSignals() {
+  try {
+    const res = await fetch("/api/scalper/signals");
+    const data = await res.json();
+    if (!data.success || !data.signals) return;
+
+    STATE.scalper.signals = data.signals;
+    renderScalperSignals(data.signals);
+  } catch (err) {
+    console.error("Scalper signals fetch error", err);
+  }
+}
+
+function renderScalperSignals(signals) {
+  if (!DOM.scalpSignalsContainer) return;
+  DOM.scalpSignalsContainer.innerHTML = "";
+
+  if (!signals || signals.length === 0) {
+    DOM.scalpSignalsContainer.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:16px;">กำลังสแกนจังหวะโมเมนตัม 1M/5M/15M ทั่วตลาด...</div>`;
+    return;
+  }
+
+  signals.forEach(s => {
+    const card = document.createElement("div");
+    const isLong = s.side === "LONG";
+    card.className = `scalp-signal-item ${isLong ? 'long' : 'short'}`;
+    const dec = s.current_price < 10 ? 4 : 2;
+
+    card.innerHTML = `
+      <div class="sig-item-top">
+        <span class="sig-item-title">${s.icon} ${s.name} (${s.symbol})</span>
+        <span class="sig-side-badge ${isLong ? 'long' : 'short'}">${isLong ? '🟢 LONG' : '🔴 SHORT'} (${s.confidence}%)</span>
+      </div>
+      <div class="sig-item-reason">💡 ${s.reason}</div>
+      <div class="sig-item-targets">
+        <span>ราคาเข้า: <strong>$${s.current_price.toFixed(dec)}</strong></span>
+        <span style="color:#00f090;">TP: +${s.tp_pct}% ($${s.tp_price})</span>
+        <span style="color:#ff3b69;">SL: -${s.sl_pct}% ($${s.sl_price})</span>
+      </div>
+      <button class="btn-apply-scalp-signal" onclick="applyScalpSignalToOrder('${s.symbol}', '${s.side}', ${s.suggested_leverage}, ${s.tp_pct}, ${s.sl_pct})">
+        <span>⚡ 1-Click นำสัญญาณนี้ไปเปิดไม้</span>
+      </button>
+    `;
+    DOM.scalpSignalsContainer.appendChild(card);
+  });
+}
+
+// Global helper for 1-Click Signal Apply
+window.applyScalpSignalToOrder = function(symbol, side, leverage, tpPct, slPct) {
+  const isForex = symbol.includes("=") || symbol.includes("EUR") || symbol.includes("GBP") || symbol.includes("JPY");
+  const targetAsset = isForex ? "FOREX" : "CRYPTO";
+
+  switchScalpAssetClass(targetAsset, symbol);
+  setScalpOrderSide(side);
+
+  if (DOM.scalpLeveragePills) {
+    DOM.scalpLeveragePills.querySelectorAll("button").forEach(btn => {
+      btn.classList.toggle("active", parseFloat(btn.getAttribute("data-lev")) === leverage);
+    });
+  }
+  STATE.scalper.leverage = leverage;
+  if (DOM.scalpLeverageDisplay) DOM.scalpLeverageDisplay.textContent = `${leverage}X`;
+
+  if (DOM.scalpTpInput) DOM.scalpTpInput.value = tpPct;
+  if (DOM.scalpSlInput) DOM.scalpSlInput.value = slPct;
+  STATE.scalper.tpPct = tpPct;
+  STATE.scalper.slPct = slPct;
+
+  updateScalpOrderFormCalculations();
+  showToast(`🎯 โหลดสัญญาณ ${side} ${symbol} เข้าหน้าส่งคำสั่งเรียบร้อย!`, "info");
+};
+
+// Global helper for Close Ticket
+window.closeScalperTicket = async function(ticketId) {
+  if (!confirm(`ยืนยันการปิดตั๋วไม้ ${ticketId} ทันที?`)) return;
+  try {
+    const res = await fetch("/api/scalper/close-position", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticket_id: ticketId })
+    });
+    const data = await res.json();
+    showToast(data.message, data.success ? "success" : "error");
+    fetchScalperStatus();
+  } catch (err) {
+    showToast("Close ticket failed: " + err, "error");
+  }
+};
+
+async function executeScalperOrder() {
+  const symbol = DOM.scalpOrderSymbol ? DOM.scalpOrderSymbol.value : STATE.scalper.activeSymbol;
+  const side = STATE.scalper.activeSide || "LONG";
+  const margin = parseFloat(DOM.scalpMarginInput ? DOM.scalpMarginInput.value : 2000) || 2000;
+  const leverage = STATE.scalper.leverage || 5;
+  const tpPct = parseFloat(DOM.scalpTpInput ? DOM.scalpTpInput.value : 1.5) || 1.5;
+  const slPct = parseFloat(DOM.scalpSlInput ? DOM.scalpSlInput.value : 0.8) || 0.8;
+
+  try {
+    if (DOM.btnExecuteScalpOrder) DOM.btnExecuteScalpOrder.disabled = true;
+    const res = await fetch("/api/scalper/order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        symbol: symbol,
+        side: side,
+        margin_thb: margin,
+        leverage: leverage,
+        tp_pct: tpPct,
+        sl_pct: slPct,
+        notes: "Manual Execution from Scalper Pro"
+      })
+    });
+    const data = await res.json();
+    if (DOM.btnExecuteScalpOrder) DOM.btnExecuteScalpOrder.disabled = false;
+
+    if (data.success) {
+      showToast(`🎉 ${data.message}`, "success");
+      fetchScalperStatus();
+      fetchScalperChart(symbol, STATE.scalper.activeTf);
+    } else {
+      showToast(`⚠️ ${data.message || "ส่งคำสั่งไม่สำเร็จ"}`, "error");
+    }
+  } catch (err) {
+    if (DOM.btnExecuteScalpOrder) DOM.btnExecuteScalpOrder.disabled = false;
+    showToast("Order execution error: " + err, "error");
+  }
+}
+
+async function closeAllScalperPositions() {
+  if (!confirm("🚨 ยืนยันการปิดทุกไม้ Scalp ฉุกเฉินทั้งหมด (Emergency Close All Scalps)?")) return;
+  try {
+    const res = await fetch("/api/scalper/close-all", { method: "POST" });
+    const data = await res.json();
+    showToast(data.message, "success");
+    fetchScalperStatus();
+    fetchScalperChart(STATE.scalper.activeSymbol, STATE.scalper.activeTf);
+  } catch (err) {
+    showToast("Panic close failed: " + err, "error");
+  }
+}
+
 

@@ -64,6 +64,7 @@ from ai_active_planner import get_latest_ai_active_plan, generate_247_active_ai_
 import multi_timeframe_analyzer
 from multi_timeframe_analyzer import analyze_multi_timeframe
 import broker_credentials_manager as bcm
+import scalper_engine
 from utils_tz import get_thai_str, get_thai_now, get_thai_now_naive
 
 app = FastAPI(
@@ -159,6 +160,21 @@ class NotificationTestRequest(BaseModel):
 
 class BrokerCredentialsSaveRequest(BaseModel):
     credentials: Dict[str, Any]
+
+class ScalperOrderRequest(BaseModel):
+    symbol: str
+    side: str
+    margin_thb: float
+    leverage: Optional[float] = 5.0
+    tp_pct: Optional[float] = 1.5
+    sl_pct: Optional[float] = 0.8
+    notes: Optional[str] = ""
+
+class ScalperCloseRequest(BaseModel):
+    ticket_id: str
+
+class ScalperToggleRequest(BaseModel):
+    enabled: bool
 
 # ----------------- API ENDPOINTS -----------------
 
@@ -754,6 +770,70 @@ def test_notification_endpoint(req: NotificationTestRequest):
             config.update_discord_config(req.webhook_url)
         return {"success": success, "message": "ส่งการแจ้งเตือน Discord สำเร็จ!" if success else "ส่ง Discord ไม่สำเร็จ"}
     return {"success": False, "message": "Unknown notification channel"}
+
+# ----------------- SCALPER PRO (SHORT / LONG TERMINAL) -----------------
+
+@app.get("/api/scalper/status")
+def get_scalper_status_endpoint():
+    """Returns real-time Scalper Pro status with Crypto ฿20k & Forex ฿20k."""
+    try:
+        return scalper_engine.update_open_positions()
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.post("/api/scalper/order")
+def place_scalper_order_endpoint(req: ScalperOrderRequest):
+    """Opens a new Short or Long position ticket."""
+    try:
+        res = scalper_engine.open_position(
+            symbol=req.symbol,
+            side=req.side,
+            margin_thb=req.margin_thb,
+            leverage=req.leverage,
+            tp_pct=req.tp_pct,
+            sl_pct=req.sl_pct,
+            notes=req.notes
+        )
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/scalper/close-position")
+def close_scalper_ticket_endpoint(req: ScalperCloseRequest):
+    """Closes a single active scalping ticket."""
+    try:
+        return scalper_engine.close_position(req.ticket_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/scalper/close-all")
+def close_all_scalper_tickets_endpoint():
+    """Emergency close all active scalping tickets."""
+    try:
+        return scalper_engine.close_all_positions()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/scalper/toggle-auto")
+def toggle_auto_scalper_endpoint(req: ScalperToggleRequest):
+    """Enables or pauses the automated AI Scalper Bot."""
+    try:
+        state = scalper_engine.load_scalper_state()
+        state["auto_scalp_enabled"] = req.enabled
+        scalper_engine.save_scalper_state(state)
+        status_txt = "เปิดใช้งานบอท AI Scalper อัตโนมัติ" if req.enabled else "หยุดพักบอท AI Scalper ชั่วคราว"
+        return {"success": True, "auto_scalp_enabled": req.enabled, "message": status_txt}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/scalper/signals")
+def get_scalper_signals_endpoint():
+    """Returns AI real-time scalping signals for Crypto and Forex."""
+    try:
+        signals = scalper_engine.generate_scalper_signals()
+        return {"success": True, "signals": signals}
+    except Exception as e:
+        return {"success": False, "error": str(e), "signals": []}
 
 # ----------------- STATIC FRONTEND -----------------
 
