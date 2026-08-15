@@ -116,6 +116,9 @@ const DOM = {
   modalChartPeriodBtns: document.getElementById("modal-chart-period-btns"),
 
   // Scalper Pro
+  btnStartScalping: document.getElementById("btn-start-scalping"),
+  scalpStartBtnText: document.getElementById("scalp-start-btn-text"),
+  scalpStartBtnIcon: document.getElementById("scalp-start-btn-icon"),
   scalpAutoToggle: document.getElementById("scalp-auto-toggle"),
   btnPanicScalpAll: document.getElementById("btn-panic-scalp-all"),
   scalpCryptoReturn: document.getElementById("scalp-crypto-return"),
@@ -2372,7 +2375,28 @@ function setupScalperEventListeners() {
     DOM.btnExecuteScalpOrder.addEventListener("click", executeScalperOrder);
   }
 
-  // 10. Auto-Scalper Master Toggle
+  // 10. Start / Pause Scalping Master Action Button
+  if (DOM.btnStartScalping) {
+    DOM.btnStartScalping.addEventListener("click", async () => {
+      const isCurrentlyEnabled = DOM.scalpAutoToggle ? DOM.scalpAutoToggle.checked : true;
+      const newTargetState = !isCurrentlyEnabled;
+      try {
+        const res = await fetch("/api/scalper/toggle-auto", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ enabled: newTargetState })
+        });
+        const data = await res.json();
+        showToast(newTargetState ? "⚡ 24/7 Scalper Pro Engine Started!" : "⏸️ Scalper Pro Engine Paused", newTargetState ? "success" : "info");
+        fetchScalperStatus();
+        fetchScalperSignals();
+      } catch (err) {
+        showToast("Auto-scalp toggle failed: " + err, "error");
+      }
+    });
+  }
+
+  // 11. Auto-Scalper Master Toggle Switch
   if (DOM.scalpAutoToggle) {
     DOM.scalpAutoToggle.addEventListener("change", async (e) => {
       const enabled = e.target.checked;
@@ -2391,7 +2415,7 @@ function setupScalperEventListeners() {
     });
   }
 
-  // 11. Panic Close All Scalps
+  // 12. Panic Close All Scalps
   if (DOM.btnPanicScalpAll) {
     DOM.btnPanicScalpAll.addEventListener("click", closeAllScalperPositions);
   }
@@ -2572,6 +2596,19 @@ async function fetchScalperStatus() {
     if (DOM.scalpOpenCountBadge) DOM.scalpOpenCountBadge.textContent = `${data.active_tickets_count} Active Tickets`;
     if (DOM.scalpAutoToggle && document.activeElement !== DOM.scalpAutoToggle) {
       DOM.scalpAutoToggle.checked = !!data.auto_scalp_enabled;
+    }
+
+    // Start / Pause Scalping Master Action Button State
+    if (DOM.btnStartScalping && DOM.scalpStartBtnText) {
+      if (data.auto_scalp_enabled) {
+        DOM.btnStartScalping.className = "btn-start-scalp running";
+        if (DOM.scalpStartBtnIcon) DOM.scalpStartBtnIcon.textContent = "🟢";
+        DOM.scalpStartBtnText.textContent = "SCALPING ACTIVE (CLICK TO PAUSE)";
+      } else {
+        DOM.btnStartScalping.className = "btn-start-scalp paused";
+        if (DOM.scalpStartBtnIcon) DOM.scalpStartBtnIcon.textContent = "⚡";
+        DOM.scalpStartBtnText.textContent = "START SCALPING";
+      }
     }
 
     // 24H Daily Target & Risk Shield Status Strip
