@@ -1718,19 +1718,29 @@ canvas { width: 100%; height: 100%; display: block; }
 .scalp-order-deck {
   display: flex;
   flex-direction: column;
-  gap: 12px;
   padding: 18px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .deck-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.deck-title-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .deck-title h3 {
   font-size: 15px;
   font-weight: 700;
+  margin: 0;
 }
 
 .deck-badge {
@@ -1738,6 +1748,23 @@ canvas { width: 100%; height: 100%; display: block; }
   font-weight: 800;
   color: var(--text-muted);
   letter-spacing: 0.5px;
+}
+
+.deck-body-collapsible {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  transition: all 0.3s ease;
+}
+
+/* Collapsed State for Order Deck */
+.scalp-order-deck.collapsed {
+  padding-bottom: 14px;
+}
+
+.scalp-order-deck.collapsed .deck-body-collapsible {
+  display: none;
 }
 
 .scalp-asset-tabs {

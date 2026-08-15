@@ -155,6 +155,11 @@ const DOM = {
   btnRefreshScalpSignals: document.getElementById("btn-refresh-scalp-signals"),
   tabScalpCrypto: document.getElementById("tab-scalp-crypto"),
   tabScalpForex: document.getElementById("tab-scalp-forex"),
+  scalpOrderDeck: document.getElementById("scalp-order-deck"),
+  deckTitleBar: document.getElementById("deck-title-bar"),
+  btnToggleDeckCollapse: document.getElementById("btn-toggle-deck-collapse"),
+  deckCollapseIcon: document.getElementById("deck-collapse-icon"),
+  deckCollapseText: document.getElementById("deck-collapse-text"),
   scalpOrderSymbol: document.getElementById("scalp-order-symbol"),
   btnSideLong: document.getElementById("btn-side-long"),
   btnSideShort: document.getElementById("btn-side-short"),
@@ -2479,12 +2484,52 @@ function setupScalperEventListeners() {
     });
   }
 
-  // Restore persisted collapsed state
+  // Restore persisted collapsed state for radar
   try {
     if (localStorage.getItem("scalp_radar_collapsed") === "true") {
       if (DOM.scalpRadarCard) DOM.scalpRadarCard.classList.add("collapsed");
       if (DOM.radarCollapseIcon) DOM.radarCollapseIcon.textContent = "▼";
       if (DOM.radarCollapseText) DOM.radarCollapseText.textContent = "Expand";
+    }
+  } catch (e) {}
+
+  // 15. Collapse / Expand Scalp Order Ticket (Execution Deck)
+  window.toggleDeckCollapse = function(forceState) {
+    if (!DOM.scalpOrderDeck) return;
+    let isCollapsed;
+    if (typeof forceState === "boolean") {
+      isCollapsed = forceState;
+      DOM.scalpOrderDeck.classList.toggle("collapsed", isCollapsed);
+    } else {
+      isCollapsed = DOM.scalpOrderDeck.classList.toggle("collapsed");
+    }
+    if (DOM.deckCollapseIcon) DOM.deckCollapseIcon.textContent = isCollapsed ? "▼" : "▲";
+    if (DOM.deckCollapseText) DOM.deckCollapseText.textContent = isCollapsed ? "Expand" : "Collapse";
+    try {
+      localStorage.setItem("scalp_deck_collapsed", isCollapsed ? "true" : "false");
+    } catch (e) {}
+  };
+
+  if (DOM.btnToggleDeckCollapse) {
+    DOM.btnToggleDeckCollapse.addEventListener("click", (e) => {
+      e.stopPropagation();
+      window.toggleDeckCollapse();
+    });
+  }
+
+  if (DOM.deckTitleBar) {
+    DOM.deckTitleBar.addEventListener("click", (e) => {
+      if (e.target.closest("button") && e.target.closest("button") !== DOM.btnToggleDeckCollapse) return;
+      window.toggleDeckCollapse();
+    });
+  }
+
+  // Restore persisted collapsed state for order deck
+  try {
+    if (localStorage.getItem("scalp_deck_collapsed") === "true") {
+      if (DOM.scalpOrderDeck) DOM.scalpOrderDeck.classList.add("collapsed");
+      if (DOM.deckCollapseIcon) DOM.deckCollapseIcon.textContent = "▼";
+      if (DOM.deckCollapseText) DOM.deckCollapseText.textContent = "Expand";
     }
   } catch (e) {}
 }
@@ -3219,6 +3264,11 @@ function renderScalperSignals(signals) {
 window.applyScalpSignalToOrder = function(symbol, side, leverage, tpPct, slPct) {
   const isForex = symbol.includes("=") || symbol.includes("EUR") || symbol.includes("GBP") || symbol.includes("JPY");
   const targetAsset = isForex ? "FOREX" : "CRYPTO";
+
+  // Ensure deck is expanded if previously collapsed
+  if (typeof window.toggleDeckCollapse === "function") {
+    window.toggleDeckCollapse(false);
+  }
 
   switchScalpAssetClass(targetAsset, symbol);
   setScalpOrderSide(side);

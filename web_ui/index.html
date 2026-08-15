@@ -478,112 +478,121 @@
 
           <!-- RIGHT: SHORT/LONG EXECUTION TERMINAL -->
           <div class="scalp-right-col">
-            <div class="scalp-order-deck glass-panel">
-              <div class="deck-title">
-                <h3>⚡ Scalp Order Ticket (Short / Long)</h3>
-                <span class="deck-badge">EXECUTION TERMINAL</span>
-              </div>
-
-              <!-- ASSET CLASS SWITCHER -->
-              <div class="scalp-asset-tabs">
-                <button class="scalp-tab-btn active" data-asset="CRYPTO" id="tab-scalp-crypto">
-                  <span>🪙 Crypto (฿20k)</span>
-                </button>
-                <button class="scalp-tab-btn" data-asset="FOREX" id="tab-scalp-forex">
-                  <span>💱 Forex (฿20k)</span>
+            <div class="scalp-order-deck glass-panel" id="scalp-order-deck">
+              <div class="deck-title" id="deck-title-bar" style="cursor: pointer;">
+                <div class="deck-title-left">
+                  <h3>⚡ Scalp Order Ticket (Short / Long)</h3>
+                  <span class="deck-badge">EXECUTION TERMINAL</span>
+                </div>
+                <button class="btn-toggle-collapse" id="btn-toggle-deck-collapse" title="Collapse / Expand Scalp Order Ticket">
+                  <span id="deck-collapse-icon">▲</span>
+                  <span id="deck-collapse-text">Collapse</span>
                 </button>
               </div>
 
-              <!-- SYMBOL SELECTOR -->
-              <div class="form-group-scalp">
-                <label>Select Asset (Symbol):</label>
-                <select class="cyber-select" id="scalp-order-symbol">
-                  <option value="BTC-USD">🪙 BTC-USD (Bitcoin)</option>
-                  <option value="ETH-USD">💎 ETH-USD (Ethereum)</option>
-                  <option value="SOL-USD">⚡ SOL-USD (Solana)</option>
-                </select>
-              </div>
-
-              <!-- SHORT / LONG SIDE SELECTOR -->
-              <div class="form-group-scalp">
-                <label>Order Direction (Side):</label>
-                <div class="scalp-side-selector">
-                  <button class="btn-side-select long active" id="btn-side-long" data-side="LONG">
-                    <span class="side-icon">🟢</span>
-                    <span class="side-text">LONG (BUY)</span>
-                    <small>Bullish Expansion</small>
+              <!-- COLLAPSIBLE DECK BODY -->
+              <div class="deck-body-collapsible" id="deck-body-container">
+                <!-- ASSET CLASS SWITCHER -->
+                <div class="scalp-asset-tabs">
+                  <button class="scalp-tab-btn active" data-asset="CRYPTO" id="tab-scalp-crypto">
+                    <span>🪙 Crypto (฿20k)</span>
                   </button>
-                  <button class="btn-side-select short" id="btn-side-short" data-side="SHORT">
-                    <span class="side-icon">🔴</span>
-                    <span class="side-text">SHORT (SELL)</span>
-                    <small>Bearish Retracement</small>
+                  <button class="scalp-tab-btn" data-asset="FOREX" id="tab-scalp-forex">
+                    <span>💱 Forex (฿20k)</span>
                   </button>
                 </div>
-              </div>
 
-              <!-- LEVERAGE SELECTOR -->
-              <div class="form-group-scalp">
-                <div class="flex-between">
-                  <label>Leverage Multiplier:</label>
-                  <span class="leverage-val mono" id="scalp-leverage-display">5X</span>
-                </div>
-                <div class="leverage-pills" id="scalp-leverage-pills">
-                  <button class="lev-pill" data-lev="1">1X</button>
-                  <button class="lev-pill" data-lev="2">2X</button>
-                  <button class="lev-pill active" data-lev="5">5X</button>
-                  <button class="lev-pill" data-lev="10">10X</button>
-                  <button class="lev-pill" data-lev="20">20X</button>
-                </div>
-              </div>
-
-              <!-- MARGIN INPUT & QUICK PILLS -->
-              <div class="form-group-scalp">
-                <div class="flex-between">
-                  <label>Margin Capital (THB):</label>
-                  <span class="avail-text" id="scalp-max-avail-text">Available: ฿20,000.00</span>
-                </div>
-                <div class="input-with-stepper">
-                  <input type="number" class="cyber-input mono" id="scalp-margin-input" value="2000" min="100" step="500">
-                  <span class="currency-tag">THB</span>
-                </div>
-                <div class="quick-pct-pills" id="scalp-pct-pills">
-                  <button class="pct-pill" data-pct="10">10% (฿2k)</button>
-                  <button class="pct-pill" data-pct="25">25% (฿5k)</button>
-                  <button class="pct-pill" data-pct="50">50% (฿10k)</button>
-                  <button class="pct-pill" data-pct="100">100% Max</button>
-                </div>
-              </div>
-
-              <!-- EFFECTIVE POSITION SIZE HUD -->
-              <div class="scalp-power-hud">
-                <div class="p-hud-row">
-                  <span>Effective Position Value:</span>
-                  <strong class="mono accent-emerald" id="scalp-effective-size">฿10,000.00</strong>
-                </div>
-                <div class="p-hud-row">
-                  <span>Est. Live Entry Price:</span>
-                  <strong class="mono" id="scalp-est-entry">$0.00</strong>
-                </div>
-              </div>
-
-              <!-- TP / SL INPUTS -->
-              <div class="scalp-tpsl-grid">
+                <!-- SYMBOL SELECTOR -->
                 <div class="form-group-scalp">
-                  <label>🎯 Take Profit (%):</label>
-                  <input type="number" class="cyber-input mono" id="scalp-tp-input" value="1.5" step="0.1" min="0.1">
-                  <small class="tpsl-hint" id="scalp-tp-price-hint">TP Price: $0.00</small>
+                  <label>Select Asset (Symbol):</label>
+                  <select class="cyber-select" id="scalp-order-symbol">
+                    <option value="BTC-USD">🪙 BTC-USD (Bitcoin)</option>
+                    <option value="ETH-USD">💎 ETH-USD (Ethereum)</option>
+                    <option value="SOL-USD">⚡ SOL-USD (Solana)</option>
+                  </select>
                 </div>
-                <div class="form-group-scalp">
-                  <label>🛑 Stop Loss (%):</label>
-                  <input type="number" class="cyber-input mono" id="scalp-sl-input" value="0.8" step="0.1" min="0.1">
-                  <small class="tpsl-hint" id="scalp-sl-price-hint">SL Price: $0.00</small>
-                </div>
-              </div>
 
-              <!-- EXECUTE ACTION BUTTON -->
-              <button class="btn-execute-scalp long" id="btn-execute-scalp-order">
-                <span>⚡ OPEN LONG POSITION (฿2,000 x 5X)</span>
-              </button>
+                <!-- SHORT / LONG SIDE SELECTOR -->
+                <div class="form-group-scalp">
+                  <label>Order Direction (Side):</label>
+                  <div class="scalp-side-selector">
+                    <button class="btn-side-select long active" id="btn-side-long" data-side="LONG">
+                      <span class="side-icon">🟢</span>
+                      <span class="side-text">LONG (BUY)</span>
+                      <small>Bullish Expansion</small>
+                    </button>
+                    <button class="btn-side-select short" id="btn-side-short" data-side="SHORT">
+                      <span class="side-icon">🔴</span>
+                      <span class="side-text">SHORT (SELL)</span>
+                      <small>Bearish Retracement</small>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- LEVERAGE SELECTOR -->
+                <div class="form-group-scalp">
+                  <div class="flex-between">
+                    <label>Leverage Multiplier:</label>
+                    <span class="leverage-val mono" id="scalp-leverage-display">5X</span>
+                  </div>
+                  <div class="leverage-pills" id="scalp-leverage-pills">
+                    <button class="lev-pill" data-lev="1">1X</button>
+                    <button class="lev-pill" data-lev="2">2X</button>
+                    <button class="lev-pill active" data-lev="5">5X</button>
+                    <button class="lev-pill" data-lev="10">10X</button>
+                    <button class="lev-pill" data-lev="20">20X</button>
+                  </div>
+                </div>
+
+                <!-- MARGIN INPUT & QUICK PILLS -->
+                <div class="form-group-scalp">
+                  <div class="flex-between">
+                    <label>Margin Capital (THB):</label>
+                    <span class="avail-text" id="scalp-max-avail-text">Available: ฿20,000.00</span>
+                  </div>
+                  <div class="input-with-stepper">
+                    <input type="number" class="cyber-input mono" id="scalp-margin-input" value="2000" min="100" step="500">
+                    <span class="currency-tag">THB</span>
+                  </div>
+                  <div class="quick-pct-pills" id="scalp-pct-pills">
+                    <button class="pct-pill" data-pct="10">10% (฿2k)</button>
+                    <button class="pct-pill" data-pct="25">25% (฿5k)</button>
+                    <button class="pct-pill" data-pct="50">50% (฿10k)</button>
+                    <button class="pct-pill" data-pct="100">100% Max</button>
+                  </div>
+                </div>
+
+                <!-- EFFECTIVE POSITION SIZE HUD -->
+                <div class="scalp-power-hud">
+                  <div class="p-hud-row">
+                    <span>Effective Position Value:</span>
+                    <strong class="mono accent-emerald" id="scalp-effective-size">฿10,000.00</strong>
+                  </div>
+                  <div class="p-hud-row">
+                    <span>Est. Live Entry Price:</span>
+                    <strong class="mono" id="scalp-est-entry">$0.00</strong>
+                  </div>
+                </div>
+
+                <!-- TP / SL INPUTS -->
+                <div class="scalp-tpsl-grid">
+                  <div class="form-group-scalp">
+                    <label>🎯 Take Profit (%):</label>
+                    <input type="number" class="cyber-input mono" id="scalp-tp-input" value="1.5" step="0.1" min="0.1">
+                    <small class="tpsl-hint" id="scalp-tp-price-hint">TP Price: $0.00</small>
+                  </div>
+                  <div class="form-group-scalp">
+                    <label>🛑 Stop Loss (%):</label>
+                    <input type="number" class="cyber-input mono" id="scalp-sl-input" value="0.8" step="0.1" min="0.1">
+                    <small class="tpsl-hint" id="scalp-sl-price-hint">SL Price: $0.00</small>
+                  </div>
+                </div>
+
+                <!-- EXECUTE ACTION BUTTON -->
+                <button class="btn-execute-scalp long" id="btn-execute-scalp-order">
+                  <span>⚡ OPEN LONG POSITION (฿2,000 x 5X)</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
