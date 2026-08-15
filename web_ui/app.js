@@ -1660,12 +1660,22 @@ function renderUnifiedSystemsChart() {
     }
   });
 
-  if (allVals.length === 0) allVals = [0, 10];
+  if (allVals.length === 0) allVals = [0, 0];
   let minV = Math.min(...allVals);
   let maxV = Math.max(...allVals);
-  const range = (maxV - minV) || 1;
-  minV -= range * 0.08;
-  maxV += range * 0.08;
+  if (minV === maxV) {
+    if (isVal) {
+      minV = Math.max(0, maxV * 0.85);
+      maxV = maxV * 1.15;
+    } else {
+      minV = -5.0;
+      maxV = 5.0;
+    }
+  } else {
+    const range = (maxV - minV) || 1;
+    minV -= range * 0.1;
+    maxV += range * 0.1;
+  }
 
   const getY = (v) => pad.top + cH - ((v - minV) / (maxV - minV)) * cH;
   const getX = (i) => pad.left + (i / (data.length - 1)) * cW;
