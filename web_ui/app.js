@@ -559,7 +559,10 @@ function render4SystemsCards(systems) {
         <div class="sys-card-header">
           <div class="sys-title-group">
             <h3>${meta.icon} ${meta.title}</h3>
-            <span class="sys-alloc-badge" id="sys-alloc-${key}">Alloc: ฿${sys.allocation_thb.toLocaleString()} (฿${sys.portfolio_val_thb.toLocaleString()})</span>
+            <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
+              <span class="sys-alloc-badge" id="sys-alloc-${key}">Alloc: ฿${sys.allocation_thb.toLocaleString()} (฿${sys.portfolio_val_thb.toLocaleString()})</span>
+              <span class="status-pill-small ${sys.is_market_open ? 'open' : 'closed'}" id="sys-mkt-${key}">${sys.market_status_label || (sys.is_market_open ? '🟢 ตลาดเปิด' : '🔴 ปิดวันหยุด')}</span>
+            </div>
           </div>
           <span class="signal-tag ${tagClass}" id="sys-tag-${key}">${pnlSign}${sys.net_pnl_pct.toFixed(2)}%</span>
         </div>
@@ -615,6 +618,7 @@ function render4SystemsCards(systems) {
     } else {
       // Dynamic in-place updates on every poll tick
       const elAlloc = document.getElementById(`sys-alloc-${key}`);
+      const elMkt = document.getElementById(`sys-mkt-${key}`);
       const elTag = document.getElementById(`sys-tag-${key}`);
       const elPnl = document.getElementById(`sys-pnl-${key}`);
       const elWin = document.getElementById(`sys-win-${key}`);
@@ -625,6 +629,10 @@ function render4SystemsCards(systems) {
       const elDropdown = card.querySelector(".sys-strat-dropdown");
 
       if (elAlloc) elAlloc.textContent = `Alloc: ฿${sys.allocation_thb.toLocaleString()} (฿${sys.portfolio_val_thb.toLocaleString()})`;
+      if (elMkt) {
+        elMkt.textContent = sys.market_status_label || (sys.is_market_open ? '🟢 ตลาดเปิด' : '🔴 ปิดวันหยุด');
+        elMkt.className = `status-pill-small ${sys.is_market_open ? 'open' : 'closed'}`;
+      }
       if (elTag) {
         elTag.textContent = `${pnlSign}${sys.net_pnl_pct.toFixed(2)}%`;
         elTag.className = `signal-tag ${tagClass}`;

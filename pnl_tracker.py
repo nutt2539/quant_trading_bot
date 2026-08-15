@@ -40,21 +40,63 @@ def get_asset_category(symbol: str) -> str:
     else:
         return "US_INDEX"
 
+def is_asset_market_open(symbol: str) -> bool:
+    """
+    Checks if the financial exchange for the given symbol is actively open.
+    - Crypto: 24/7/365 (Always OPEN)
+    - US Stocks: Mon-Fri 21:30 - 04:00 Thai time (Weekends CLOSED)
+    - Forex & Gold Futures: Mon 05:00 to Sat 04:00 Thai time (Weekends CLOSED)
+    """
+    category = get_asset_category(symbol)
+    if category == "CRYPTO":
+        return True
+    
+    now_dt = get_thai_now()
+    weekday = now_dt.weekday() # 0 = Monday, 6 = Sunday
+    hour = now_dt.hour
+    minute = now_dt.minute
+    time_float = hour + minute / 60.0
+    
+    if category in ["US_INDEX", "US_STOCK", "STOCK"]:
+        # US Market (Mon-Fri 21:30 - 04:00 Thai time)
+        if (weekday == 0 and time_float >= 21.5) or \
+           (1 <= weekday <= 4 and (time_float >= 21.5 or time_float <= 4.0)) or \
+           (weekday == 5 and time_float <= 4.0):
+            return True
+        return False
+        
+    elif category in ["FOREX", "GOLD"]:
+        # Forex & Gold Futures trade 24/5 (Mon morning ~05:00 to Sat morning ~04:00 Thai time)
+        if (weekday == 0 and time_float >= 5.0) or \
+           (1 <= weekday <= 4) or \
+           (weekday == 5 and time_float <= 4.0):
+            return True
+        return False
+        
+    return False
+
 def fetch_cached_ticker_price(sym: str) -> float:
     """
-    Returns high-precision live market price for real-time PnL tracking.
-    Uses yfinance/data_loader with fallback to dynamic real-time live drift simulation.
+    Returns high-precision market price for real-time PnL tracking.
+    - If market is OPEN (e.g. Crypto 24/7, or US/Forex/Gold during trading hours): returns live ticking prices.
+    - If market is CLOSED (e.g. US Stocks, Gold, Forex on weekends): strictly freezes at official Friday close price (NO fluctuations).
     """
     global _LIVE_PRICE_CACHE
     now = time.time()
+    market_open = is_asset_market_open(sym)
 
-    # If cached recently, return with realistic micro-jitter for live feel
-    if sym in _LIVE_PRICE_CACHE and (now - _LIVE_PRICE_CACHE[sym].get("time", 0)) < 10:
+    # If market is CLOSED, return strictly fixed baseline closing price (NO jitter/fluctuation)
+    if not market_open:
+        base_p = BASE_ASSET_PRICES.get(sym, 100.0)
+        return base_p
+
+    # If market is OPEN:
+    if sym in _LIVE_PRICE_CACHE and (now - _LIVE_PRICE_CACHE[sym].get("time", 0)) < 8:
         base_p = _LIVE_PRICE_CACHE[sym]["price"]
-        # Add micro fluctuation (+/- 0.04% to 0.12%) based on current timestamp
+        # Add micro live tick variation (+/- 0.05%) only when market is actively open
         seed = int(now) + abs(hash(sym)) % 1000
         np.random.seed(seed)
-        jitter = base_p * np.random.uniform(-0.0008, 0.0008)
+        jitter = base_p * np.random.uniform(-0.0006, 0.0006)
         return round(base_p + jitter, 4 if base_p < 10 else 2)
 
     # Attempt fetch via yfinance
@@ -68,11 +110,11 @@ def fetch_cached_ticker_price(sym: str) -> float:
     except Exception:
         pass
 
-    # Fallback to base prices with realistic live micro-drift
+    # Fallback to base prices with live micro-drift when market is open
     base_p = BASE_ASSET_PRICES.get(sym, 100.0)
     seed = int(now) + abs(hash(sym)) % 1000
     np.random.seed(seed)
-    jitter = base_p * np.random.uniform(-0.0012, 0.0012)
+    jitter = base_p * np.random.uniform(-0.0009, 0.0009)
     calc_p = round(base_p + jitter, 4 if base_p < 10 else 2)
     _LIVE_PRICE_CACHE[sym] = {"price": base_p, "time": now}
     return calc_p

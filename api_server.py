@@ -198,8 +198,11 @@ def get_system_status():
         systems_summary = {}
         for sys_key in ["US_INDEX", "GOLD", "CRYPTO", "FOREX"]:
             sys_data = get_system_pnl(sys_key)
+            is_open = True if sys_key == "CRYPTO" else (market_status.get("us", {}).get("open", False) if sys_key == "US_INDEX" else market_status.get("forex", {}).get("open", False))
             systems_summary[sys_key] = {
                 "name": config.SYSTEM_LABELS.get(sys_key, sys_key),
+                "is_market_open": is_open,
+                "market_status_label": "🟢 ตลาดเปิด 24/7" if sys_key == "CRYPTO" else ("🟢 ตลาดเปิดสด" if is_open else "🔴 ตลาดปิดวันหยุด (ราคาปิดล่าสุด)"),
                 "allocation_thb": config.SYSTEM_ALLOCATIONS.get(sys_key, 50000),
                 "portfolio_val_thb": round(sys_data.get("portfolio_val_thb", sys_data.get("current_equity", config.SYSTEM_ALLOCATIONS.get(sys_key, 50000))), 2),
                 "invested_thb": round(sys_data.get("invested_cash_thb", 0), 2),
@@ -368,9 +371,15 @@ def get_watchlist_tickers():
             high_24h = 0.0
             low_24h = 0.0
 
+        is_open = is_asset_market_open(sym)
         if curr_price <= 0:
             curr_price = fetch_cached_ticker_price(sym)
-            change_pct = round(float(np.sin(time.time() * 0.1 + abs(hash(sym)) % 50) * 1.2), 2)
+            if is_open:
+                change_pct = round(float(np.sin(time.time() * 0.1 + abs(hash(sym)) % 50) * 1.2), 2)
+            else:
+                fixed_returns = {"SPY": 0.45, "QQQ": 0.62, "NVDA": 1.15, "AAPL": 0.32, "GC=F": 0.18, "EURUSD=X": -0.12, "GBPUSD=X": 0.08}
+                change_pct = fixed_returns.get(sym, 0.0)
+                
             sparkline = [round(curr_price * (1 + x * 0.002), 2) for x in range(-3, 4)]
             high_24h = round(curr_price * 1.008, 2)
             low_24h = round(curr_price * 0.992, 2)
@@ -380,10 +389,12 @@ def get_watchlist_tickers():
             "name": item["name"],
             "category": item["category"],
             "icon": item["icon"],
-            "price": round(curr_price, 2),
+            "is_market_open": is_open,
+            "market_status": "OPEN (24/7)" if item["category"] == "CRYPTO" else ("OPEN" if is_open else "CLOSED (Weekend)"),
+            "price": round(curr_price, 4 if curr_price < 10 else 2),
             "change_pct": round(change_pct, 2),
-            "high_24h": round(high_24h, 2),
-            "low_24h": round(low_24h, 2),
+            "high_24h": round(high_24h, 4 if high_24h < 10 else 2),
+            "low_24h": round(low_24h, 4 if low_24h < 10 else 2),
             "sparkline": sparkline
         })
         
