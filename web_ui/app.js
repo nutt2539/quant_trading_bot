@@ -536,8 +536,6 @@ function updateRobotStateUI(enabled) {
 }
 
 function render4SystemsCards(systems) {
-  DOM.systemsCardsGrid.innerHTML = "";
-  
   const systemMeta = {
     "US_INDEX": { icon: "🇺🇸", title: "US Index (฿100k)" },
     "GOLD": { icon: "🥇", title: "Gold Bot (฿90k)" },
@@ -546,70 +544,104 @@ function render4SystemsCards(systems) {
   };
 
   for (const [key, sys] of Object.entries(systems)) {
-    const card = document.createElement("div");
-    card.className = "system-card";
-
     const meta = systemMeta[key] || { icon: "⚡", title: sys.name };
     const pnlSign = sys.net_pnl_thb >= 0 ? '+' : '';
     const pnlClass = sys.net_pnl_thb >= 0 ? 'positive' : 'negative';
+    const tagClass = sys.net_pnl_pct >= 0 ? 'buy' : 'sell';
 
-    card.innerHTML = `
-      <div class="sys-card-header">
-        <div class="sys-title-group">
-          <h3>${meta.icon} ${meta.title}</h3>
-          <span class="sys-alloc-badge">Alloc: ฿${sys.allocation_thb.toLocaleString()} (฿${sys.portfolio_val_thb.toLocaleString()})</span>
+    let card = DOM.systemsCardsGrid.querySelector(`.system-card[data-sys-key="${key}"]`);
+    if (!card) {
+      card = document.createElement("div");
+      card.className = "system-card";
+      card.setAttribute("data-sys-key", key);
+
+      card.innerHTML = `
+        <div class="sys-card-header">
+          <div class="sys-title-group">
+            <h3>${meta.icon} ${meta.title}</h3>
+            <span class="sys-alloc-badge" id="sys-alloc-${key}">Alloc: ฿${sys.allocation_thb.toLocaleString()} (฿${sys.portfolio_val_thb.toLocaleString()})</span>
+          </div>
+          <span class="signal-tag ${tagClass}" id="sys-tag-${key}">${pnlSign}${sys.net_pnl_pct.toFixed(2)}%</span>
         </div>
-        <span class="signal-tag ${sys.net_pnl_pct >= 0 ? 'buy' : 'sell'}">${pnlSign}${sys.net_pnl_pct.toFixed(2)}%</span>
-      </div>
 
-      <div class="sys-pnl-banner">
-        <div>
-          <span class="metric-label">กำไรสุทธิ (P&L)</span>
-          <div class="sys-pnl-val mono ${pnlClass}">${pnlSign}฿${sys.net_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+        <div class="sys-pnl-banner">
+          <div>
+            <span class="metric-label">กำไรสุทธิ (P&L)</span>
+            <div class="sys-pnl-val mono ${pnlClass}" id="sys-pnl-${key}">${pnlSign}฿${sys.net_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+          </div>
+          <div style="text-align: right;">
+            <span class="metric-label">Win Rate</span>
+            <div class="mono" id="sys-win-${key}" style="font-weight: 700; font-size: 13px;">${sys.win_rate_pct.toFixed(1)}%</div>
+          </div>
         </div>
-        <div style="text-align: right;">
-          <span class="metric-label">Win Rate</span>
-          <div class="mono" style="font-weight: 700; font-size: 13px;">${sys.win_rate_pct.toFixed(1)}%</div>
+
+        <div class="sys-stats-row">
+          <div class="stat-item"><span>สะสม TP:</span> <strong class="positive" id="sys-tp-${key}">+฿${sys.cumulative_take_profit_thb.toLocaleString()}</strong></div>
+          <div class="stat-item"><span>สะสม Cut:</span> <strong class="negative" id="sys-cut-${key}">-฿${sys.cumulative_cut_loss_thb.toLocaleString()}</strong></div>
+          <div class="stat-item"><span>ปิดแล้ว:</span> <strong id="sys-closed-${key}">${sys.closed_trades_count} ไม้</strong></div>
+          <div class="stat-item"><span>ถือครอง:</span> <strong id="sys-holdings-${key}">${sys.active_holdings_count} ไม้</strong></div>
         </div>
-      </div>
 
-      <div class="sys-stats-row">
-        <div class="stat-item"><span>สะสม TP:</span> <strong class="positive">+฿${sys.cumulative_take_profit_thb.toLocaleString()}</strong></div>
-        <div class="stat-item"><span>สะสม Cut:</span> <strong class="negative">-฿${sys.cumulative_cut_loss_thb.toLocaleString()}</strong></div>
-        <div class="stat-item"><span>ปิดแล้ว:</span> <strong>${sys.closed_trades_count} ไม้</strong></div>
-        <div class="stat-item"><span>ถือครอง:</span> <strong>${sys.active_holdings_count} ไม้</strong></div>
-      </div>
+        <div class="sys-strategy-selector">
+          <label>Active Strategy (${key}):</label>
+          <select class="cyber-select sys-strat-dropdown" data-system="${key}">
+            <option value="TREND_FOLLOWING" ${sys.active_strategy === 'TREND_FOLLOWING' ? 'selected' : ''}>Trend Following (EMA/RSI)</option>
+            <option value="GRID_TRADING" ${sys.active_strategy === 'GRID_TRADING' ? 'selected' : ''}>Grid Trading</option>
+            <option value="MEAN_REVERSION" ${sys.active_strategy === 'MEAN_REVERSION' ? 'selected' : ''}>Mean Reversion</option>
+            <option value="VOLATILITY_BREAKOUT" ${sys.active_strategy === 'VOLATILITY_BREAKOUT' ? 'selected' : ''}>Volatility Breakout</option>
+            <option value="DCA_REBALANCE" ${sys.active_strategy === 'DCA_REBALANCE' ? 'selected' : ''}>DCA & Rebalance</option>
+            <option value="NLP_SENTIMENT" ${sys.active_strategy === 'NLP_SENTIMENT' ? 'selected' : ''}>AI NLP Sentiment</option>
+          </select>
+        </div>
+      `;
 
-      <div class="sys-strategy-selector">
-        <label>Active Strategy (${key}):</label>
-        <select class="cyber-select sys-strat-dropdown" data-system="${key}">
-          <option value="TREND_FOLLOWING" ${sys.active_strategy === 'TREND_FOLLOWING' ? 'selected' : ''}>Trend Following (EMA/RSI)</option>
-          <option value="GRID_TRADING" ${sys.active_strategy === 'GRID_TRADING' ? 'selected' : ''}>Grid Trading</option>
-          <option value="MEAN_REVERSION" ${sys.active_strategy === 'MEAN_REVERSION' ? 'selected' : ''}>Mean Reversion</option>
-          <option value="VOLATILITY_BREAKOUT" ${sys.active_strategy === 'VOLATILITY_BREAKOUT' ? 'selected' : ''}>Volatility Breakout</option>
-          <option value="DCA_REBALANCE" ${sys.active_strategy === 'DCA_REBALANCE' ? 'selected' : ''}>DCA & Rebalance</option>
-          <option value="NLP_SENTIMENT" ${sys.active_strategy === 'NLP_SENTIMENT' ? 'selected' : ''}>AI NLP Sentiment</option>
-        </select>
-      </div>
-    `;
+      card.querySelector(".sys-strat-dropdown").addEventListener("change", async (e) => {
+        const newStrat = e.target.value;
+        try {
+          const r = await fetch("/api/strategy/set-active", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ strategy_key: newStrat, system: key })
+          });
+          const d = await r.json();
+          showToast(d.message, "success");
+          fetchStatus();
+        } catch (err) {
+          showToast("Strategy switch failed", "error");
+        }
+      });
 
-    card.querySelector(".sys-strat-dropdown").addEventListener("change", async (e) => {
-      const newStrat = e.target.value;
-      try {
-        const r = await fetch("/api/strategy/set-active", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ strategy_key: newStrat, system: key })
-        });
-        const d = await r.json();
-        showToast(d.message, "success");
-        fetchStatus();
-      } catch (err) {
-        showToast("Strategy switch failed", "error");
+      DOM.systemsCardsGrid.appendChild(card);
+    } else {
+      // Dynamic in-place updates on every poll tick
+      const elAlloc = document.getElementById(`sys-alloc-${key}`);
+      const elTag = document.getElementById(`sys-tag-${key}`);
+      const elPnl = document.getElementById(`sys-pnl-${key}`);
+      const elWin = document.getElementById(`sys-win-${key}`);
+      const elTp = document.getElementById(`sys-tp-${key}`);
+      const elCut = document.getElementById(`sys-cut-${key}`);
+      const elClosed = document.getElementById(`sys-closed-${key}`);
+      const elHoldings = document.getElementById(`sys-holdings-${key}`);
+      const elDropdown = card.querySelector(".sys-strat-dropdown");
+
+      if (elAlloc) elAlloc.textContent = `Alloc: ฿${sys.allocation_thb.toLocaleString()} (฿${sys.portfolio_val_thb.toLocaleString()})`;
+      if (elTag) {
+        elTag.textContent = `${pnlSign}${sys.net_pnl_pct.toFixed(2)}%`;
+        elTag.className = `signal-tag ${tagClass}`;
       }
-    });
-
-    DOM.systemsCardsGrid.appendChild(card);
+      if (elPnl) {
+        elPnl.textContent = `${pnlSign}฿${sys.net_pnl_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        elPnl.className = `sys-pnl-val mono ${pnlClass}`;
+      }
+      if (elWin) elWin.textContent = `${sys.win_rate_pct.toFixed(1)}%`;
+      if (elTp) elTp.textContent = `+฿${sys.cumulative_take_profit_thb.toLocaleString()}`;
+      if (elCut) elCut.textContent = `-฿${sys.cumulative_cut_loss_thb.toLocaleString()}`;
+      if (elClosed) elClosed.textContent = `${sys.closed_trades_count} ไม้`;
+      if (elHoldings) elHoldings.textContent = `${sys.active_holdings_count} ไม้`;
+      if (elDropdown && document.activeElement !== elDropdown) {
+        elDropdown.value = sys.active_strategy;
+      }
+    }
   }
 }
 
