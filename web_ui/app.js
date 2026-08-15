@@ -143,6 +143,12 @@ const DOM = {
   scalpSpreadTag: document.getElementById("scalp-spread-tag"),
   scalpSymbolBtns: document.getElementById("scalp-symbol-btns"),
   scalpTfBtns: document.getElementById("scalp-tf-btns"),
+  scalpRadarCard: document.getElementById("scalp-radar-card"),
+  radarHeaderBar: document.getElementById("radar-header-bar"),
+  btnToggleRadarCollapse: document.getElementById("btn-toggle-radar-collapse"),
+  radarCollapseIcon: document.getElementById("radar-collapse-icon"),
+  radarCollapseText: document.getElementById("radar-collapse-text"),
+  radarActiveSignalsCount: document.getElementById("radar-active-signals-count"),
   scalpSignalsContainer: document.getElementById("scalp-signals-container"),
   btnRefreshScalpSignals: document.getElementById("btn-refresh-scalp-signals"),
   tabScalpCrypto: document.getElementById("tab-scalp-crypto"),
@@ -2445,6 +2451,40 @@ function setupScalperEventListeners() {
       }
     });
   }
+
+  // 14. Collapse / Expand AI Scalping Radar Panel
+  function toggleRadarCollapse() {
+    if (!DOM.scalpRadarCard) return;
+    const isCollapsed = DOM.scalpRadarCard.classList.toggle("collapsed");
+    if (DOM.radarCollapseIcon) DOM.radarCollapseIcon.textContent = isCollapsed ? "▼" : "▲";
+    if (DOM.radarCollapseText) DOM.radarCollapseText.textContent = isCollapsed ? "Expand" : "Collapse";
+    try {
+      localStorage.setItem("scalp_radar_collapsed", isCollapsed ? "true" : "false");
+    } catch (e) {}
+  }
+
+  if (DOM.btnToggleRadarCollapse) {
+    DOM.btnToggleRadarCollapse.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleRadarCollapse();
+    });
+  }
+
+  if (DOM.radarHeaderBar) {
+    DOM.radarHeaderBar.addEventListener("click", (e) => {
+      if (e.target.closest("button") && e.target.closest("button") !== DOM.btnToggleRadarCollapse) return;
+      toggleRadarCollapse();
+    });
+  }
+
+  // Restore persisted collapsed state
+  try {
+    if (localStorage.getItem("scalp_radar_collapsed") === "true") {
+      if (DOM.scalpRadarCard) DOM.scalpRadarCard.classList.add("collapsed");
+      if (DOM.radarCollapseIcon) DOM.radarCollapseIcon.textContent = "▼";
+      if (DOM.radarCollapseText) DOM.radarCollapseText.textContent = "Expand";
+    }
+  } catch (e) {}
 }
 
 const SCALPER_CRYPTO_LIST = [
@@ -2957,6 +2997,10 @@ async function fetchScalperSignals() {
 function renderScalperSignals(signals) {
   if (!DOM.scalpSignalsContainer) return;
   DOM.scalpSignalsContainer.innerHTML = "";
+
+  if (DOM.radarActiveSignalsCount) {
+    DOM.radarActiveSignalsCount.textContent = `${signals ? signals.length : 0} Setups Live`;
+  }
 
   if (!signals || signals.length === 0) {
     DOM.scalpSignalsContainer.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:16px;">Scanning 1M/5M/15M momentum opportunities across markets...</div>`;

@@ -446,14 +446,23 @@
               </div>
             </div>
 
-            <!-- AI SCALPING RADAR OPPORTUNITIES -->
-            <div class="scalp-radar-card glass-panel">
-              <div class="radar-header">
-                <div>
-                  <h4>📡 AI Scalping Radar & Fast Signals (Auto Long / Short Detection)</h4>
-                  <p>Real-time technical scans: RSI Oversold/Overbought, Bollinger Band Rebounds, and EMA Momentum Crosses for high-edge scalp setups.</p>
+            <!-- AI SCALPING RADAR OPPORTUNITIES (COLLAPSIBLE) -->
+            <div class="scalp-radar-card glass-panel" id="scalp-radar-card">
+              <div class="radar-header" id="radar-header-bar">
+                <div class="radar-title-wrap">
+                  <div class="radar-title-row">
+                    <h4>📡 AI Scalping Radar & Fast Signals (Auto Long / Short Detection)</h4>
+                    <span class="radar-count-pill" id="radar-active-signals-count">15 Setups Live</span>
+                  </div>
+                  <p class="radar-subtitle" id="radar-subtitle">Real-time technical scans: RSI Oversold/Overbought, Bollinger Band Rebounds, and EMA Momentum Crosses for high-edge scalp setups.</p>
                 </div>
-                <button class="btn-sm btn-neon" id="btn-refresh-scalp-signals"><span>🔄 Re-Scan</span></button>
+                <div class="radar-actions">
+                  <button class="btn-sm btn-neon" id="btn-refresh-scalp-signals"><span>🔄 Re-Scan</span></button>
+                  <button class="btn-toggle-collapse" id="btn-toggle-radar-collapse" title="Collapse / Expand AI Radar Panel">
+                    <span id="radar-collapse-icon">▲</span>
+                    <span id="radar-collapse-text">Collapse</span>
+                  </button>
+                </div>
               </div>
               <div class="scalp-signals-grid" id="scalp-signals-container">
                 <!-- Dynamically populated AI signal cards -->
