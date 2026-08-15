@@ -840,7 +840,8 @@ def test_notification_endpoint(req: NotificationTestRequest):
 def get_scalper_status_endpoint():
     """Returns real-time Scalper Pro status with Crypto ฿20k & Forex ฿20k."""
     try:
-        return scalper_engine.update_open_positions()
+        res = scalper_engine.run_auto_scalper_cycle()
+        return res.get("dashboard", scalper_engine.get_scalper_dashboard())
     except Exception as e:
         return {"success": False, "error": str(e)}
 

@@ -638,12 +638,19 @@ function startRealtimePolling() {
   fetchAiPlannerQueue();
   fetchScalperStatus();
 
+  let pollCount = 0;
   STATE.pollingTimer = setInterval(() => {
+    pollCount++;
     fetchStatus();
     fetchTickers();
     fetchPositions();
     fetchHarvester();
     fetchScalperStatus();
+    
+    // Refresh scalper signals every 2 ticks (7 seconds)
+    if (pollCount % 2 === 0) {
+      fetchScalperSignals();
+    }
   }, 3500);
 }
 
@@ -2534,6 +2541,9 @@ async function fetchScalperStatus() {
     if (DOM.scalpTotalEquity) DOM.scalpTotalEquity.textContent = `฿${sum.total_equity_thb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
     if (DOM.scalpActiveTicketsBadge) DOM.scalpActiveTicketsBadge.textContent = `${data.active_tickets_count} Active Tickets`;
     if (DOM.scalpOpenCountBadge) DOM.scalpOpenCountBadge.textContent = `${data.active_tickets_count} Active Tickets`;
+    if (DOM.scalpAutoToggle && document.activeElement !== DOM.scalpAutoToggle) {
+      DOM.scalpAutoToggle.checked = !!data.auto_scalp_enabled;
+    }
 
     renderScalperPositions(data.open_positions);
     renderScalperHistory(data.closed_positions);

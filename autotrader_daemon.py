@@ -327,8 +327,12 @@ def start_daemon_loop(interval_seconds: int = 180):
             if current_time - last_hourly_report_time >= 3600:
                 print("📊 Sending Hourly Telegram Portfolio Summary Report...", flush=True)
                 send_hourly_portfolio_summary()
-                last_hourly_report_time = current_time
-                
+            try:
+                import scalper_engine
+                scalper_engine.run_auto_scalper_cycle()
+            except Exception as e:
+                print(f"[SCALPER DAEMON HOOK ERROR] {e}", flush=True)
+
             run_autotrader_cycle()
         except Exception as e:
             print(f"Error in autotrader cycle: {e}", flush=True)
@@ -343,6 +347,12 @@ def _background_autotrader_loop(interval_seconds: int = 180):
     while True:
         try:
             from robot_control import get_robot_status
+            try:
+                import scalper_engine
+                scalper_engine.run_auto_scalper_cycle()
+            except Exception:
+                pass
+
             if get_robot_status():
                 run_autotrader_cycle()
         except Exception as e:
